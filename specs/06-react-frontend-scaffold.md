@@ -60,9 +60,17 @@ Contains:
 - Use Plotly react component
 - Show potential V(x) as a faded background line on the main plot
 
-### SecondaryPlot.tsx  
+### SecondaryPlot.tsx
 - Stationary: horizontal lines at each E_n with label
 - Time evolution: line chart of norm_history vs time
+
+#### Norm History plot axes (time-evolution mode)
+- **X axis** — time `t` in atomic units (a.u.), taken from `EvolveResponse.times`
+- **Y axis** — `‖ψ(t)‖²`, the squared L² norm of the wavefunction at each time step, dimensionless
+- Expected Y range: stays within ~1e-6 of 1.0 throughout the simulation (norm conservation check).
+  A visible drift away from 1.0 indicates a numerical problem in the Crank-Nicolson stepper.
+- Note: axis labels are not yet set explicitly in the component; Plotly inherits the trace name
+  `‖ψ(t)‖²` for the legend but the axes themselves are unlabelled (known gap).
 
 ### AnimationControls.tsx (time-evolution mode only)
 - Frame slider (0 to n_frames-1)

@@ -80,11 +80,18 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: Main
     })
   }
 
+  const layout: Partial<Plotly.Layout> = {
+    title: { text: mode === 'stationary' ? 'Eigenfunctions' : '|ψ(x,t)|²' },
+    autosize: true,
+    xaxis: { title: { text: 'x (a.u.)' } },
+    yaxis: { title: { text: mode === 'stationary' ? 'Energy (a.u.)' : '|ψ(x,t)|²' } },
+  }
+
   return (
     <Plot
       data-testid="main-plot"
       data={traces}
-      layout={{ title: { text: mode === 'stationary' ? 'Eigenfunctions' : '|ψ(x,t)|²' }, autosize: true }}
+      layout={layout}
       style={{ width: '100%', height: '100%' }}
       useResizeHandler
     />

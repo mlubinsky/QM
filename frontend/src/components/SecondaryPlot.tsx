@@ -47,19 +47,23 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult }: SecondaryPlot
   if (mode === 'time-evolution' && evolveResult) {
     traces.push({
       x: evolveResult.times,
-      y: evolveResult.norm_history,
-      name: '‖ψ(t)‖²',
+      y: evolveResult.norm_history.map(n => n - 1),
+      name: '‖ψ(t)‖² − 1',
       type: 'scatter',
     })
+  }
+
+  const layout: Partial<Plotly.Layout> = {
+    title: { text: mode === 'stationary' ? 'Energy Levels' : 'Norm History' },
+    autosize: true,
+    xaxis: { title: { text: mode === 'stationary' ? 'x (a.u.)' : 't (a.u.)' } },
+    yaxis: { title: { text: mode === 'stationary' ? 'Energy (a.u.)' : '‖ψ(t)‖² − 1' } },
   }
 
   return (
     <Plot
       data={traces}
-      layout={{
-        title: { text: mode === 'stationary' ? 'Energy Levels' : 'Norm History' },
-        autosize: true,
-      }}
+      layout={layout}
       style={{ width: '100%', height: '100%' }}
       useResizeHandler
     />

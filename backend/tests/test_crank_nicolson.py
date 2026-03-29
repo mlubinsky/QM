@@ -15,6 +15,7 @@ from hamiltonian import build_hamiltonian
 from eigenvalue_solver import solve_eigenstates
 from crank_nicolson import evolve
 from initial_states import gaussian_packet, eigenstate_superposition
+from potential_parser import parse_potential
 
 
 # ── shared fixtures ──────────────────────────────────────────────────────────
@@ -85,6 +86,48 @@ def test_tunneling():
     psi_final = result.psi_frames[-1]
     transmitted = np.sum(np.abs(psi_final[g.x > 1.0]) ** 2) * g.dx
     assert transmitted > 0.0
+
+
+# ── harmonic oscillator coherent state ──────────────────────────────────────
+
+def test_harmonic_oscillator_coherent_state():
+    """Gaussian packet in HO potential is a coherent state: center oscillates
+    without spreading.
+
+    Exact solution for V = ½x² (ω = 1), k0 = 0:
+      x_c(t) = x0 · cos(t)      — center oscillates at frequency ω
+      σ(t)   = σ                 — width is constant (no dispersion)
+
+    We evolve for t ≈ π (half period): x_c should reach −x0, σ unchanged.
+    The coherent-state width for ω = 1 is σ = 1/√2.
+    """
+    x0 = 2.0
+    sigma = 1.0 / np.sqrt(2)          # ground-state width for ω = 1
+
+    g = Grid(500, -8.0, 8.0)
+    V = parse_potential("0.5 * x**2", g.x)
+    H = build_hamiltonian(g, V)
+    psi0 = gaussian_packet(g.x, g.dx, x0=x0, sigma=sigma, k0=0.0)
+
+    # Evolve for t = 1571 × 0.002 = 3.142 ≈ π
+    dt = 0.002
+    n_steps = 1571
+    result = evolve(H, psi0, g.x, g.dx, dt=dt, n_steps=n_steps,
+                    save_every=n_steps)
+
+    prob = np.abs(result.psi_frames[-1]) ** 2
+
+    # Center of mass: x_c(π) = x0 · cos(π) = −x0
+    x_c_num = np.sum(g.x * prob) * g.dx
+    assert abs(x_c_num - (-x0)) < 0.05, (
+        f"Coherent state center at t=π: got {x_c_num:.4f}, expected {-x0:.4f}"
+    )
+
+    # Width: σ(π) = σ  (no spreading)
+    sigma_num = np.sqrt(np.sum((g.x - x_c_num) ** 2 * prob) * g.dx)
+    assert abs(sigma_num - sigma) < 0.05, (
+        f"Coherent state width at t=π: got {sigma_num:.4f}, expected {sigma:.4f}"
+    )
 
 
 # ── invalid psi0 raises ValueError ──────────────────────────────────────────
