@@ -137,7 +137,7 @@ export default function App() {
         <ControlPanel
           mode={state.mode}
           onSolve={handleSolve}
-          loading={state.status === 'loading'}
+          status={state.status}
         />
         <PlotArea
           mode={state.mode}
