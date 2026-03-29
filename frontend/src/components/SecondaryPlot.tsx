@@ -14,9 +14,28 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult }: SecondaryPlot
   const traces: Plotly.Data[] = []
 
   if (mode === 'stationary' && eigenResult) {
-    eigenResult.energies.forEach((E, i) => {
+    const { grid_x, potential, energies } = eigenResult
+    const xEnd = grid_x[grid_x.length - 1]
+
+    // V(x) as filled background — same ceiling logic as MainPlot
+    const eMax = Math.max(...energies)
+    const vCeiling = eMax + Math.abs(eMax) * 0.5 + 1
+    const vDisplay = potential.map(v => Math.min(v, vCeiling))
+
+    traces.push({
+      x: grid_x,
+      y: vDisplay,
+      name: 'V(x)',
+      type: 'scatter',
+      fill: 'tozeroy',
+      fillcolor: 'rgba(150,150,150,0.12)',
+      line: { color: 'rgba(150,150,150,0.5)' },
+    } as Plotly.Data)
+
+    // Horizontal energy level lines on top of V(x)
+    energies.forEach((E, i) => {
       traces.push({
-        x: [eigenResult.grid_x[0], eigenResult.grid_x[eigenResult.grid_x.length - 1]],
+        x: [grid_x[0], xEnd],
         y: [E, E],
         name: `E${i + 1} = ${E.toFixed(4)}`,
         type: 'scatter',

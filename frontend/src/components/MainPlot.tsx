@@ -16,14 +16,32 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: Main
 
   if (mode === 'stationary' && eigenResult) {
     const { grid_x, wavefunctions, energies, potential } = eigenResult
+    const xEnd = grid_x[grid_x.length - 1]
 
-    // Faded background: potential V(x)
+    // Clip V(x) so infinite/large walls don't compress the wavefunctions
+    const eMax = Math.max(...energies)
+    const vCeiling = eMax + Math.abs(eMax) * 0.5 + 1
+    const vDisplay = potential.map(v => Math.min(v, vCeiling))
+
     traces.push({
       x: grid_x,
-      y: potential,
+      y: vDisplay,
       name: 'V(x)',
       line: { color: 'rgba(150,150,150,0.4)' },
       type: 'scatter',
+    })
+
+    // Dashed horizontal lines at each energy level (baseline for offset wavefunctions)
+    energies.forEach(E => {
+      traces.push({
+        x: [grid_x[0], xEnd],
+        y: [E, E],
+        type: 'scatter',
+        mode: 'lines',
+        line: { dash: 'dash', color: 'rgba(100,100,100,0.35)', width: 1 },
+        showlegend: false,
+        hoverinfo: 'skip',
+      } as Plotly.Data)
     })
 
     // Eigenfunctions offset by energy (standard physics convention)
@@ -41,9 +59,14 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: Main
     const { grid_x, psi_frames, potential } = evolveResult
     const frame = psi_frames[currentFrame] ?? psi_frames[0]
 
+    // Clip V(x) at 90th-percentile value so large walls don't dominate
+    const sorted = [...potential].sort((a, b) => a - b)
+    const vCeiling = sorted[Math.floor(sorted.length * 0.9)]
+    const vDisplay = potential.map(v => Math.min(v, vCeiling))
+
     traces.push({
       x: grid_x,
-      y: potential,
+      y: vDisplay,
       name: 'V(x)',
       line: { color: 'rgba(150,150,150,0.4)' },
       type: 'scatter',
