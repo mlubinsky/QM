@@ -54,6 +54,7 @@ export interface AppState {
   error: string | null
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
+  potentialPreset: string | null
   currentFrame: number
   playing: boolean
 }

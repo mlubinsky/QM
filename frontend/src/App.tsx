@@ -11,7 +11,7 @@ import type { EigensolveRequest, EvolveRequest } from './types/api'
 type Action =
   | { type: 'SET_MODE'; mode: AppMode }
   | { type: 'LOADING' }
-  | { type: 'SUCCESS_EIGEN'; result: EigensolveResponse }
+  | { type: 'SUCCESS_EIGEN'; result: EigensolveResponse; preset: string | null }
   | { type: 'SUCCESS_EVOLVE'; result: EvolveResponse }
   | { type: 'ERROR'; message: string }
   | { type: 'DISMISS_ERROR' }
@@ -26,6 +26,7 @@ const initialState: AppState = {
   error: null,
   eigenResult: null,
   evolveResult: null,
+  potentialPreset: null,
   currentFrame: 0,
   playing: false,
 }
@@ -37,7 +38,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'LOADING':
       return { ...state, status: 'loading', error: null }
     case 'SUCCESS_EIGEN':
-      return { ...state, status: 'success', eigenResult: action.result, currentFrame: 0, playing: false }
+      return { ...state, status: 'success', eigenResult: action.result, potentialPreset: action.preset, currentFrame: 0, playing: false }
     case 'SUCCESS_EVOLVE':
       return { ...state, status: 'success', evolveResult: action.result, currentFrame: 0, playing: false }
     case 'ERROR':
@@ -75,7 +76,7 @@ export default function App() {
       if (state.mode === 'stationary') {
         const req = params as unknown as EigensolveRequest
         const result = await solveEigenstates(req)
-        dispatch({ type: 'SUCCESS_EIGEN', result })
+        dispatch({ type: 'SUCCESS_EIGEN', result, preset: req.potential_preset ?? null })
         pushUrlParams({
           potential: (req.potential_preset ?? req.potential_expr ?? '') as string,
           xmin: req.grid.x_min,
@@ -143,6 +144,7 @@ export default function App() {
           mode={state.mode}
           eigenResult={state.eigenResult}
           evolveResult={state.evolveResult}
+          potentialPreset={state.potentialPreset}
           currentFrame={state.currentFrame}
           playing={state.playing}
           onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}

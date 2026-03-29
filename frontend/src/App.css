@@ -71,6 +71,50 @@
   gap: 8px;
 }
 
+.exact-solution {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  background: #fafafa;
+}
+
+.exact-solution-header {
+  margin-bottom: 6px;
+}
+
+.exact-formula {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.exact-formula-note {
+  color: #666;
+}
+
+.exact-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.exact-table th,
+.exact-table td {
+  border: 1px solid #ddd;
+  padding: 3px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.exact-table th:first-child,
+.exact-table td:first-child {
+  text-align: center;
+}
+
+.exact-table th {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+
 .slider-row {
   display: flex;
   align-items: center;

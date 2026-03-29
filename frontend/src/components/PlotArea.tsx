@@ -1,6 +1,7 @@
 import { MainPlot } from './MainPlot'
 import { SecondaryPlot } from './SecondaryPlot'
 import { AnimationControls } from './AnimationControls'
+import { ExactSolutionPanel } from './ExactSolutionPanel'
 import { downloadFile, buildCsv } from '../utils/export'
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
 
@@ -8,6 +9,7 @@ interface PlotAreaProps {
   mode: AppMode
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
+  potentialPreset: string | null
   currentFrame: number
   playing: boolean
   onFrameChange: (frame: number) => void
@@ -19,6 +21,7 @@ export function PlotArea({
   mode,
   eigenResult,
   evolveResult,
+  potentialPreset,
   currentFrame,
   playing,
   onFrameChange,
@@ -54,6 +57,11 @@ export function PlotArea({
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Exact solution formula + error table (ISW and HO only) */}
+      {mode === 'stationary' && eigenResult && potentialPreset && (
+        <ExactSolutionPanel preset={potentialPreset} eigenResult={eigenResult} />
       )}
 
       {/* Norm display (time-evolution) */}
