@@ -6,10 +6,10 @@ import type { EigensolveResponse, EvolveResponse } from '../types/api'
 const N = 100
 const x = Array.from({ length: N }, (_, i) => -5 + (10 * i) / (N - 1))
 
-// HO analytic energies: E_n = n + 0.5
+// Harmonic Oscillator analytic energies: E_n = n + 0.5
 const energies = [0.5, 1.5, 2.5, 3.5, 4.5]
 
-// Gaussian approximations for HO ground and first excited states
+// Gaussian approximations for Harmonic Oscillator ground and first excited states
 function gaussian(x: number[], x0: number, sigma: number): number[] {
   return x.map(xi => Math.exp(-((xi - x0) ** 2) / (2 * sigma ** 2)))
 }

@@ -63,9 +63,9 @@ def compute(
 
 All of these must be verified by the test suite:
 
-1. HO ground state: ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = 0.5
-2. HO ground state is minimum-uncertainty: Δx·Δp = ½
-3. ISW ground state: ⟨x⟩ = (x_min + x_max) / 2  (symmetry)
-4. Ehrenfest theorem: for HO coherent state, ⟨x(t)⟩ = x₀ cos(t)
+1. Harmonic Oscillator ground state: ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = 0.5
+2. Harmonic Oscillator ground state is minimum-uncertainty: Δx·Δp = ½
+3. Infinite Square Well ground state: ⟨x⟩ = (x_min + x_max) / 2  (symmetry)
+4. Ehrenfest theorem: for Harmonic Oscillator coherent state, ⟨x(t)⟩ = x₀ cos(t)
 5. Energy eigenstate: ⟨H(t)⟩ constant during time evolution
 6. Heisenberg bound: Δx·Δp ≥ ½ for all tested states

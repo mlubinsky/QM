@@ -14,10 +14,10 @@ This runs all 4 test suites:
 | File | What it tests |
 |---|---|
 | `test_grid.py` | Grid spacing, shape, monotonicity |
-| `test_hamiltonian.py` | Symmetry, ISW ground-state energy, matrix shape |
-| `test_eigenvalue_solver.py` | ISW + HO energies, normalization, orthogonality |
+| `test_hamiltonian.py` | Symmetry, Infinite Square Well ground-state energy, matrix shape |
+| `test_eigenvalue_solver.py` | Infinite Square Well and Harmonic Oscillator energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
-| `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for HO/ISW; Heisenberg bound; Ehrenfest theorem |
+| `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well; Heisenberg bound; Ehrenfest theorem |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 To run just one suite:
@@ -84,7 +84,7 @@ curl -s -X POST http://localhost:8000/solve/evolve \
   -d '{"grid":{"x_min":-8,"x_max":8,"n_points":300},"potential_preset":"harmonic_oscillator","gaussian_x0":0,"gaussian_sigma":0.707,"gaussian_k0":0,"dt":0.01,"n_steps":100,"save_every":10}' \
   | python -m json.tool | grep -E '"expect_x"|"expect_H"'
 ```
-Expected: `expect_x` values near 0 (packet centered at origin), `expect_H` values near 0.5 (HO ground-state energy).
+Expected: `expect_x` values near 0 (packet centered at origin), `expect_H` values near 0.5 (Harmonic Oscillator ground-state energy).
 
 Test validation rejection:
 ```bash

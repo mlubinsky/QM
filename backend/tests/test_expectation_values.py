@@ -22,8 +22,8 @@ from expectation_values import compute, ExpectationValues
 # ── fixtures ─────────────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="module")
-def ho_setup():
-    """HO grid, H, V, and first 3 eigenstates on [-8, 8]."""
+def harmonic_oscillator_setup():
+    """Harmonic Oscillator grid, H, V, and first 3 eigenstates on [-8, 8]."""
     g = Grid(500, -8.0, 8.0)
     V = parse_potential("0.5 * x**2", g.x)
     H = build_hamiltonian(g, V)
@@ -32,8 +32,8 @@ def ho_setup():
 
 
 @pytest.fixture(scope="module")
-def isw_setup():
-    """ISW grid, H, V on [0, 1]."""
+def infinite_square_well_setup():
+    """Infinite Square Well grid, H, V on [0, 1]."""
     g = Grid(300, 0.0, 1.0)
     V = np.zeros(g.n)
     H = build_hamiltonian(g, V)
@@ -41,37 +41,37 @@ def isw_setup():
     return g, H, V, result
 
 
-# ── HO ground state: position and momentum ───────────────────────────────────
+# ── Harmonic Oscillator ground state: position and momentum ──────────────────
 
-def test_ho_ground_state_x_mean(ho_setup):
-    """⟨x⟩ = 0 for HO ground state (symmetric state, symmetric potential)."""
-    g, H, V, eig = ho_setup
+def test_ho_ground_state_x_mean(harmonic_oscillator_setup):
+    """⟨x⟩ = 0 for Harmonic Oscillator ground state (symmetric state, symmetric potential)."""
+    g, H, V, eig = harmonic_oscillator_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     assert abs(ev.x) < 1e-10, f"⟨x⟩ = {ev.x:.2e}, expected 0"
 
 
-def test_ho_ground_state_p_mean(ho_setup):
-    """⟨p⟩ = 0 for HO ground state (real wavefunction)."""
-    g, H, V, eig = ho_setup
+def test_ho_ground_state_p_mean(harmonic_oscillator_setup):
+    """⟨p⟩ = 0 for Harmonic Oscillator ground state (real wavefunction)."""
+    g, H, V, eig = harmonic_oscillator_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     assert abs(ev.p) < 1e-6, f"⟨p⟩ = {ev.p:.2e}, expected 0"
 
 
-def test_ho_ground_state_energy(ho_setup):
-    """⟨H⟩ = E₀ = 0.5 a.u. for HO ground state."""
-    g, H, V, eig = ho_setup
+def test_ho_ground_state_energy(harmonic_oscillator_setup):
+    """⟨H⟩ = E₀ = 0.5 a.u. for Harmonic Oscillator ground state."""
+    g, H, V, eig = harmonic_oscillator_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     assert abs(ev.H - 0.5) < 1e-3, f"⟨H⟩ = {ev.H:.6f}, expected 0.5"
 
 
-# ── HO ground state: minimum uncertainty ─────────────────────────────────────
+# ── Harmonic Oscillator ground state: minimum uncertainty ────────────────────
 
-def test_ho_ground_state_minimum_uncertainty(ho_setup):
-    """HO ground state saturates Heisenberg bound: Δx·Δp = ½."""
-    g, H, V, eig = ho_setup
+def test_ho_ground_state_minimum_uncertainty(harmonic_oscillator_setup):
+    """Harmonic Oscillator ground state saturates Heisenberg bound: Δx·Δp = ½."""
+    g, H, V, eig = harmonic_oscillator_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     assert abs(ev.delta_x_delta_p - 0.5) < 0.01, (
@@ -79,11 +79,11 @@ def test_ho_ground_state_minimum_uncertainty(ho_setup):
     )
 
 
-# ── ISW ground state: center of mass ─────────────────────────────────────────
+# ── Infinite Square Well ground state: center of mass ────────────────────────
 
-def test_isw_ground_state_center(isw_setup):
-    """⟨x⟩ = (x_min + x_max)/2 = 0.5 for ISW ground state by symmetry."""
-    g, H, V, eig = isw_setup
+def test_isw_ground_state_center(infinite_square_well_setup):
+    """⟨x⟩ = (x_min + x_max)/2 = 0.5 for Infinite Square Well ground state by symmetry."""
+    g, H, V, eig = infinite_square_well_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     center = (g.x[0] + g.x[-1]) / 2.0
@@ -92,14 +92,14 @@ def test_isw_ground_state_center(isw_setup):
 
 # ── Heisenberg uncertainty principle ─────────────────────────────────────────
 
-def test_uncertainty_principle_ho_excited(ho_setup):
-    """Δx·Δp ≥ ½ for HO excited states.
+def test_uncertainty_principle_ho_excited(harmonic_oscillator_setup):
+    """Δx·Δp ≥ ½ for Harmonic Oscillator excited states.
 
     Tolerance 1e-3 accounts for finite-difference discretization error:
-    the exact HO ground state gives Δx·Δp = 0.5 analytically, but the
-    numerical ground state on a finite grid undershoots by ~3e-5.
+    the exact Harmonic Oscillator ground state gives Δx·Δp = 0.5 analytically,
+    but the numerical ground state on a finite grid undershoots by ~3e-5.
     """
-    g, H, V, eig = ho_setup
+    g, H, V, eig = harmonic_oscillator_setup
     for i, psi_real in enumerate(eig.wavefunctions):
         psi = psi_real.astype(complex)
         ev = compute(psi, g.x, g.dx, H, V)
@@ -108,9 +108,9 @@ def test_uncertainty_principle_ho_excited(ho_setup):
         )
 
 
-def test_uncertainty_principle_gaussian(ho_setup):
-    """Δx·Δp ≥ ½ for a displaced Gaussian in HO potential."""
-    g, H, V, _ = ho_setup
+def test_uncertainty_principle_gaussian(harmonic_oscillator_setup):
+    """Δx·Δp ≥ ½ for a displaced Gaussian in Harmonic Oscillator potential."""
+    g, H, V, _ = harmonic_oscillator_setup
     psi = gaussian_packet(g.x, g.dx, x0=2.0, sigma=1.0, k0=1.0)
     ev = compute(psi, g.x, g.dx, H, V)
     assert ev.delta_x_delta_p >= 0.5 - 1e-6, (
@@ -121,7 +121,7 @@ def test_uncertainty_principle_gaussian(ho_setup):
 # ── Ehrenfest theorem ─────────────────────────────────────────────────────────
 
 def test_ehrenfest_x_mean_ho_coherent_state():
-    """⟨x(t)⟩ = x₀·cos(t) for a HO coherent state (Ehrenfest theorem).
+    """⟨x(t)⟩ = x₀·cos(t) for a Harmonic Oscillator coherent state (Ehrenfest theorem).
 
     Checked at t ≈ π/2 (center should reach 0) and t ≈ π (should reach −x₀).
     """
@@ -148,9 +148,9 @@ def test_ehrenfest_x_mean_ho_coherent_state():
 
 # ── energy eigenstate: ⟨H⟩ constant during evolution ────────────────────────
 
-def test_energy_constant_for_eigenstate(ho_setup):
+def test_energy_constant_for_eigenstate(harmonic_oscillator_setup):
     """⟨H(t)⟩ = E₀ for all frames when evolving an energy eigenstate."""
-    g, H, V, eig = ho_setup
+    g, H, V, eig = harmonic_oscillator_setup
     psi0 = eig.wavefunctions[0].astype(complex)
     E0 = eig.energies[0]
 
@@ -165,9 +165,9 @@ def test_energy_constant_for_eigenstate(ho_setup):
 
 # ── return type ──────────────────────────────────────────────────────────────
 
-def test_compute_returns_expectation_values_type(ho_setup):
+def test_compute_returns_expectation_values_type(harmonic_oscillator_setup):
     """compute() returns an ExpectationValues instance."""
-    g, H, V, eig = ho_setup
+    g, H, V, eig = harmonic_oscillator_setup
     psi = eig.wavefunctions[0].astype(complex)
     ev = compute(psi, g.x, g.dx, H, V)
     assert isinstance(ev, ExpectationValues)

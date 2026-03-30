@@ -59,7 +59,7 @@ export function PlotArea({
         </ul>
       )}
 
-      {/* Exact solution formula + error table (ISW and HO only) */}
+      {/* Exact solution formula + error table (Infinite Square Well and Harmonic Oscillator only) */}
       {mode === 'stationary' && eigenResult && potentialPreset && (
         <ExactSolutionPanel preset={potentialPreset} eigenResult={eigenResult} />
       )}

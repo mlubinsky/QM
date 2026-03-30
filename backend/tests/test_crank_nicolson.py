@@ -21,8 +21,8 @@ from potential_parser import parse_potential
 # ── shared fixtures ──────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="module")
-def isw_setup():
-    """Infinite square well grid, H, V, and first 3 eigenstates."""
+def infinite_square_well_setup():
+    """Infinite Square Well grid, H, V, and first 3 eigenstates."""
     g = Grid(200, 0.0, 1.0)
     V = np.zeros(g.n)
     H = build_hamiltonian(g, V)
@@ -41,8 +41,8 @@ def test_gaussian_normalization():
 
 # ── norm conservation ────────────────────────────────────────────────────────
 
-def test_norm_conservation(isw_setup):
-    g, H, V, _ = isw_setup
+def test_norm_conservation(infinite_square_well_setup):
+    g, H, V, _ = infinite_square_well_setup
     psi0 = gaussian_packet(g.x, g.dx, x0=0.5, sigma=0.05, k0=10.0)
     result = evolve(H, psi0, g.x, g.dx, dt=0.001, n_steps=1000,
                     potential=V, save_every=10)
@@ -51,8 +51,8 @@ def test_norm_conservation(isw_setup):
 
 # ── energy conservation ──────────────────────────────────────────────────────
 
-def test_energy_conservation(isw_setup):
-    g, H, V, eig = isw_setup
+def test_energy_conservation(infinite_square_well_setup):
+    g, H, V, eig = infinite_square_well_setup
     psi0 = eig.wavefunctions[0].astype(complex)
     E0 = eig.energies[0]
     result = evolve(H, psi0, g.x, g.dx, dt=0.001, n_steps=1000,
@@ -64,8 +64,8 @@ def test_energy_conservation(isw_setup):
 
 # ── stationary eigenstate — |ψ(t)|² time-independent ────────────────────────
 
-def test_stationary_eigenstate(isw_setup):
-    g, H, V, eig = isw_setup
+def test_stationary_eigenstate(infinite_square_well_setup):
+    g, H, V, eig = infinite_square_well_setup
     psi0 = eig.wavefunctions[0].astype(complex)
     result = evolve(H, psi0, g.x, g.dx, dt=0.001, n_steps=500,
                     potential=V, save_every=5)
@@ -95,7 +95,7 @@ def test_tunneling():
 # ── harmonic oscillator coherent state ──────────────────────────────────────
 
 def test_harmonic_oscillator_coherent_state():
-    """Gaussian packet in HO potential is a coherent state: center oscillates
+    """Gaussian packet in Harmonic Oscillator potential is a coherent state: center oscillates
     without spreading.
 
     Exact solution for V = ½x² (ω = 1), k0 = 0:
@@ -136,8 +136,8 @@ def test_harmonic_oscillator_coherent_state():
 
 # ── invalid psi0 raises ValueError ──────────────────────────────────────────
 
-def test_unnormalized_psi0_raises(isw_setup):
-    g, H, V, _ = isw_setup
+def test_unnormalized_psi0_raises(infinite_square_well_setup):
+    g, H, V, _ = infinite_square_well_setup
     psi_bad = np.ones(g.n, dtype=complex)  # definitely not normalized
     with pytest.raises(ValueError):
         evolve(H, psi_bad, g.x, g.dx, dt=0.001, n_steps=10, potential=V)

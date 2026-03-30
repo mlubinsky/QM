@@ -13,11 +13,11 @@ All notable changes to this project will be documented in this file.
   arrays in `TimeEvolutionResult`: `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`.
 - `EvolveResponse` returns all five expectation value arrays to the frontend.
 - 10 new backend tests in `test_expectation_values.py`:
-  - HO ground state: ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = ½
-  - HO ground state saturates Heisenberg bound: Δx·Δp = ½
-  - ISW ground state: ⟨x⟩ = center of well (symmetry)
-  - Δx·Δp ≥ ½ for HO excited states and displaced Gaussian
-  - Ehrenfest theorem: ⟨x(t)⟩ = x₀ cos(t) for HO coherent state
+  - Harmonic Oscillator ground state: ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = ½
+  - Harmonic Oscillator ground state saturates Heisenberg bound: Δx·Δp = ½
+  - Infinite Square Well ground state: ⟨x⟩ = center of well (symmetry)
+  - Δx·Δp ≥ ½ for Harmonic Oscillator excited states and displaced Gaussian
+  - Ehrenfest theorem: ⟨x(t)⟩ = x₀ cos(t) for Harmonic Oscillator coherent state
   - ⟨H(t)⟩ constant during time evolution of an energy eigenstate
 
 **Exact-solution panel** (`frontend/src/components/ExactSolutionPanel.tsx`)
