@@ -19,6 +19,8 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Animated |ψ(x,t)|² with play/pause/speed controls
 - Norm history plot showing ‖ψ(t)‖² − 1 (conservation diagnostic)
 - Adjustable packet parameters: center x₀, width σ, momentum k₀
+- Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ computed at every saved frame
+- Uncertainties Δx, Δp, and product Δx·Δp returned for each frame
 
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
@@ -108,6 +110,7 @@ python -m pytest tests/ -v
 | `test_hamiltonian.py` | Symmetry, sparsity, ISW ground-state energy |
 | `test_eigenvalue_solver.py` | ISW and HO energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
+| `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for HO/ISW ground states; Heisenberg bound; Ehrenfest theorem |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 ### Frontend (Vitest)
@@ -158,7 +161,8 @@ Evolve a Gaussian wave packet using Crank-Nicolson.
 }
 ```
 
-Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, and potential.
+Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential, and
+per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`.
 
 ### `GET /presets`
 
@@ -196,6 +200,8 @@ The solver is validated against exact analytic solutions:
 **Norm conservation:** ‖ψ(t)‖² stays within 10⁻⁶ of 1.0 across all time steps (verified by the test suite and displayed live in the UI).
 
 **Coherent state trajectory:** For a Gaussian packet in V = ½x², the center x̄(t) = x₀ cos(t) and width σ(t) = σ (no spreading). The test suite verifies both to within 0.05 a.u. after t = π.
+
+**Expectation values and Ehrenfest theorem:** For the HO ground state the test suite verifies ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = ½, and Δx·Δp = ½ (minimum uncertainty state). For the HO coherent state it verifies ⟨x(t)⟩ = x₀ cos(t) (Ehrenfest theorem) and ⟨H(t)⟩ = const for energy eigenstates. The Heisenberg bound Δx·Δp ≥ ½ is checked for all tested states.
 
 ---
 

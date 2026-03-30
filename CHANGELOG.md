@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-03-30)
+
+**Expectation values** (`backend/expectation_values.py`, `crank_nicolson.py`, `app.py`)
+- New module `expectation_values.py` exposes `compute(psi, grid_x, dx, hamiltonian, potential)`
+  returning ⟨x⟩, ⟨x²⟩, ⟨p⟩, ⟨p²⟩, ⟨H⟩, Δx, Δp, and Δx·Δp for any normalized state.
+- `crank_nicolson.evolve()` gains a required `potential` parameter and populates five new
+  arrays in `TimeEvolutionResult`: `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`.
+- `EvolveResponse` returns all five expectation value arrays to the frontend.
+- 10 new backend tests in `test_expectation_values.py`:
+  - HO ground state: ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = ½
+  - HO ground state saturates Heisenberg bound: Δx·Δp = ½
+  - ISW ground state: ⟨x⟩ = center of well (symmetry)
+  - Δx·Δp ≥ ½ for HO excited states and displaced Gaussian
+  - Ehrenfest theorem: ⟨x(t)⟩ = x₀ cos(t) for HO coherent state
+  - ⟨H(t)⟩ constant during time evolution of an energy eigenstate
+
+**Exact-solution panel** (`frontend/src/components/ExactSolutionPanel.tsx`)
+- Stationary mode shows exact energy formula and numerical vs analytic energy error table
+  for infinite square well (Eₙ = n²π²/2L²) and harmonic oscillator (Eₙ = n + ½).
+
+**Documentation**
+- `README.md`, `CONTRIBUTING.md`, `LICENSE` added for JOSS submission readiness.
+
 ### Added (2026-03-29)
 
 **Plot improvements** (`frontend/src/components/MainPlot.tsx`, `SecondaryPlot.tsx`)
