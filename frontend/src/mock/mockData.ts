@@ -42,4 +42,10 @@ export const mockEvolveResult: EvolveResponse = {
   norm_history: Array.from({ length: nFrames }, () => 1.0),
   grid_x: x,
   potential: x.map(() => 0),
+  // Mock: packet centered at x=0, k0=0 — ⟨x⟩≈0, ⟨p⟩≈0, Δx·Δp≈0.5
+  expect_x:  Array.from({ length: nFrames }, () => 0.0),
+  expect_p:  Array.from({ length: nFrames }, () => 0.0),
+  expect_x2: Array.from({ length: nFrames }, () => 0.5),   // Δx = √0.5 = 1/√2
+  expect_p2: Array.from({ length: nFrames }, () => 0.5),   // Δp = √0.5 = 1/√2
+  expect_H:  Array.from({ length: nFrames }, () => 0.5),
 }

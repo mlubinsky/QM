@@ -2,6 +2,7 @@ import { MainPlot } from './MainPlot'
 import { SecondaryPlot } from './SecondaryPlot'
 import { AnimationControls } from './AnimationControls'
 import { ExactSolutionPanel } from './ExactSolutionPanel'
+import { ExpectationValuesPlot } from './ExpectationValuesPlot'
 import { downloadFile, buildCsv } from '../utils/export'
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
 
@@ -83,6 +84,10 @@ export function PlotArea({
         eigenResult={eigenResult}
         evolveResult={evolveResult}
       />
+
+      {mode === 'time-evolution' && (
+        <ExpectationValuesPlot evolveResult={evolveResult} />
+      )}
 
       {mode === 'time-evolution' && evolveResult && (
         <AnimationControls

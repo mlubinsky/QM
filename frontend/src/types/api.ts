@@ -43,6 +43,11 @@ export interface EvolveResponse {
   norm_history: number[]
   grid_x: number[]
   potential: number[]
+  expect_x: number[]       // ⟨x(t)⟩ at each frame
+  expect_p: number[]       // ⟨p(t)⟩ at each frame
+  expect_x2: number[]      // ⟨x²(t)⟩ at each frame
+  expect_p2: number[]      // ⟨p²(t)⟩ at each frame
+  expect_H: number[]       // ⟨H(t)⟩ at each frame
 }
 
 export type AppMode = 'stationary' | 'time-evolution'
