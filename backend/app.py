@@ -102,6 +102,11 @@ class EvolveResponse(BaseModel):
     norm_history: list[float]
     grid_x: list[float]
     potential: list[float]
+    expect_x: list[float]
+    expect_p: list[float]
+    expect_x2: list[float]
+    expect_p2: list[float]
+    expect_H: list[float]
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -173,7 +178,8 @@ def evolve_endpoint(req: EvolveRequest):
         psi0 = gaussian_packet(g.x, g.dx, x0=req.gaussian_x0,
                                sigma=req.gaussian_sigma, k0=req.gaussian_k0)
         result = evolve(H, psi0, g.x, g.dx,
-                        dt=req.dt, n_steps=req.n_steps, save_every=req.save_every)
+                        dt=req.dt, n_steps=req.n_steps,
+                        potential=V, save_every=req.save_every)
     except HTTPException:
         raise
     except Exception as exc:
@@ -188,4 +194,9 @@ def evolve_endpoint(req: EvolveRequest):
         norm_history=result.norm_history.tolist(),
         grid_x=result.grid_x.tolist(),
         potential=V.tolist(),
+        expect_x=result.expect_x.tolist(),
+        expect_p=result.expect_p.tolist(),
+        expect_x2=result.expect_x2.tolist(),
+        expect_p2=result.expect_p2.tolist(),
+        expect_H=result.expect_H.tolist(),
     )
