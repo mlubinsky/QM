@@ -14,20 +14,23 @@ from scipy.sparse import spmatrix
 from scipy.sparse.linalg import splu
 
 from expectation_values import compute as compute_ev
+import momentum as _momentum
 
 
 @dataclass
 class TimeEvolutionResult:
-    psi_frames: np.ndarray    # shape (n_frames, grid.n), complex128
-    times: np.ndarray         # shape (n_frames,)
-    norm_history: np.ndarray  # shape (n_frames,) — ||ψ(t)||² at each frame
-    grid_x: np.ndarray        # shape (grid.n,)
+    psi_frames: np.ndarray      # shape (n_frames, grid.n), complex128
+    times: np.ndarray           # shape (n_frames,)
+    norm_history: np.ndarray    # shape (n_frames,) — ||ψ(t)||² at each frame
+    grid_x: np.ndarray          # shape (grid.n,)
     dx: float
-    expect_x: np.ndarray      # shape (n_frames,) — ⟨x⟩ at each frame
-    expect_p: np.ndarray      # shape (n_frames,) — ⟨p⟩ at each frame
-    expect_x2: np.ndarray     # shape (n_frames,) — ⟨x²⟩ at each frame
-    expect_p2: np.ndarray     # shape (n_frames,) — ⟨p²⟩ at each frame
-    expect_H: np.ndarray      # shape (n_frames,) — ⟨H⟩ at each frame
+    expect_x: np.ndarray        # shape (n_frames,) — ⟨x⟩ at each frame
+    expect_p: np.ndarray        # shape (n_frames,) — ⟨p⟩ at each frame
+    expect_x2: np.ndarray       # shape (n_frames,) — ⟨x²⟩ at each frame
+    expect_p2: np.ndarray       # shape (n_frames,) — ⟨p²⟩ at each frame
+    expect_H: np.ndarray        # shape (n_frames,) — ⟨H⟩ at each frame
+    momentum_frames: np.ndarray # shape (n_frames, grid.n) — |φ(k,t)|²
+    momentum_k: np.ndarray      # shape (grid.n,) — k values (rad/a.u.)
 
 
 def evolve(
@@ -77,6 +80,8 @@ def evolve(
     expect_x2 = np.empty(n_frames)
     expect_p2 = np.empty(n_frames)
     expect_H = np.empty(n_frames)
+    momentum_frames = np.empty((n_frames, n))
+    momentum_k = _momentum.k_axis(n, dx)
 
     psi = psi0.astype(complex)
     frame = 0
@@ -91,6 +96,7 @@ def evolve(
         expect_x2[f] = ev.x2
         expect_p2[f] = ev.p2
         expect_H[f] = ev.H
+        momentum_frames[f] = _momentum.density(psi_f, dx)
 
     _save_frame(0, psi, 0.0)
 
@@ -111,4 +117,6 @@ def evolve(
         expect_x2=expect_x2,
         expect_p2=expect_p2,
         expect_H=expect_H,
+        momentum_frames=momentum_frames,
+        momentum_k=momentum_k,
     )
