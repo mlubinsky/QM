@@ -21,6 +21,7 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Adjustable packet parameters: center x₀, width σ, momentum k₀
 - Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ computed at every saved frame
 - Uncertainties Δx, Δp, and product Δx·Δp returned for each frame
+- Momentum-space probability density |φ(k,t)|² animated in sync with |ψ(x,t)|²
 
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
@@ -111,6 +112,7 @@ python -m pytest tests/ -v
 | `test_eigenvalue_solver.py` | Infinite Square Well and Harmonic Oscillator energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
 | `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well ground states; Heisenberg bound; Ehrenfest theorem |
+| `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak location, symmetry; evolve() shapes; API response fields |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 ### Frontend (Vitest)
@@ -161,8 +163,9 @@ Evolve a Gaussian wave packet using Crank-Nicolson.
 }
 ```
 
-Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential, and
-per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`.
+Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential,
+per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`,
+and momentum-space density frames `momentum_frames` with axis `momentum_k` (rad/a.u.).
 
 ### `GET /presets`
 

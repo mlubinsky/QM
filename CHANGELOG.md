@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-03-30) — Momentum-space view
+
+**Backend** (`backend/momentum.py`, `crank_nicolson.py`, `app.py`)
+- New module `momentum.py` with two functions:
+  - `k_axis(n, dx)` — fftshifted wavenumber axis in rad/a.u., spacing Δk = 2π/(N·Δx).
+  - `density(psi, dx)` — momentum-space probability density |φ(k)|² = (Δx²/2π)|FFT(ψ)|², normalised so Σ|φ(k_j)|²·Δk = 1 (Parseval's theorem).
+- `TimeEvolutionResult` gains `momentum_frames` (shape n_frames × N) and `momentum_k` (shape N); the k-axis is computed once before the evolution loop and |φ(k,t)|² is stored at every saved frame.
+- `EvolveResponse` returns `momentum_frames: list[list[float]]` and `momentum_k: list[float]`.
+- 10 new backend tests in `test_momentum.py` covering all spec requirements (k-axis length, spacing, symmetry; density normalization; peak location; zero-momentum symmetry; result shapes; API response fields).
+
+**Frontend** (`frontend/src/components/MomentumPlot.tsx`, `PlotArea.tsx`, `types/api.ts`)
+- New `MomentumPlot` component renders |φ(k,t)|² vs k (rad/a.u.) for the current animation frame, updating in sync with the wavepacket animation.
+- `PlotArea` renders `MomentumPlot` below the main |ψ(x,t)|² plot in time-evolution mode.
+- `EvolveResponse` TypeScript interface updated with `momentum_frames` and `momentum_k`.
+- 5 new frontend tests covering render/null/empty-array behaviour and PlotArea visibility rules.
+
 ### Added (2026-03-30)
 
 **Expectation values** (`backend/expectation_values.py`, `crank_nicolson.py`, `app.py`)

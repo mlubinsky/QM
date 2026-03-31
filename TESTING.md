@@ -18,6 +18,7 @@ This runs all 4 test suites:
 | `test_eigenvalue_solver.py` | Infinite Square Well and Harmonic Oscillator energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
 | `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well; Heisenberg bound; Ehrenfest theorem |
+| `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak, symmetry; evolve() shapes; API response |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 To run just one suite:
@@ -34,7 +35,7 @@ cd /Users/mlubinsky/QM/frontend
 npm test
 ```
 
-This runs all 7 test files — no backend needed, everything is mocked.
+This runs all 10 test files — no backend needed, everything is mocked.
 
 ---
 
@@ -85,6 +86,15 @@ curl -s -X POST http://localhost:8000/solve/evolve \
   | python -m json.tool | grep -E '"expect_x"|"expect_H"'
 ```
 Expected: `expect_x` values near 0 (packet centered at origin), `expect_H` values near 0.5 (Harmonic Oscillator ground-state energy).
+
+Test momentum-space fields:
+```bash
+curl -s -X POST http://localhost:8000/solve/evolve \
+  -H "Content-Type: application/json" \
+  -d '{"grid":{"x_min":-8,"x_max":8,"n_points":64},"potential_preset":"harmonic_oscillator","gaussian_k0":2.0,"dt":0.01,"n_steps":20,"save_every":10}' \
+  | python -m json.tool | grep -E '"momentum_k"|"momentum_frames"'
+```
+Expected: `momentum_k` array of 64 values centred on 0; `momentum_frames` with 3 frames each of 64 non-negative values.
 
 Test validation rejection:
 ```bash
