@@ -21,6 +21,57 @@
   font-size: 1.4rem;
 }
 
+/* ── Mode bar: equation + tab buttons ───────────────── */
+.mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mode-equation {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  color: #444;
+  min-width: 10ch;
+  text-align: right;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 0;
+}
+
+.mode-btn {
+  padding: 6px 16px;
+  border: 1px solid #aaa;
+  background: #f0f0f0;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.mode-btn:first-child {
+  border-radius: 6px 0 0 6px;
+  border-right: none;
+}
+
+.mode-btn:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.mode-btn--active {
+  background: #1a6abf;
+  color: #fff;
+  border-color: #1a6abf;
+  cursor: default;
+}
+
+.mode-btn:not(.mode-btn--active):hover {
+  background: #e0e0e0;
+}
+
 .main-layout {
   display: flex;
   gap: 16px;

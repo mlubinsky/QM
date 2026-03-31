@@ -111,19 +111,29 @@ export default function App() {
     <div className="app">
       <header>
         <h1>Schrödinger Solver</h1>
-        <div role="group" aria-label="mode toggle">
-          <button
-            onClick={() => dispatch({ type: 'SET_MODE', mode: 'stationary' })}
-            aria-pressed={state.mode === 'stationary'}
-          >
-            Stationary
-          </button>
-          <button
-            onClick={() => dispatch({ type: 'SET_MODE', mode: 'time-evolution' })}
-            aria-pressed={state.mode === 'time-evolution'}
-          >
-            Time Evolution
-          </button>
+        <div className="mode-bar">
+          <span className="mode-equation" aria-live="polite">
+            {state.mode === 'stationary'
+              ? <span>Ĥψ = Eψ</span>
+              : <span>i ∂ψ/∂t = Ĥψ</span>
+            }
+          </span>
+          <div role="group" aria-label="mode toggle" className="mode-buttons">
+            <button
+              className={state.mode === 'stationary' ? 'mode-btn mode-btn--active' : 'mode-btn'}
+              onClick={() => dispatch({ type: 'SET_MODE', mode: 'stationary' })}
+              aria-pressed={state.mode === 'stationary'}
+            >
+              Stationary
+            </button>
+            <button
+              className={state.mode === 'time-evolution' ? 'mode-btn mode-btn--active' : 'mode-btn'}
+              onClick={() => dispatch({ type: 'SET_MODE', mode: 'time-evolution' })}
+              aria-pressed={state.mode === 'time-evolution'}
+            >
+              Time Evolution
+            </button>
+          </div>
         </div>
       </header>
 
