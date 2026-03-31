@@ -50,6 +50,7 @@ export interface EvolveResponse {
   expect_H: number[]          // ⟨H(t)⟩ at each frame
   momentum_frames: number[][] // shape (n_frames, n_points), |φ(k,t)|²
   momentum_k: number[]        // shape (n_points,), k values (rad/a.u.)
+  current_frames: number[][]  // shape (n_frames, n_points), J(x,t)
 }
 
 export type AppMode = 'stationary' | 'time-evolution'

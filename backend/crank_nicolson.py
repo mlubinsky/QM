@@ -15,6 +15,7 @@ from scipy.sparse.linalg import splu
 
 from expectation_values import compute as compute_ev
 import momentum as _momentum
+import probability_current as _current
 
 
 @dataclass
@@ -29,8 +30,9 @@ class TimeEvolutionResult:
     expect_x2: np.ndarray       # shape (n_frames,) — ⟨x²⟩ at each frame
     expect_p2: np.ndarray       # shape (n_frames,) — ⟨p²⟩ at each frame
     expect_H: np.ndarray        # shape (n_frames,) — ⟨H⟩ at each frame
-    momentum_frames: np.ndarray # shape (n_frames, grid.n) — |φ(k,t)|²
-    momentum_k: np.ndarray      # shape (grid.n,) — k values (rad/a.u.)
+    momentum_frames: np.ndarray  # shape (n_frames, grid.n) — |φ(k,t)|²
+    momentum_k: np.ndarray       # shape (grid.n,) — k values (rad/a.u.)
+    current_frames: np.ndarray   # shape (n_frames, grid.n) — J(x,t)
 
 
 def evolve(
@@ -82,6 +84,7 @@ def evolve(
     expect_H = np.empty(n_frames)
     momentum_frames = np.empty((n_frames, n))
     momentum_k = _momentum.k_axis(n, dx)
+    current_frames = np.empty((n_frames, n))
 
     psi = psi0.astype(complex)
     frame = 0
@@ -97,6 +100,7 @@ def evolve(
         expect_p2[f] = ev.p2
         expect_H[f] = ev.H
         momentum_frames[f] = _momentum.density(psi_f, dx)
+        current_frames[f] = _current.compute(psi_f, dx)
 
     _save_frame(0, psi, 0.0)
 
@@ -119,4 +123,5 @@ def evolve(
         expect_H=expect_H,
         momentum_frames=momentum_frames,
         momentum_k=momentum_k,
+        current_frames=current_frames,
     )

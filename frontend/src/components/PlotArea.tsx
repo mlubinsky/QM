@@ -4,6 +4,7 @@ import { AnimationControls } from './AnimationControls'
 import { ExactSolutionPanel } from './ExactSolutionPanel'
 import { ExpectationValuesPlot } from './ExpectationValuesPlot'
 import { MomentumPlot } from './MomentumPlot'
+import { CurrentPlot } from './CurrentPlot'
 import { downloadFile, buildCsv } from '../utils/export'
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
 
@@ -82,6 +83,10 @@ export function PlotArea({
 
       {mode === 'time-evolution' && (
         <MomentumPlot evolveResult={evolveResult} currentFrame={currentFrame} />
+      )}
+
+      {mode === 'time-evolution' && (
+        <CurrentPlot evolveResult={evolveResult} currentFrame={currentFrame} />
       )}
 
       <SecondaryPlot

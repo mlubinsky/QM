@@ -58,4 +58,8 @@ export const mockEvolveResult: EvolveResponse = {
   expect_H:  Array.from({ length: nFrames }, () => 0.5),
   momentum_k: momentumK,
   momentum_frames: Array.from({ length: nFrames }, () => momentumDensity),
+  // Mock current: J ≈ k₀·|ψ|² — use psi density scaled by a small constant
+  current_frames: Array.from({ length: nFrames }, () =>
+    normalize(gaussian(x, 0, 1), dx).map(v => v * v * 1.5)
+  ),
 }

@@ -109,6 +109,7 @@ class EvolveResponse(BaseModel):
     expect_H: list[float]
     momentum_frames: list[list[float]]
     momentum_k: list[float]
+    current_frames: list[list[float]]
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -203,4 +204,5 @@ def evolve_endpoint(req: EvolveRequest):
         expect_H=result.expect_H.tolist(),
         momentum_frames=result.momentum_frames.tolist(),
         momentum_k=result.momentum_k.tolist(),
+        current_frames=result.current_frames.tolist(),
     )
