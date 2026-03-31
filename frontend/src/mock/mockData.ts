@@ -34,6 +34,14 @@ export const mockEigenResult: EigensolveResponse = {
 }
 
 const nFrames = 11
+
+// Mock momentum-space k-axis: N evenly-spaced values centred on 0
+const kMax = Math.PI / dx
+const momentumK = Array.from({ length: N }, (_, i) => -kMax + (2 * kMax * i) / (N - 1))
+
+// Mock momentum density: Gaussian centred at k=0
+const momentumDensity = normalize(gaussian(momentumK, 0, 1), momentumK[1] - momentumK[0]).map(v => v * v)
+
 export const mockEvolveResult: EvolveResponse = {
   psi_frames: Array.from({ length: nFrames }, () =>
     normalize(gaussian(x, 0, 1), dx).map(v => v * v)
@@ -48,4 +56,6 @@ export const mockEvolveResult: EvolveResponse = {
   expect_x2: Array.from({ length: nFrames }, () => 0.5),   // Δx = √0.5 = 1/√2
   expect_p2: Array.from({ length: nFrames }, () => 0.5),   // Δp = √0.5 = 1/√2
   expect_H:  Array.from({ length: nFrames }, () => 0.5),
+  momentum_k: momentumK,
+  momentum_frames: Array.from({ length: nFrames }, () => momentumDensity),
 }

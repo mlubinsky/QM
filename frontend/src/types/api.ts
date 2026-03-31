@@ -38,16 +38,18 @@ export interface EvolveRequest {
 }
 
 export interface EvolveResponse {
-  psi_frames: number[][]   // shape (n_frames, n_points), |ψ|²
+  psi_frames: number[][]      // shape (n_frames, n_points), |ψ|²
   times: number[]
   norm_history: number[]
   grid_x: number[]
   potential: number[]
-  expect_x: number[]       // ⟨x(t)⟩ at each frame
-  expect_p: number[]       // ⟨p(t)⟩ at each frame
-  expect_x2: number[]      // ⟨x²(t)⟩ at each frame
-  expect_p2: number[]      // ⟨p²(t)⟩ at each frame
-  expect_H: number[]       // ⟨H(t)⟩ at each frame
+  expect_x: number[]          // ⟨x(t)⟩ at each frame
+  expect_p: number[]          // ⟨p(t)⟩ at each frame
+  expect_x2: number[]         // ⟨x²(t)⟩ at each frame
+  expect_p2: number[]         // ⟨p²(t)⟩ at each frame
+  expect_H: number[]          // ⟨H(t)⟩ at each frame
+  momentum_frames: number[][] // shape (n_frames, n_points), |φ(k,t)|²
+  momentum_k: number[]        // shape (n_points,), k values (rad/a.u.)
 }
 
 export type AppMode = 'stationary' | 'time-evolution'
