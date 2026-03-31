@@ -117,19 +117,37 @@ export function ControlPanel({ mode, onSolve, status = 'idle' }: ControlPanelPro
       {mode === 'time-evolution' && (
         <fieldset>
           <legend>Gaussian Packet</legend>
-          <label htmlFor="gauss-x0">x0</label>
+
+          {/* Formula panel */}
+          <div className="gauss-formula" aria-label="Initial wavefunction formula">
+            ψ(x,0) = (2π<span className="param-sigma">σ</span>²)<sup>−¼</sup>{' '}
+            exp[−(x−<span className="param-x0">x₀</span>)² / 4<span className="param-sigma">σ</span>²]{' '}
+            e<sup>i<span className="param-k0">k₀</span>x</sup>
+          </div>
+
+          <label htmlFor="gauss-x0" data-tooltip="Initial center position of the wave packet (a.u.)">
+            <span className="param-x0">x₀</span>
+          </label>
           <input id="gauss-x0" type="number" value={x0} onChange={e => { setX0(Number(e.target.value)); markDirty() }} />
 
-          <label htmlFor="gauss-sigma">sigma</label>
+          <label htmlFor="gauss-sigma" data-tooltip="Gaussian width (a.u.) — position uncertainty Δx ≈ σ/√2, momentum uncertainty Δp ≈ 1/(2σ)">
+            <span className="param-sigma">σ</span>
+          </label>
           <input id="gauss-sigma" type="number" value={sigma} onChange={e => { setSigma(Number(e.target.value)); markDirty() }} />
 
-          <label htmlFor="gauss-k0">k0</label>
+          <label htmlFor="gauss-k0" data-tooltip="Initial momentum / wavenumber (a.u.); the packet travels with group velocity v = k₀">
+            <span className="param-k0">k₀</span>
+          </label>
           <input id="gauss-k0" type="number" value={k0} onChange={e => { setK0(Number(e.target.value)); markDirty() }} />
 
-          <label htmlFor="dt">dt</label>
+          <label htmlFor="dt" data-tooltip="Crank-Nicolson time step size (a.u.) — smaller gives higher temporal accuracy">
+            dt
+          </label>
           <input id="dt" type="number" value={dt} onChange={e => { setDt(Number(e.target.value)); markDirty() }} />
 
-          <label htmlFor="n-steps">n_steps</label>
+          <label htmlFor="n-steps" data-tooltip="Total number of time steps; total simulated time = n_steps × dt">
+            n_steps
+          </label>
           <div className="slider-row">
             <input id="n-steps" type="range" min={10} max={10000} value={nSteps}
               onChange={e => { setNSteps(Number(e.target.value)); markDirty() }} />

@@ -115,6 +115,58 @@
   font-weight: 600;
 }
 
+/* ── Gaussian packet formula panel ─────────────────── */
+.gauss-formula {
+  font-size: 0.82rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #f5f8ff;
+  border: 1px solid #d0d8f0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  line-height: 1.8;
+  margin-bottom: 2px;
+}
+
+/* Color-coded parameter names — same palette used in formula and labels */
+.param-x0   { color: #1a6abf; font-weight: 700; }
+.param-sigma { color: #2a8a2a; font-weight: 700; }
+.param-k0   { color: #b86000; font-weight: 700; }
+
+/* Custom tooltip — replaces native title= which is tiny in Chrome, absent in Safari */
+.control-panel label[data-tooltip] {
+  position: relative;
+  cursor: help;
+  text-decoration: underline dotted #999;
+  text-underline-offset: 2px;
+  width: fit-content;
+}
+
+.control-panel label[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  width: 220px;
+  background: #222;
+  color: #fff;
+  font-size: 0.8rem;
+  font-family: sans-serif;
+  font-weight: normal;
+  line-height: 1.45;
+  padding: 7px 11px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 999;
+}
+
+.control-panel label[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
 .slider-row {
   display: flex;
   align-items: center;
