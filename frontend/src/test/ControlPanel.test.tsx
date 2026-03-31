@@ -28,7 +28,7 @@ describe('ControlPanel – stationary mode', () => {
 
   it('does not render GaussianControls', () => {
     render(<ControlPanel mode="stationary" onSolve={vi.fn()} />)
-    expect(screen.queryByLabelText(/x0|sigma|k0/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/x₀|σ|k₀/)).not.toBeInTheDocument()
   })
 
   it('all inputs have accessible labels', () => {
@@ -48,11 +48,11 @@ describe('ControlPanel – stationary mode', () => {
 })
 
 describe('ControlPanel – time-evolution mode', () => {
-  it('renders GaussianControls (x0, sigma, k0)', () => {
+  it('renders GaussianControls (x₀, σ, k₀)', () => {
     render(<ControlPanel mode="time-evolution" onSolve={vi.fn()} />)
-    expect(screen.getByLabelText(/x0/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/sigma/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/k0/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/x₀/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/σ/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/k₀/)).toBeInTheDocument()
   })
 
   it('renders dt and n_steps controls', () => {
