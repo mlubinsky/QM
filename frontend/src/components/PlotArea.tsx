@@ -1,4 +1,5 @@
 import { MainPlot } from './MainPlot'
+import { MatrixPanel } from './MatrixPanel'
 import { SecondaryPlot } from './SecondaryPlot'
 import { AnimationControls } from './AnimationControls'
 import { ExactSolutionPanel } from './ExactSolutionPanel'
@@ -65,6 +66,18 @@ export function PlotArea({
       {/* Exact solution formula + error table (Infinite Square Well and Harmonic Oscillator only) */}
       {mode === 'stationary' && eigenResult && potentialPreset && (
         <ExactSolutionPanel preset={potentialPreset} eigenResult={eigenResult} />
+      )}
+
+      {/* Matrix / Heisenberg picture — collapsible, stationary mode only */}
+      {mode === 'stationary' && eigenResult && (
+        <details style={{ border: '1px solid #ccc', borderRadius: '6px', padding: '8px 12px' }}>
+          <summary style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', userSelect: 'none' }}>
+            Matrix representation (Heisenberg picture)
+          </summary>
+          <div style={{ marginTop: '12px' }}>
+            <MatrixPanel eigenResult={eigenResult} />
+          </div>
+        </details>
       )}
 
       {/* Norm display (time-evolution) */}
