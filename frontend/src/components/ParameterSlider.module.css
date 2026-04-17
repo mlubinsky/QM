@@ -1,0 +1,38 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  color: #4361ee;
+  font-weight: 600;
+}
+
+.slider {
+  width: 100%;
+  accent-color: #4361ee;
+  cursor: pointer;
+}
+
+.derived {
+  font-size: 0.8rem;
+  color: #495057;
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  font-size: 0.78rem;
+  color: #6c757d;
+  font-style: italic;
+  line-height: 1.4;
+}

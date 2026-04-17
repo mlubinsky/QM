@@ -3,14 +3,37 @@ import _Plot from 'react-plotly.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Plot = (_Plot as any).default ?? _Plot
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
+import { POTENTIALS } from '../data/potentials'
+import styles from './SecondaryPlot.module.css'
 
 interface SecondaryPlotProps {
   mode: AppMode
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
+  potentialPreset?: string | null
 }
 
-export function SecondaryPlot({ mode, eigenResult, evolveResult }: SecondaryPlotProps) {
+export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset }: SecondaryPlotProps) {
+  const potentialInfo = potentialPreset ? POTENTIALS[potentialPreset] : null
+  const hasBoundStates = potentialInfo?.has_bound_states ?? true
+
+  // In stationary mode, scattering potentials have no physical energy levels —
+  // show a message instead of a misleading plot.
+  if (mode === 'stationary' && !hasBoundStates) {
+    return (
+      <div className={styles.noPlotMessage}>
+        <p>⚠ No bound states — energy spectrum is continuous.</p>
+        <p>
+          The energy levels a finite-box solver returns for this potential are
+          numerical artifacts, not physical results.
+        </p>
+        <p>
+          Switch to <strong>Time Evolution</strong> mode to see the real physics.
+        </p>
+      </div>
+    )
+  }
+
   const traces: Plotly.Data[] = []
 
   if (mode === 'stationary' && eigenResult) {

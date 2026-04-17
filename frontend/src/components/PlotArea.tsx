@@ -93,6 +93,7 @@ export function PlotArea({
         mode={mode}
         eigenResult={eigenResult}
         evolveResult={evolveResult}
+        potentialPreset={potentialPreset}
       />
 
       {mode === 'time-evolution' && (
