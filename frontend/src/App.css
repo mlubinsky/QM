@@ -228,28 +228,6 @@
   gap: 10px;
 }
 
-.eigenstate-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.eigenstate-slider-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.eigenstate-slider-row label {
-  min-width: 5ch;
-}
-
-.eigenstate-slider-row input[type="range"] {
-  flex: 1;
-}
-
 .energy-levels {
   list-style: none;
   margin: 0;
@@ -258,11 +236,6 @@
   flex-wrap: wrap;
   gap: 8px;
   font-size: 0.85rem;
-}
-
-.energy-level--active {
-  font-weight: 700;
-  color: #e05c00;
 }
 
 .export-buttons {

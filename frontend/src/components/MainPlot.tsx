@@ -9,10 +9,9 @@ interface MainPlotProps {
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
   currentFrame: number
-  currentEigenstate?: number
 }
 
-export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, currentEigenstate = 0 }: MainPlotProps) {
+export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: MainPlotProps) {
   const traces: Plotly.Data[] = []
 
   if (mode === 'stationary' && eigenResult) {
@@ -45,13 +44,14 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, curren
       } as Plotly.Data)
     })
 
-    // Single eigenfunction offset by its energy (standard physics convention)
-    const idx = Math.min(currentEigenstate, wavefunctions.length - 1)
-    traces.push({
-      x: grid_x,
-      y: wavefunctions[idx].map(v => v + energies[idx]),
-      name: `ψ${idx + 1}`,
-      type: 'scatter',
+    // Eigenfunctions offset by energy (standard physics convention)
+    wavefunctions.forEach((wf, i) => {
+      traces.push({
+        x: grid_x,
+        y: wf.map(v => v + energies[i]),
+        name: `ψ${i + 1}`,
+        type: 'scatter',
+      })
     })
   }
 
