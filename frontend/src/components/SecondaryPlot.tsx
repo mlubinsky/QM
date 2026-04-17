@@ -11,9 +11,10 @@ interface SecondaryPlotProps {
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
   potentialPreset?: string | null
+  currentEigenstate?: number
 }
 
-export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset }: SecondaryPlotProps) {
+export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset, currentEigenstate = 0 }: SecondaryPlotProps) {
   const potentialInfo = potentialPreset ? POTENTIALS[potentialPreset] : null
   const hasBoundStates = potentialInfo?.has_bound_states ?? true
 
@@ -55,15 +56,20 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset
       line: { color: 'rgba(150,150,150,0.5)' },
     } as Plotly.Data)
 
-    // Horizontal energy level lines on top of V(x)
+    // Horizontal energy level lines — selected level is thicker and highlighted
     energies.forEach((E, i) => {
+      const selected = i === currentEigenstate
       traces.push({
         x: [grid_x[0], xEnd],
         y: [E, E],
         name: `E${i + 1} = ${E.toFixed(4)}`,
         type: 'scatter',
         mode: 'lines',
-      })
+        line: {
+          width: selected ? 3 : 1,
+          color: selected ? '#e05c00' : undefined,
+        },
+      } as Plotly.Data)
     })
   }
 

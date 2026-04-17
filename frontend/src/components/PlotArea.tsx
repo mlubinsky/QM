@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { MainPlot } from './MainPlot'
 import { SecondaryPlot } from './SecondaryPlot'
 import { AnimationControls } from './AnimationControls'
@@ -31,6 +32,11 @@ export function PlotArea({
   onPlayPause,
   onSpeedChange,
 }: PlotAreaProps) {
+  const [currentEigenstate, setCurrentEigenstate] = useState(0)
+
+  // Reset to first eigenstate whenever a new solve result arrives
+  useEffect(() => { setCurrentEigenstate(0) }, [eigenResult])
+
   const result = mode === 'stationary' ? eigenResult : evolveResult
   const currentNorm =
     mode === 'time-evolution' && evolveResult
@@ -50,16 +56,33 @@ export function PlotArea({
 
   return (
     <div className="plot-area">
-      {/* Energy level labels (stationary) */}
+      {/* Eigenstate slider + energy label (stationary) */}
       {mode === 'stationary' && eigenResult && (
-        <ul className="energy-levels">
-          {eigenResult.energies.map((E, i) => (
-            <li key={i}>
-              E<sub>{i + 1}</sub> ={' '}
-              <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.
-            </li>
-          ))}
-        </ul>
+        <div className="eigenstate-controls">
+          {eigenResult.energies.length > 1 && (
+            <div className="eigenstate-slider-row">
+              <label htmlFor="eigenstate-slider">
+                n = {currentEigenstate + 1}
+              </label>
+              <input
+                id="eigenstate-slider"
+                type="range"
+                min={0}
+                max={eigenResult.energies.length - 1}
+                value={currentEigenstate}
+                onChange={e => setCurrentEigenstate(Number(e.target.value))}
+              />
+            </div>
+          )}
+          <ul className="energy-levels">
+            {eigenResult.energies.map((E, i) => (
+              <li key={i} className={i === currentEigenstate ? 'energy-level--active' : ''}>
+                E<sub>{i + 1}</sub> ={' '}
+                <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Exact solution formula + error table (Infinite Square Well and Harmonic Oscillator only) */}
@@ -79,6 +102,7 @@ export function PlotArea({
         eigenResult={eigenResult}
         evolveResult={evolveResult}
         currentFrame={currentFrame}
+        currentEigenstate={currentEigenstate}
       />
 
       {mode === 'time-evolution' && (
@@ -94,6 +118,7 @@ export function PlotArea({
         eigenResult={eigenResult}
         evolveResult={evolveResult}
         potentialPreset={potentialPreset}
+        currentEigenstate={currentEigenstate}
       />
 
       {mode === 'time-evolution' && (
