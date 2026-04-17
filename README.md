@@ -9,10 +9,12 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 ## Features
 
 **Stationary mode** — solve for energy eigenstates:
-- Six built-in potentials: infinite square well, harmonic oscillator, double well, finite square well, step potential, Gaussian barrier
+- Seven built-in potentials: infinite square well, harmonic oscillator, double well, deep double well, finite square well, step potential, Gaussian barrier
+- Adjustable parameters (barrier height, well separation, …) via sliders for each potential
 - Custom potential via a safe math expression (e.g. `0.5*x**2 + 0.1*x**4`)
 - Eigenfunctions plotted offset by energy (standard physics convention)
 - Exact-solution comparison table for infinite square well and harmonic oscillator: numerical energies vs analytic values with relative error
+- Physics reference modal (? button) for each potential: Hamiltonian, key formula, description, and what to look for
 
 **Time-evolution mode** — evolve a Gaussian wave packet under the chosen potential:
 - Crank-Nicolson integrator — unconditionally stable, norm-conserving
@@ -22,9 +24,11 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ computed at every saved frame
 - Uncertainties Δx, Δp, and product Δx·Δp returned for each frame
 - Momentum-space probability density |φ(k,t)|² animated in sync with |ψ(x,t)|²
+- Probability current density J(x,t) = Im[ψ* ∂ψ/∂x] animated in sync
 
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
+- Solver reference modal (? button on Grid panel): grid formula, BCs, CN scheme, units
 - URL state persistence — share a configuration via URL
 - Export results as CSV or JSON
 - Interactive API docs at `/docs` (Swagger UI)
@@ -78,6 +82,9 @@ schrodinger-solver/
 │   ├── eigenvalue_solver.py    # Sparse eigensolver (ARPACK via scipy)
 │   ├── crank_nicolson.py       # Crank-Nicolson time stepper
 │   ├── initial_states.py       # Gaussian wave packet factory
+│   ├── expectation_values.py   # ⟨x⟩, ⟨p⟩, ⟨H⟩, uncertainties
+│   ├── momentum.py             # Momentum-space density |φ(k)|²
+│   ├── probability_current.py  # Probability current J(x,t)
 │   ├── potential_parser.py     # Safe expression evaluator (asteval)
 │   ├── presets.py              # Built-in potential expressions
 │   └── tests/                  # pytest test suite
@@ -85,6 +92,7 @@ schrodinger-solver/
 │   ├── src/
 │   │   ├── components/         # React components
 │   │   ├── api/                # Backend client
+│   │   ├── data/               # Potential metadata (potentials.ts)
 │   │   ├── types/              # TypeScript interfaces
 │   │   └── utils/              # URL state, CSV export
 │   └── ...
@@ -113,6 +121,7 @@ python -m pytest tests/ -v
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
 | `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well ground states; Heisenberg bound; Ehrenfest theorem |
 | `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak location, symmetry; evolve() shapes; API response fields |
+| `test_probability_current.py` | J(x,t) sign, continuity equation, zero current for real wavefunctions |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 ### Frontend (Vitest)
@@ -179,10 +188,11 @@ Returns the list of built-in potential names.
 |---|---|---|
 | `infinite_square_well` | `0` | Dirichlet BCs act as walls |
 | `harmonic_oscillator` | `0.5 * x**2` | ω = 1 in atomic units |
-| `double_well` | `0.5 * (x**2 - 1)**2` | Symmetric, minima at x = ±1 |
-| `finite_square_well` | `-10 * (abs(x) < 1)` | Depth 10 a.u., width 2 a.u. |
-| `step_potential` | `10 * (x > 0)` | Step height 10 a.u. |
-| `gaussian_barrier` | `5 * exp(-x**2 / 0.5)` | Height 5 a.u., width σ = √0.5 a.u. |
+| `double_well` | `λ * (x² − a²)²` | Parameterized; default λ=0.5, a=1 (shallow, no tunneling) |
+| `deep_double_well` | `λ * (x² − a²)²` | Same formula; default λ=2, a=√2 (deep tunneling regime) |
+| `finite_square_well` | `-10 if abs(x) < 3 else 0` | Depth 10 a.u., half-width 3 a.u. |
+| `step_potential` | `5 if x > 0 else 0` | Step height 5 a.u. |
+| `gaussian_barrier` | `5 * exp(-0.5 * x**2)` | Height 5 a.u., width σ = 1 a.u. |
 
 Custom expressions may use `x`, standard math functions (`sin`, `cos`, `exp`, `abs`, `sqrt`), and `numpy` ufuncs. Python builtins and `import` are blocked.
 
