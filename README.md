@@ -2,8 +2,6 @@
 
 A browser-based solver for the one-dimensional time-dependent and time-independent Schrödinger equation. No installation required for end users — open the browser, choose a potential, and explore.
 
-![Stationary mode showing harmonic oscillator eigenfunctions and energy levels](docs/screenshot_stationary.png)
-
 ---
 
 ## Features
