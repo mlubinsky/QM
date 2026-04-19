@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Schrödinger Solver", version="0.1.0")
 
-_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+_cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")]
 
 app.add_middleware(
     CORSMiddleware,
