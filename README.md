@@ -142,6 +142,48 @@ npm test
 
 ---
 
+## URL sharing
+
+Every solver configuration is encoded in the URL so you can bookmark or share an exact setup.
+
+**Click "Copy link"** in the plot area to copy the current URL to the clipboard, or copy the address bar directly.  Opening the link in a new tab restores all parameters and re-runs the solver automatically.
+
+### URL parameter reference
+
+| Key | Type | Description | Default |
+|-----|------|-------------|---------|
+| `mode` | `stationary` \| `time-evolution` | solver mode | `stationary` |
+| `potential` | string | preset key (e.g. `harmonic_oscillator`) | `infinite_square_well` |
+| `expr` | string | custom potential expression (overrides `potential`) | — |
+| `xmin` | float | grid left edge (a.u.) | `-10` |
+| `xmax` | float | grid right edge (a.u.) | `10` |
+| `n` | int 50–2000 | number of grid points | `500` |
+| `n_states` | int 1–20 | eigenstates to compute | `5` |
+| `p_<name>` | float | potential slider value (e.g. `p_omega=2.0`) | slider default |
+| `x0` | float | Gaussian packet centre (a.u.) | `0` |
+| `sigma` | float | Gaussian width (a.u.) | `1` |
+| `k0` | float | initial wavenumber (a.u.) | `0` |
+| `dt` | float 1e-6–0.1 | time step (a.u.) | `0.001` |
+| `n_steps` | int 10–10000 | number of time steps | `1000` |
+| `save_every` | int | frame decimation | `10` |
+
+Slider parameters use the `p_` prefix to avoid key collisions.  For example, the double-well `λ` slider encodes as `p_lambda=2.0`.  If `xmin ≥ xmax` the values are swapped; `n`, `n_states`, `dt`, and `n_steps` are clamped to their valid ranges on parse.
+
+### Example URLs
+
+```
+# Harmonic oscillator, wider grid
+?mode=stationary&potential=harmonic_oscillator&xmin=-8&xmax=8&n=500
+
+# Double well with custom barrier height
+?mode=stationary&potential=double_well&p_lambda=2.0&p_a=1.5
+
+# Gaussian packet tunnelling through a barrier
+?mode=time-evolution&potential=gaussian_barrier&x0=-4&k0=5&sigma=0.8&dt=0.005&n_steps=2000
+```
+
+---
+
 ## API overview
 
 The backend exposes a REST API. With the server running, full interactive docs are at:
