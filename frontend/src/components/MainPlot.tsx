@@ -59,9 +59,9 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: Main
     const { grid_x, psi_frames, potential } = evolveResult
     const frame = psi_frames[currentFrame] ?? psi_frames[0]
 
-    // Clip V(x) at 90th-percentile value so large walls don't dominate
-    const sorted = [...potential].sort((a, b) => a - b)
-    const vCeiling = sorted[Math.floor(sorted.length * 0.9)]
+    // Clip V(x) to 1.5× the packet energy so large walls don't dominate
+    const ePacket = evolveResult.expect_H[0] ?? 1
+    const vCeiling = ePacket * 1.5 + 1
     const vDisplay = potential.map(v => Math.min(v, vCeiling))
 
     traces.push({
