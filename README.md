@@ -42,8 +42,8 @@ You need Python ≥ 3.10 and Node.js ≥ 18.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/<owner>/schrodinger-solver.git
-cd schrodinger-solver
+git clone https://github.com/mlubinsky/QM.git
+cd QM
 ```
 
 ### 2. Start the backend

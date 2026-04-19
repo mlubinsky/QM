@@ -4,12 +4,11 @@
 
 ## 1. Backend unit tests (pytest)
 
+From the project root:
+
 ```bash
-cd /Users/mlubinsky/QM
 python -m pytest backend/tests/ -v
 ```
-
-This runs all 4 test suites:
 
 | File | What it tests |
 |---|---|
@@ -18,7 +17,8 @@ This runs all 4 test suites:
 | `test_eigenvalue_solver.py` | Infinite Square Well and Harmonic Oscillator energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
 | `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well; Heisenberg bound; Ehrenfest theorem |
-| `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak, symmetry; evolve() shapes; API response |
+| `test_momentum.py` | k-axis length/spacing/symmetry; \|φ(k)\|² normalization, peak, symmetry; evolve() shapes; API response |
+| `test_probability_current.py` | J(x,t) sign, continuity equation, zero current for real wavefunctions |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
 
 To run just one suite:
@@ -31,21 +31,21 @@ python -m pytest backend/tests/test_api.py -v
 ## 2. Frontend unit tests (Vitest)
 
 ```bash
-cd /Users/mlubinsky/QM/frontend
+cd frontend
 npm test
 ```
 
-This runs all 10 test files — no backend needed, everything is mocked.
+This runs all test files — no backend needed, everything is mocked.
 
 ---
 
 ## 3. Run the full app end-to-end
 
-You need two terminals:
+You need two terminals. Start from the project root in each.
 
 **Terminal 1 — backend**
 ```bash
-cd /Users/mlubinsky/QM/backend
+cd backend
 uvicorn app:app --reload --port 8000
 ```
 
@@ -60,7 +60,7 @@ curl http://localhost:8000/presets
 
 **Terminal 2 — frontend**
 ```bash
-cd /Users/mlubinsky/QM/frontend
+cd frontend
 npm run dev
 # → open http://localhost:5173 in your browser
 ```
@@ -126,8 +126,9 @@ This gives a full Swagger UI where you can try every endpoint interactively.
 
 ## Quick sanity check (all at once)
 
+From the project root:
+
 ```bash
-cd /Users/mlubinsky/QM
 python -m pytest backend/tests/ -q && \
   cd frontend && npm test -- --reporter=dot
 ```
