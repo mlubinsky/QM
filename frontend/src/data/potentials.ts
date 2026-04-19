@@ -26,7 +26,9 @@ export interface PotentialInfo {
 export const POTENTIALS: Record<string, PotentialInfo> = {
   infinite_square_well: {
     label: 'Infinite Square Well',
-    expr: '0 if abs(x) < 5 else 1e10',
+    // V = 0 inside; confinement is enforced by Dirichlet BCs (ψ = 0 at grid edges),
+    // not by an explicit potential wall.  The well width L = x_max − x_min.
+    expr: '0',
     hamiltonian_latex:
       '\\hat{H} = -\\frac{\\hbar^2}{2m}\\frac{d^2}{dx^2} + V(x), \\quad V(x) = \\begin{cases} 0 & |x| < L/2 \\\\ \\infty & \\text{otherwise} \\end{cases}',
     formula_label: 'Energy Levels',
@@ -34,8 +36,12 @@ export const POTENTIALS: Record<string, PotentialInfo> = {
       'E_n = \\frac{n^2 \\pi^2 \\hbar^2}{2mL^2}, \\quad n = 1, 2, 3, \\ldots',
     has_bound_states: true,
     description:
-      'Particle-in-a-box: zero potential inside a hard-walled region. The simplest quantum system with analytically exact solutions.',
+      'Particle-in-a-box: zero potential inside a hard-walled region. ' +
+      'The walls are implemented as Dirichlet boundary conditions (ψ = 0 at the grid edges), ' +
+      'so the well width L equals the grid range x_max − x_min. ' +
+      'Changing the grid bounds changes all energy levels.',
     interesting_features: [
+      'Well width L = x_max − x_min: wider grid → lower energies (E ∝ 1/L²)',
       'Energy levels scale as n²: the gap between levels grows with n',
       'Ground state has non-zero energy (zero-point energy)',
       'Wavefunctions are standing sine waves with n antinodes',

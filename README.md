@@ -186,7 +186,7 @@ Returns the list of built-in potential names.
 
 | Name | Expression | Notes |
 |---|---|---|
-| `infinite_square_well` | `0` | Dirichlet BCs act as walls |
+| `infinite_square_well` | `0` | Dirichlet BCs act as walls; well width L = x_max − x_min |
 | `harmonic_oscillator` | `0.5 * x**2` | ω = 1 in atomic units |
 | `double_well` | `λ * (x² − a²)²` | Parameterized; default λ=0.5, a=1 (shallow, no tunneling) |
 | `deep_double_well` | `λ * (x² − a²)²` | Same formula; default λ=2, a=√2 (deep tunneling regime) |
