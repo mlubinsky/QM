@@ -1,10 +1,12 @@
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import './App.css'
 import { ControlPanel } from './components/ControlPanel'
 import { PlotArea } from './components/PlotArea'
 import { ErrorBanner } from './components/ErrorBanner'
 import { solveEigenstates, solveEvolve, ApiError } from './api/client'
-import { readUrlParams, pushUrlParams } from './utils/urlState'
+import { readUrlParams, pushUrlParams, hasNonDefaultUrl, DEFAULTS } from './utils/urlState'
+import type { UrlParams } from './utils/urlState'
+import { POTENTIALS } from './data/potentials'
 import type { AppState, AppMode, EigensolveResponse, EvolveResponse } from './types/api'
 import type { EigensolveRequest, EvolveRequest } from './types/api'
 
@@ -17,19 +19,6 @@ type Action =
   | { type: 'DISMISS_ERROR' }
   | { type: 'SET_FRAME'; frame: number }
   | { type: 'TOGGLE_PLAY' }
-
-const initialParams = readUrlParams()
-
-const initialState: AppState = {
-  mode: initialParams.mode,
-  status: 'idle',
-  error: null,
-  eigenResult: null,
-  evolveResult: null,
-  potentialPreset: null,
-  currentFrame: 0,
-  playing: false,
-}
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -54,8 +43,43 @@ function reducer(state: AppState, action: Action): AppState {
   }
 }
 
+function buildExprFromParams(expr: string, params: Record<string, number>): string {
+  let result = expr
+  for (const [name, value] of Object.entries(params)) {
+    result = result.replaceAll(`{${name}}`, value.toString())
+  }
+  return result
+}
+
+function buildPotentialFromUrlParams(urlParams: UrlParams) {
+  if (urlParams.expr) {
+    return { potential_preset: null, potential_expr: urlParams.expr }
+  }
+  const info = POTENTIALS[urlParams.potential]
+  if (info?.parameters?.length && Object.keys(urlParams.potentialParams).length > 0) {
+    const defaults: Record<string, number> = {}
+    for (const p of info.parameters) defaults[p.name] = p.default
+    return {
+      potential_preset: null,
+      potential_expr: buildExprFromParams(info.expr, { ...defaults, ...urlParams.potentialParams }),
+    }
+  }
+  return { potential_preset: urlParams.potential, potential_expr: null }
+}
+
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [initialParams] = useState<UrlParams>(() => readUrlParams())
+
+  const [state, dispatch] = useReducer(reducer, null, () => ({
+    mode: initialParams.mode,
+    status: 'idle' as const,
+    error: null,
+    eigenResult: null,
+    evolveResult: null,
+    potentialPreset: null,
+    currentFrame: 0,
+    playing: false,
+  }))
 
   // Advance animation frame when playing
   useEffect(() => {
@@ -78,22 +102,32 @@ export default function App() {
         const result = await solveEigenstates(req)
         dispatch({ type: 'SUCCESS_EIGEN', result, preset: req.potential_preset ?? null })
         pushUrlParams({
-          potential: (req.potential_preset ?? req.potential_expr ?? '') as string,
+          ...DEFAULTS,
+          ...initialParams,
+          mode: 'stationary',
+          potential: req.potential_preset ?? '',
           xmin: req.grid.x_min,
           xmax: req.grid.x_max,
           n: req.grid.n_points,
-          mode: 'stationary',
+          nStates: (req as EigensolveRequest).n_states ?? DEFAULTS.nStates,
         })
       } else {
         const req = params as unknown as EvolveRequest
         const result = await solveEvolve(req)
         dispatch({ type: 'SUCCESS_EVOLVE', result })
         pushUrlParams({
-          potential: (req.potential_preset ?? req.potential_expr ?? '') as string,
+          ...DEFAULTS,
+          ...initialParams,
+          mode: 'time-evolution',
+          potential: req.potential_preset ?? '',
           xmin: req.grid.x_min,
           xmax: req.grid.x_max,
           n: req.grid.n_points,
-          mode: 'time-evolution',
+          x0: req.gaussian_x0,
+          sigma: req.gaussian_sigma,
+          k0: req.gaussian_k0,
+          dt: req.dt,
+          nSteps: req.n_steps,
         })
       }
     } catch (err) {
@@ -106,6 +140,40 @@ export default function App() {
       dispatch({ type: 'ERROR', message })
     }
   }
+
+  // Auto-solve on mount when URL has non-default params
+  useEffect(() => {
+    if (!hasNonDefaultUrl(initialParams)) return
+    const potential = buildPotentialFromUrlParams(initialParams)
+    const grid = { x_min: initialParams.xmin, x_max: initialParams.xmax, n_points: initialParams.n }
+    if (initialParams.mode === 'stationary') {
+      dispatch({ type: 'LOADING' })
+      solveEigenstates({ grid, ...potential, n_states: initialParams.nStates })
+        .then(result => dispatch({ type: 'SUCCESS_EIGEN', result, preset: potential.potential_preset }))
+        .catch(err => {
+          const message = err instanceof ApiError ? err.detail : err instanceof Error ? err.message : 'Unknown error'
+          dispatch({ type: 'ERROR', message })
+        })
+    } else {
+      dispatch({ type: 'LOADING' })
+      solveEvolve({
+        grid,
+        ...potential,
+        gaussian_x0: initialParams.x0,
+        gaussian_sigma: initialParams.sigma,
+        gaussian_k0: initialParams.k0,
+        dt: initialParams.dt,
+        n_steps: initialParams.nSteps,
+        save_every: initialParams.saveEvery,
+      })
+        .then(result => dispatch({ type: 'SUCCESS_EVOLVE', result }))
+        .catch(err => {
+          const message = err instanceof ApiError ? err.detail : err instanceof Error ? err.message : 'Unknown error'
+          dispatch({ type: 'ERROR', message })
+        })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="app">
@@ -149,6 +217,7 @@ export default function App() {
           mode={state.mode}
           onSolve={handleSolve}
           status={state.status}
+          initialParams={initialParams}
         />
         <PlotArea
           mode={state.mode}

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { writeToClipboard } from '../utils/clipboard'
 import { MainPlot } from './MainPlot'
 import { MatrixPanel } from './MatrixPanel'
 import { SecondaryPlot } from './SecondaryPlot'
@@ -32,6 +34,7 @@ export function PlotArea({
   onPlayPause,
   onSpeedChange,
 }: PlotAreaProps) {
+  const [copied, setCopied] = useState(false)
   const result = mode === 'stationary' ? eigenResult : evolveResult
   const currentNorm =
     mode === 'time-evolution' && evolveResult
@@ -131,6 +134,17 @@ export function PlotArea({
         </button>
         <button onClick={handleExportJson} disabled={!result}>
           Export JSON
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              await writeToClipboard(window.location.href)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            } catch (_) {}
+          }}
+        >
+          {copied ? 'Copied!' : 'Copy link'}
         </button>
       </div>
     </div>

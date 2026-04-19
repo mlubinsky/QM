@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { AppMode, AppStatus } from '../types/api'
 import { POTENTIALS, POTENTIAL_KEYS } from '../data/potentials'
 import { PhysicsPanel } from './PhysicsPanel'
 import { SolverInfoPanel } from './SolverInfoPanel'
 import { ParameterSlider } from './ParameterSlider'
 import { RegimeIndicator } from './RegimeIndicator'
+import type { UrlParams } from '../utils/urlState'
 
 function buildExpr(expr: string, params: Record<string, number>): string {
   let result = expr
@@ -18,9 +19,10 @@ interface ControlPanelProps {
   mode: AppMode
   onSolve: (params: Record<string, unknown>) => void
   status?: AppStatus
+  initialParams?: UrlParams
 }
 
-export function ControlPanel({ mode, onSolve, status = 'idle' }: ControlPanelProps) {
+export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: ControlPanelProps) {
   const loading = status === 'loading'
 
   // Track whether a solve has ever succeeded and whether params changed since
@@ -39,25 +41,39 @@ export function ControlPanel({ mode, onSolve, status = 'idle' }: ControlPanelPro
   }
 
   // Grid controls
-  const [xMin, setXMin] = useState(-10)
-  const [xMax, setXMax] = useState(10)
-  const [nPoints, setNPoints] = useState(500)
+  const [xMin, setXMin] = useState(initialParams?.xmin ?? -10)
+  const [xMax, setXMax] = useState(initialParams?.xmax ?? 10)
+  const [nPoints, setNPoints] = useState(initialParams?.n ?? 500)
 
   // Potential
-  const [preset, setPreset] = useState('infinite_square_well')
-  const [customExpr, setCustomExpr] = useState('')
-  const [paramValues, setParamValues] = useState<Record<string, number>>({})
+  const [preset, setPreset] = useState(initialParams?.potential ?? 'infinite_square_well')
+  const [customExpr, setCustomExpr] = useState(initialParams?.expr ?? '')
   const [showPhysicsHelp, setShowPhysicsHelp] = useState(false)
   const [showGridHelp, setShowGridHelp] = useState(false)
 
-  // Reset parameter sliders to defaults whenever the preset changes
+  // Merge URL potential params with slider defaults for the initial preset
+  const [paramValues, setParamValues] = useState<Record<string, number>>(() => {
+    const initialPreset = initialParams?.potential ?? 'infinite_square_well'
+    const info = POTENTIALS[initialPreset]
+    const defaults: Record<string, number> = {}
+    if (info?.parameters) {
+      for (const p of info.parameters) defaults[p.name] = p.default
+    }
+    return { ...defaults, ...(initialParams?.potentialParams ?? {}) }
+  })
+
+  // Reset parameter sliders to defaults when preset changes (skip on first mount
+  // to preserve URL-provided param values)
+  const isFirstPresetEffect = useRef(true)
   useEffect(() => {
+    if (isFirstPresetEffect.current) {
+      isFirstPresetEffect.current = false
+      return
+    }
     const info = POTENTIALS[preset]
     if (info?.parameters) {
       const defaults: Record<string, number> = {}
-      for (const p of info.parameters) {
-        defaults[p.name] = p.default
-      }
+      for (const p of info.parameters) defaults[p.name] = p.default
       setParamValues(defaults)
     } else {
       setParamValues({})
@@ -82,14 +98,14 @@ export function ControlPanel({ mode, onSolve, status = 'idle' }: ControlPanelPro
   }, [showGridHelp, closeGridHelp])
 
   // Stationary
-  const [nStates, setNStates] = useState(5)
+  const [nStates, setNStates] = useState(initialParams?.nStates ?? 5)
 
   // Time evolution
-  const [x0, setX0] = useState(0)
-  const [sigma, setSigma] = useState(1)
-  const [k0, setK0] = useState(0)
-  const [dt, setDt] = useState(0.001)
-  const [nSteps, setNSteps] = useState(1000)
+  const [x0, setX0] = useState(initialParams?.x0 ?? 0)
+  const [sigma, setSigma] = useState(initialParams?.sigma ?? 1)
+  const [k0, setK0] = useState(initialParams?.k0 ?? 0)
+  const [dt, setDt] = useState(initialParams?.dt ?? 0.001)
+  const [nSteps, setNSteps] = useState(initialParams?.nSteps ?? 1000)
 
   const btnClass = !solvedOnce
     ? 'solve-btn solve-btn--ready'

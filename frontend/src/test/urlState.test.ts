@@ -1,12 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { serializeUrlParams, parseUrlParams } from '../utils/urlState'
-import type { UrlParams } from '../utils/urlState'
+import { serializeUrlParams, parseUrlParams, DEFAULTS } from '../utils/urlState'
 
 describe('URL state round-trip', () => {
-  const cases: UrlParams[] = [
-    { potential: 'harmonic_oscillator', xmin: -8,  xmax: 8,  n: 500, mode: 'stationary' },
-    { potential: 'infinite_square_well', xmin: 0,  xmax: 1,  n: 200, mode: 'stationary' },
-    { potential: 'gaussian_barrier',    xmin: -10, xmax: 10, n: 300, mode: 'time-evolution' },
+  const cases = [
+    { ...DEFAULTS, potential: 'harmonic_oscillator', xmin: -8, xmax: 8, n: 500, mode: 'stationary' as const },
+    { ...DEFAULTS, potential: 'infinite_square_well', xmin: -10, xmax: 10, n: 200, mode: 'stationary' as const },
+    { ...DEFAULTS, potential: 'gaussian_barrier', xmin: -10, xmax: 10, n: 300, mode: 'time-evolution' as const },
   ]
 
   cases.forEach(params => {
