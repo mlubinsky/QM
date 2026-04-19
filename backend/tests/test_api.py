@@ -4,10 +4,6 @@ All solver quantities in atomic units: ħ = m_e = 1.
 """
 
 import pytest
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi.testclient import TestClient
 from app import app

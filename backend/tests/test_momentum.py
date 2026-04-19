@@ -5,10 +5,6 @@ Covers all 7 validation requirements from specs/10-momentum-backend.md.
 
 import numpy as np
 import pytest
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import momentum
 from grid import Grid

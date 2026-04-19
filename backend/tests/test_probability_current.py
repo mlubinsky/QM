@@ -5,9 +5,6 @@ Covers all 7 validation requirements from specs/12-probability-current-backend.m
 
 import numpy as np
 import pytest
-import sys, os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import probability_current
 from grid import Grid
