@@ -3,6 +3,7 @@ interface AnimationControlsProps {
   currentFrame: number
   playing: boolean
   currentTime: number
+  speed?: number
   onFrameChange: (frame: number) => void
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
@@ -13,6 +14,7 @@ export function AnimationControls({
   currentFrame,
   playing,
   currentTime,
+  speed = 1,
   onFrameChange,
   onPlayPause,
   onSpeedChange,
@@ -36,7 +38,7 @@ export function AnimationControls({
       <label htmlFor="speed-select">Speed</label>
       <select
         id="speed-select"
-        defaultValue="1"
+        value={String(speed)}
         onChange={e => onSpeedChange(Number(e.target.value))}
       >
         <option value="0.5">0.5x</option>

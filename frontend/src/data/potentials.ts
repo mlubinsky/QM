@@ -171,7 +171,7 @@ export const POTENTIALS: Record<string, PotentialInfo> = {
 
   finite_square_well: {
     label: 'Finite Square Well',
-    expr: '-10 if abs(x) < 3 else 0',
+    expr: '(abs(x) < 3) * -10',
     hamiltonian_latex:
       '\\hat{H} = -\\frac{\\hbar^2}{2m}\\frac{d^2}{dx^2} + V(x), \\quad V(x) = \\begin{cases} -V_0 & |x| < a \\\\ 0 & |x| \\geq a \\end{cases}',
     formula_label: 'Energy Levels',
@@ -190,7 +190,7 @@ export const POTENTIALS: Record<string, PotentialInfo> = {
 
   step_potential: {
     label: 'Step Potential',
-    expr: '5 if x > 0 else 0',
+    expr: '(x > 0) * 5',
     hamiltonian_latex:
       '\\hat{H} = -\\frac{\\hbar^2}{2m}\\frac{d^2}{dx^2} + V(x), \\quad V(x) = \\begin{cases} 0 & x < 0 \\\\ V_0 & x \\geq 0 \\end{cases}',
     formula_label: 'Scattering Coefficients',

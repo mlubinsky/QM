@@ -106,6 +106,7 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
   const [k0, setK0] = useState(initialParams?.k0 ?? 0)
   const [dt, setDt] = useState(initialParams?.dt ?? 0.001)
   const [nSteps, setNSteps] = useState(initialParams?.nSteps ?? 1000)
+  const saveEvery = initialParams?.saveEvery ?? 10
 
   const btnClass = !solvedOnce
     ? 'solve-btn solve-btn--ready'
@@ -128,7 +129,7 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
     if (mode === 'stationary') {
       onSolve({ ...base, n_states: nStates })
     } else {
-      onSolve({ ...base, gaussian_x0: x0, gaussian_sigma: sigma, gaussian_k0: k0, dt, n_steps: nSteps })
+      onSolve({ ...base, gaussian_x0: x0, gaussian_sigma: sigma, gaussian_k0: k0, dt, n_steps: nSteps, save_every: saveEvery })
     }
   }
 

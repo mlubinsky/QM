@@ -68,4 +68,5 @@ export interface AppState {
   potentialPreset: string | null
   currentFrame: number
   playing: boolean
+  speed: number
 }

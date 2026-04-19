@@ -18,6 +18,7 @@ interface PlotAreaProps {
   potentialPreset: string | null
   currentFrame: number
   playing: boolean
+  speed?: number
   onFrameChange: (frame: number) => void
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
@@ -30,6 +31,7 @@ export function PlotArea({
   potentialPreset,
   currentFrame,
   playing,
+  speed = 1,
   onFrameChange,
   onPlayPause,
   onSpeedChange,
@@ -125,6 +127,7 @@ export function PlotArea({
           onFrameChange={onFrameChange}
           onPlayPause={onPlayPause}
           onSpeedChange={onSpeedChange}
+          speed={speed}
         />
       )}
 

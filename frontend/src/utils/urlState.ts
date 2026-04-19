@@ -101,7 +101,7 @@ export function parseUrlParams(sp: URLSearchParams): UrlParams {
     k0:              sp.has('k0')         ? parseFloat(sp.get('k0')!)         : DEFAULTS.k0,
     dt,
     nSteps,
-    saveEvery:       sp.has('save_every') ? parseInt(sp.get('save_every')!, 10) : DEFAULTS.saveEvery,
+    saveEvery: clamp(sp.has('save_every') ? parseInt(sp.get('save_every')!, 10) : DEFAULTS.saveEvery, 1, 100),
   }
 }
 
@@ -127,7 +127,8 @@ export function hasNonDefaultUrl(params: UrlParams): boolean {
     params.x0       !== DEFAULTS.x0       ||
     params.sigma    !== DEFAULTS.sigma    ||
     params.k0       !== DEFAULTS.k0       ||
-    params.dt       !== DEFAULTS.dt       ||
-    params.nSteps   !== DEFAULTS.nSteps
+    params.dt        !== DEFAULTS.dt        ||
+    params.nSteps    !== DEFAULTS.nSteps    ||
+    params.saveEvery !== DEFAULTS.saveEvery
   )
 }

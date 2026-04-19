@@ -19,6 +19,7 @@ type Action =
   | { type: 'DISMISS_ERROR' }
   | { type: 'SET_FRAME'; frame: number }
   | { type: 'TOGGLE_PLAY' }
+  | { type: 'SET_SPEED'; speed: number }
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -38,6 +39,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, currentFrame: action.frame }
     case 'TOGGLE_PLAY':
       return { ...state, playing: !state.playing }
+    case 'SET_SPEED':
+      return { ...state, speed: action.speed }
     default:
       return state
   }
@@ -79,20 +82,22 @@ export default function App() {
     potentialPreset: null,
     currentFrame: 0,
     playing: false,
+    speed: 1,
   }))
 
   // Advance animation frame when playing
   useEffect(() => {
     if (!state.playing || !state.evolveResult) return
     const nFrames = state.evolveResult.psi_frames.length
+    const delay = Math.round(100 / (state.speed ?? 1))
     const id = setInterval(() => {
       dispatch({
         type: 'SET_FRAME',
         frame: (state.currentFrame + 1) % nFrames,
       })
-    }, 100)
+    }, delay)
     return () => clearInterval(id)
-  }, [state.playing, state.currentFrame, state.evolveResult])
+  }, [state.playing, state.currentFrame, state.evolveResult, state.speed])
 
   async function handleSolve(params: Record<string, unknown>) {
     dispatch({ type: 'LOADING' })
@@ -105,7 +110,8 @@ export default function App() {
           ...DEFAULTS,
           ...initialParams,
           mode: 'stationary',
-          potential: req.potential_preset ?? '',
+          potential: req.potential_preset ?? DEFAULTS.potential,
+          expr: req.potential_expr ?? null,
           xmin: req.grid.x_min,
           xmax: req.grid.x_max,
           n: req.grid.n_points,
@@ -119,7 +125,8 @@ export default function App() {
           ...DEFAULTS,
           ...initialParams,
           mode: 'time-evolution',
-          potential: req.potential_preset ?? '',
+          potential: req.potential_preset ?? DEFAULTS.potential,
+          expr: req.potential_expr ?? null,
           xmin: req.grid.x_min,
           xmax: req.grid.x_max,
           n: req.grid.n_points,
@@ -128,6 +135,7 @@ export default function App() {
           k0: req.gaussian_k0,
           dt: req.dt,
           nSteps: req.n_steps,
+          saveEvery: req.save_every ?? DEFAULTS.saveEvery,
         })
       }
     } catch (err) {
@@ -228,7 +236,8 @@ export default function App() {
           playing={state.playing}
           onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
           onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
-          onSpeedChange={_speed => {}}
+          onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
+          speed={state.speed}
         />
       </main>
     </div>

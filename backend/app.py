@@ -98,6 +98,14 @@ class EvolveRequest(BaseModel):
             )
         return self
 
+    @model_validator(mode="after")
+    def check_save_every_vs_n_steps(self):
+        if self.save_every > self.n_steps:
+            raise ValueError(
+                f"save_every ({self.save_every}) must not exceed n_steps ({self.n_steps})"
+            )
+        return self
+
 
 class EvolveResponse(BaseModel):
     psi_frames: list[list[float]]
@@ -175,6 +183,15 @@ def solve_eigenstates_endpoint(req: EigensolveRequest):
 
 @app.post("/solve/evolve", response_model=EvolveResponse)
 def evolve_endpoint(req: EvolveRequest):
+    if not (req.grid.x_min <= req.gaussian_x0 <= req.grid.x_max):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"gaussian_x0 ({req.gaussian_x0}) is outside the simulation domain "
+                f"[{req.grid.x_min}, {req.grid.x_max}]. "
+                "The Gaussian packet would be essentially zero on the grid."
+            ),
+        )
     try:
         g = Grid(req.grid.n_points, req.grid.x_min, req.grid.x_max)
         V = _resolve_potential(req.potential_expr, req.potential_preset, g.x)
