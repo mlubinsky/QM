@@ -54,6 +54,15 @@ pip install fastapi uvicorn scipy numpy asteval httpx
 uvicorn app:app --reload --port 8000
 ```
 
+The backend allows `http://localhost:5173` by default. To allow additional
+origins (e.g. a different port or a deployed frontend) set the
+`CORS_ORIGINS` environment variable as a comma-separated list before
+starting the server:
+
+```bash
+CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com uvicorn app:app --reload --port 8000
+```
+
 Verify:
 ```bash
 curl http://localhost:8000/health

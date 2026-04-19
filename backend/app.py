@@ -4,6 +4,7 @@ All solver quantities in atomic units: ħ = m_e = 1.
 """
 
 import logging
+import os
 import traceback
 from typing import Literal
 
@@ -24,9 +25,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Schrödinger Solver", version="0.1.0")
 
+_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
