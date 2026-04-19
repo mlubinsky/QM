@@ -29,12 +29,13 @@ EXPECTED_PRESETS = {
     "infinite_square_well",
     "harmonic_oscillator",
     "double_well",
+    "deep_double_well",
     "finite_square_well",
     "step_potential",
     "gaussian_barrier",
 }
 
-def test_presets_returns_all_six():
+def test_presets_returns_all_seven():
     r = client.get("/presets")
     assert r.status_code == 200
     returned = set(r.json()["presets"])
