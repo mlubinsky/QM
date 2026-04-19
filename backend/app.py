@@ -154,11 +154,6 @@ def solve_eigenstates_endpoint(req: EigensolveRequest):
         raise
     except Exception as exc:
         logger.error("Eigensolve failed:\n%s", traceback.format_exc())
-        if not result.converged if "result" in dir() else True:
-            raise HTTPException(
-                status_code=500,
-                detail="Eigensolver did not converge. Try increasing n_points or adjusting the potential.",
-            ) from exc
         raise HTTPException(status_code=500, detail="Internal solver error.") from exc
 
     if not result.converged:
