@@ -173,7 +173,17 @@ export function MatrixPanel({ eigenResult }: MatrixPanelProps) {
         rowLabels={labels}
         colLabels={labels}
         title={heatmapTitle[operator]}
+        sequential={operator === 'H'}
+        markDiagonal={view === 'animated'}
       />
+
+      {/* Note for animated view */}
+      {view === 'animated' && (
+        <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#555', fontStyle: 'italic' }}>
+          Colour shows Re[O<sub>mn</sub>(t)]. Magnitude |O<sub>mn</sub>| is time-invariant;
+          diagonal elements (ω<sub>nn</sub> = 0) never change.
+        </p>
+      )}
 
       {/* Physics note for static view */}
       {view === 'static' && (

@@ -6,9 +6,11 @@ interface MatrixHeatmapProps {
   colLabels: string[]
   title: string
   threshold?: number
+  sequential?: boolean   // true → white-to-red scale (for H, all values ≥ 0)
+  markDiagonal?: boolean // true → diagonal cells labelled "(static)"
 }
 
-function cellColor(val: number, maxAbs: number): string {
+function cellColorDiverging(val: number, maxAbs: number): string {
   if (maxAbs === 0) return '#fff'
   const v = Math.max(-1, Math.min(1, val / maxAbs))
   if (v >= 0) {
@@ -18,6 +20,13 @@ function cellColor(val: number, maxAbs: number): string {
     const c = Math.round(255 * (1 + v))
     return `rgb(${c},${c},255)`
   }
+}
+
+function cellColorSequential(val: number, maxAbs: number): string {
+  if (maxAbs === 0) return '#fff'
+  const v = Math.max(0, Math.min(1, val / maxAbs))
+  const c = Math.round(255 * (1 - v))
+  return `rgb(255,${c},${c})`
 }
 
 const headerStyle: CSSProperties = {
@@ -35,8 +44,11 @@ export function MatrixHeatmap({
   colLabels,
   title,
   threshold = 1e-10,
+  sequential = false,
+  markDiagonal = false,
 }: MatrixHeatmapProps) {
   const maxAbs = Math.max(...data.flatMap(row => row.map(v => Math.abs(v))), 1e-30)
+  const cellColor = sequential ? cellColorSequential : cellColorDiverging
 
   return (
     <div>
@@ -56,6 +68,7 @@ export function MatrixHeatmap({
               <tr key={m}>
                 <td style={headerStyle}>{rowLabels[m]}</td>
                 {row.map((val, n) => {
+                  const isDiag = m === n
                   const display = Math.abs(val) < threshold ? 0 : val
                   const cellStyle: CSSProperties = {
                     backgroundColor: cellColor(display, maxAbs),
@@ -74,6 +87,11 @@ export function MatrixHeatmap({
                       title={`${rowLabels[m]}, ${colLabels[n]}: ${val.toFixed(6)}`}
                     >
                       {display.toFixed(3)}
+                      {markDiagonal && isDiag && (
+                        <span style={{ display: 'block', fontSize: '0.6rem', color: '#888', lineHeight: 1 }}>
+                          static
+                        </span>
+                      )}
                     </td>
                   )
                 })}
@@ -83,7 +101,10 @@ export function MatrixHeatmap({
         </table>
       </div>
       <p style={{ margin: '4px 0 0', fontSize: '0.72rem', color: '#888' }}>
-        Blue = negative · White ≈ 0 · Red = positive · max |value| = {maxAbs.toFixed(4)}
+        {sequential
+          ? `White = 0 · Red = max · max value = ${maxAbs.toFixed(4)}`
+          : `Blue = negative · White ≈ 0 · Red = positive · max |value| = ${maxAbs.toFixed(4)}`
+        }
       </p>
     </div>
   )
