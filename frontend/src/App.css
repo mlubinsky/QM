@@ -238,6 +238,11 @@
   font-size: 0.85rem;
 }
 
+.energy-ev {
+  color: #888;
+  font-size: 0.8em;
+}
+
 .export-buttons {
   display: flex;
   gap: 8px;

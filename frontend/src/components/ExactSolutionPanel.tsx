@@ -1,4 +1,5 @@
 import type { EigensolveResponse } from '../types/api'
+import { auToEv } from '../utils/units'
 
 interface Props {
   preset: string
@@ -42,7 +43,9 @@ export function ExactSolutionPanel({ preset, eigenResult }: Props) {
           <tr>
             <th>n</th>
             <th>E exact (a.u.)</th>
+            <th>E exact (eV)</th>
             <th>E numerical (a.u.)</th>
+            <th>E numerical (eV)</th>
             <th>|relative error|</th>
           </tr>
         </thead>
@@ -54,7 +57,9 @@ export function ExactSolutionPanel({ preset, eigenResult }: Props) {
               <tr key={i}>
                 <td>{nLabel(i)}</td>
                 <td>{Eexact.toFixed(6)}</td>
+                <td>{auToEv(Eexact)}</td>
                 <td>{Enum.toFixed(6)}</td>
+                <td>{auToEv(Enum)}</td>
                 <td>{relErr < 1e-14 ? '< 1×10⁻¹⁴' : relErr.toExponential(2)}</td>
               </tr>
             )

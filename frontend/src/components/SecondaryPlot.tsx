@@ -3,6 +3,7 @@ import _Plot from 'react-plotly.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Plot = (_Plot as any).default ?? _Plot
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
+import { auToEv } from '../utils/units'
 import { POTENTIALS } from '../data/potentials'
 import styles from './SecondaryPlot.module.css'
 
@@ -60,7 +61,7 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset
       traces.push({
         x: [grid_x[0], xEnd],
         y: [E, E],
-        name: `E${i + 1} = ${E.toFixed(4)}`,
+        name: `E${i + 1} = ${E.toFixed(4)} a.u. (${auToEv(E)} eV)`,
         type: 'scatter',
         mode: 'lines',
       })

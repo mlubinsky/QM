@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { writeToClipboard } from '../utils/clipboard'
+import { auToEv } from '../utils/units'
 import { MainPlot } from './MainPlot'
 import { MatrixPanel } from './MatrixPanel'
 import { SecondaryPlot } from './SecondaryPlot'
@@ -62,7 +63,8 @@ export function PlotArea({
           {eigenResult.energies.map((E, i) => (
             <li key={i}>
               E<sub>{i + 1}</sub> ={' '}
-              <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.
+              <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.{' '}
+              <span className="energy-ev">({auToEv(E)} eV)</span>
             </li>
           ))}
         </ul>
