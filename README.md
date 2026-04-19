@@ -83,7 +83,7 @@ npm run dev
 ## Project structure
 
 ```
-schrodinger-solver/
+QM/
 ├── backend/
 │   ├── app.py                  # FastAPI endpoints
 │   ├── grid.py                 # Uniform 1D grid
