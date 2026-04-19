@@ -86,23 +86,41 @@ def test_eigensolve_response_shape():
 
 # ── POST /solve/evolve ───────────────────────────────────────────────────────
 
+_EVOLVE_PAYLOAD = {
+    "grid": {"x_min": 0.0, "x_max": 1.0, "n_points": 200},
+    "potential_preset": "infinite_square_well",
+    "initial_state": "gaussian",
+    "gaussian_x0": 0.5,
+    "gaussian_sigma": 0.05,
+    "gaussian_k0": 10.0,
+    "dt": 0.001,
+    "n_steps": 100,
+    "save_every": 10,
+}
+
+
 def test_evolve_norm_history():
-    payload = {
-        "grid": {"x_min": 0.0, "x_max": 1.0, "n_points": 200},
-        "potential_preset": "infinite_square_well",
-        "initial_state": "gaussian",
-        "gaussian_x0": 0.5,
-        "gaussian_sigma": 0.05,
-        "gaussian_k0": 10.0,
-        "dt": 0.001,
-        "n_steps": 100,
-        "save_every": 10,
-    }
-    r = client.post("/solve/evolve", json=payload)
+    r = client.post("/solve/evolve", json=_EVOLVE_PAYLOAD)
     assert r.status_code == 200
     body = r.json()
     for norm in body["norm_history"]:
         assert abs(norm - 1.0) < 1e-4
+
+
+def test_evolve_uncertainty_fields_present_and_valid():
+    """delta_x, delta_p, delta_x_delta_p are returned and satisfy Heisenberg bound."""
+    r = client.post("/solve/evolve", json=_EVOLVE_PAYLOAD)
+    assert r.status_code == 200
+    body = r.json()
+    n_frames = len(body["times"])
+    assert len(body["delta_x"]) == n_frames
+    assert len(body["delta_p"]) == n_frames
+    assert len(body["delta_x_delta_p"]) == n_frames
+    for dx, dp, dxdp in zip(body["delta_x"], body["delta_p"], body["delta_x_delta_p"]):
+        assert dx >= 0
+        assert dp >= 0
+        assert abs(dxdp - dx * dp) < 1e-10   # product is consistent
+        assert dxdp >= 0.5 - 1e-3             # Heisenberg bound Δx·Δp ≥ ½
 
 
 def test_evolve_runaway_computation_returns_422():

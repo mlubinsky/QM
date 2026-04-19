@@ -110,6 +110,9 @@ class EvolveResponse(BaseModel):
     momentum_frames: list[list[float]]
     momentum_k: list[float]
     current_frames: list[list[float]]
+    delta_x: list[float]
+    delta_p: list[float]
+    delta_x_delta_p: list[float]
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -205,4 +208,7 @@ def evolve_endpoint(req: EvolveRequest):
         momentum_frames=result.momentum_frames.tolist(),
         momentum_k=result.momentum_k.tolist(),
         current_frames=result.current_frames.tolist(),
+        delta_x=result.delta_x.tolist(),
+        delta_p=result.delta_p.tolist(),
+        delta_x_delta_p=result.delta_x_delta_p.tolist(),
     )

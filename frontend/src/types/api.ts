@@ -51,6 +51,9 @@ export interface EvolveResponse {
   momentum_frames: number[][] // shape (n_frames, n_points), |φ(k,t)|²
   momentum_k: number[]        // shape (n_points,), k values (rad/a.u.)
   current_frames: number[][]  // shape (n_frames, n_points), J(x,t)
+  delta_x: number[]           // Δx(t) at each frame
+  delta_p: number[]           // Δp(t) at each frame
+  delta_x_delta_p: number[]   // Δx·Δp at each frame
 }
 
 export type AppMode = 'stationary' | 'time-evolution'

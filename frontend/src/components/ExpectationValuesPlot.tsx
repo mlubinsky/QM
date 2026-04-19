@@ -11,14 +11,7 @@ interface Props {
 export function ExpectationValuesPlot({ evolveResult }: Props) {
   if (!evolveResult) return null
 
-  const { times, expect_x, expect_p, expect_x2, expect_p2 } = evolveResult
-
-  // Δx·Δp computed on the frontend from the returned second-moment arrays
-  const dxdp = expect_x.map((_, i) => {
-    const delta_x = Math.sqrt(Math.max(expect_x2[i] - expect_x[i] ** 2, 0))
-    const delta_p = Math.sqrt(Math.max(expect_p2[i] - expect_p[i] ** 2, 0))
-    return delta_x * delta_p
-  })
+  const { times, expect_x, expect_p, delta_x_delta_p } = evolveResult
 
   // Heisenberg bound reference line
   const heisenberg = times.map(() => 0.5)
@@ -40,7 +33,7 @@ export function ExpectationValuesPlot({ evolveResult }: Props) {
     },
     {
       x: times,
-      y: dxdp,
+      y: delta_x_delta_p,
       name: 'Δx·Δp',
       type: 'scatter',
       yaxis: 'y2',

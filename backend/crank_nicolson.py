@@ -33,6 +33,9 @@ class TimeEvolutionResult:
     momentum_frames: np.ndarray  # shape (n_frames, grid.n) — |φ(k,t)|²
     momentum_k: np.ndarray       # shape (grid.n,) — k values (rad/a.u.)
     current_frames: np.ndarray   # shape (n_frames, grid.n) — J(x,t)
+    delta_x: np.ndarray          # shape (n_frames,) — Δx at each frame
+    delta_p: np.ndarray          # shape (n_frames,) — Δp at each frame
+    delta_x_delta_p: np.ndarray  # shape (n_frames,) — Δx·Δp at each frame
 
 
 def evolve(
@@ -85,6 +88,9 @@ def evolve(
     momentum_frames = np.empty((n_frames, n))
     momentum_k = _momentum.k_axis(n, dx)
     current_frames = np.empty((n_frames, n))
+    delta_x = np.empty(n_frames)
+    delta_p = np.empty(n_frames)
+    delta_x_delta_p = np.empty(n_frames)
 
     psi = psi0.astype(complex)
     frame = 0
@@ -99,6 +105,9 @@ def evolve(
         expect_x2[f] = ev.x2
         expect_p2[f] = ev.p2
         expect_H[f] = ev.H
+        delta_x[f] = ev.delta_x
+        delta_p[f] = ev.delta_p
+        delta_x_delta_p[f] = ev.delta_x_delta_p
         momentum_frames[f] = _momentum.density(psi_f, dx)
         current_frames[f] = _current.compute(psi_f, dx)
 
@@ -124,4 +133,7 @@ def evolve(
         momentum_frames=momentum_frames,
         momentum_k=momentum_k,
         current_frames=current_frames,
+        delta_x=delta_x,
+        delta_p=delta_p,
+        delta_x_delta_p=delta_x_delta_p,
     )
