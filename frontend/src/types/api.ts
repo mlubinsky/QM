@@ -28,10 +28,12 @@ export interface EvolveRequest {
   grid: GridConfig
   potential_preset?: string | null
   potential_expr?: string | null
-  initial_state?: 'gaussian'
+  initial_state?: 'gaussian' | 'superposition'
   gaussian_x0?: number
   gaussian_sigma?: number
   gaussian_k0?: number
+  n_super_states?: number
+  coefficients?: number[] | null
   dt?: number
   n_steps?: number
   save_every?: number

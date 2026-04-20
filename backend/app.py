@@ -17,7 +17,7 @@ from grid import Grid
 from hamiltonian import build_hamiltonian
 from eigenvalue_solver import solve_eigenstates
 from crank_nicolson import evolve
-from initial_states import gaussian_packet
+from initial_states import gaussian_packet, eigenstate_superposition
 from potential_parser import parse_potential
 from presets import PRESETS
 
@@ -76,10 +76,12 @@ class EvolveRequest(BaseModel):
     grid: GridConfig
     potential_preset: str | None = "infinite_square_well"
     potential_expr: str | None = None
-    initial_state: Literal["gaussian"] = "gaussian"
+    initial_state: Literal["gaussian", "superposition"] = "gaussian"
     gaussian_x0: float = 0.0
     gaussian_sigma: float = 1.0
     gaussian_k0: float = 0.0
+    n_super_states: int = Field(2, ge=1, le=20)
+    coefficients: list[float] | None = None
     dt: float = Field(0.001, gt=0, le=0.1)
     n_steps: int = Field(1000, ge=10, le=10000)
     save_every: int = Field(10, ge=1, le=100)
@@ -104,6 +106,21 @@ class EvolveRequest(BaseModel):
             raise ValueError(
                 f"save_every ({self.save_every}) must not exceed n_steps ({self.n_steps})"
             )
+        return self
+
+    @model_validator(mode="after")
+    def check_superposition_args(self):
+        if self.initial_state != "superposition":
+            return self
+        if self.coefficients is None:
+            raise ValueError("coefficients must be provided when initial_state is 'superposition'")
+        if len(self.coefficients) != self.n_super_states:
+            raise ValueError(
+                f"len(coefficients) ({len(self.coefficients)}) must equal "
+                f"n_super_states ({self.n_super_states})"
+            )
+        if all(c == 0.0 for c in self.coefficients):
+            raise ValueError("coefficients must not all be zero")
         return self
 
 
@@ -183,7 +200,7 @@ def solve_eigenstates_endpoint(req: EigensolveRequest):
 
 @app.post("/solve/evolve", response_model=EvolveResponse)
 def evolve_endpoint(req: EvolveRequest):
-    if not (req.grid.x_min <= req.gaussian_x0 <= req.grid.x_max):
+    if req.initial_state == "gaussian" and not (req.grid.x_min <= req.gaussian_x0 <= req.grid.x_max):
         raise HTTPException(
             status_code=422,
             detail=(
@@ -196,8 +213,21 @@ def evolve_endpoint(req: EvolveRequest):
         g = Grid(req.grid.n_points, req.grid.x_min, req.grid.x_max)
         V = _resolve_potential(req.potential_expr, req.potential_preset, g.x)
         H = build_hamiltonian(g, V)
-        psi0 = gaussian_packet(g.x, g.dx, x0=req.gaussian_x0,
-                               sigma=req.gaussian_sigma, k0=req.gaussian_k0)
+        if req.initial_state == "superposition":
+            eigen = solve_eigenstates(H, g.x, g.dx, k=req.n_super_states)
+            if not eigen.converged:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Eigensolver did not converge for superposition initial state.",
+                )
+            psi0 = eigenstate_superposition(
+                np.array(eigen.wavefunctions),
+                np.array(req.coefficients),
+                g.dx,
+            )
+        else:
+            psi0 = gaussian_packet(g.x, g.dx, x0=req.gaussian_x0,
+                                   sigma=req.gaussian_sigma, k0=req.gaussian_k0)
         result = evolve(H, psi0, g.x, g.dx,
                         dt=req.dt, n_steps=req.n_steps,
                         potential=V, save_every=req.save_every)

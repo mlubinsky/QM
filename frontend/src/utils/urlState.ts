@@ -15,6 +15,9 @@ export interface UrlParams {
   dt: number
   nSteps: number
   saveEvery: number
+  initState: 'gaussian' | 'superposition'
+  nSuperStates: number
+  coefficients: number[]
 }
 
 export const DEFAULTS: UrlParams = {
@@ -32,6 +35,9 @@ export const DEFAULTS: UrlParams = {
   dt: 0.001,
   nSteps: 1000,
   saveEvery: 10,
+  initState: 'gaussian',
+  nSuperStates: 2,
+  coefficients: [],
 }
 
 function clamp(val: number, min: number, max: number): number {
@@ -58,6 +64,13 @@ export function serializeUrlParams(params: UrlParams): string {
   }
   for (const [k, v] of Object.entries(params.potentialParams)) {
     entries[`p_${k}`] = String(v)
+  }
+  if (params.initState === 'superposition') {
+    entries.init = 'superposition'
+    entries.n_super = String(params.nSuperStates)
+    for (let i = 0; i < params.coefficients.length; i++) {
+      entries[`c${i}`] = String(params.coefficients[i])
+    }
   }
   return new URLSearchParams(entries).toString()
 }
@@ -87,6 +100,24 @@ export function parseUrlParams(sp: URLSearchParams): UrlParams {
   const exprRaw = sp.get('expr')
   const expr = exprRaw !== null ? exprRaw : null
 
+  // initState / superposition
+  const initStateRaw = sp.get('init')
+  const initState: 'gaussian' | 'superposition' =
+    initStateRaw === 'superposition' ? 'superposition' : 'gaussian'
+  const nSuperStates = clamp(
+    sp.has('n_super') ? parseInt(sp.get('n_super')!, 10) : DEFAULTS.nSuperStates,
+    1, 20,
+  )
+
+  // Parse coefficient keys c0, c1, c2, ...
+  const coefficients: number[] = []
+  for (let i = 0; ; i++) {
+    const raw = sp.get(`c${i}`)
+    if (raw === null) break
+    const val = parseFloat(raw)
+    coefficients.push(isNaN(val) ? 0 : val)
+  }
+
   return {
     mode:            (sp.get('mode') as AppMode | null) ?? DEFAULTS.mode,
     potential:       sp.get('potential') ?? DEFAULTS.potential,
@@ -102,6 +133,9 @@ export function parseUrlParams(sp: URLSearchParams): UrlParams {
     dt,
     nSteps,
     saveEvery: clamp(sp.has('save_every') ? parseInt(sp.get('save_every')!, 10) : DEFAULTS.saveEvery, 1, 100),
+    initState,
+    nSuperStates,
+    coefficients,
   }
 }
 
@@ -129,6 +163,8 @@ export function hasNonDefaultUrl(params: UrlParams): boolean {
     params.k0       !== DEFAULTS.k0       ||
     params.dt        !== DEFAULTS.dt        ||
     params.nSteps    !== DEFAULTS.nSteps    ||
-    params.saveEvery !== DEFAULTS.saveEvery
+    params.saveEvery !== DEFAULTS.saveEvery ||
+    params.initState !== DEFAULTS.initState ||
+    params.coefficients.length > 0
   )
 }
