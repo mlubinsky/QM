@@ -16,11 +16,13 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Exact-solution comparison table for infinite square well and harmonic oscillator: numerical energies vs analytic values with relative error
 - Physics reference modal (? button) for each potential: Hamiltonian, key formula, description, and what to look for
 
-**Time-evolution mode** — evolve a Gaussian wave packet under the chosen potential:
+**Time-evolution mode** — evolve a wave packet under the chosen potential:
 - Crank-Nicolson integrator — unconditionally stable, norm-conserving
 - Animated |ψ(x,t)|² with play/pause/speed controls
 - Norm history plot showing ‖ψ(t)‖² − 1 (conservation diagnostic)
-- Adjustable packet parameters: center x₀, width σ, momentum k₀
+- **Two initial-state choices:**
+  - **Gaussian packet** — adjustable center x₀, width σ, momentum k₀
+  - **Superposition of eigenstates** — choose up to 20 eigenstates with real coefficients cₙ; ψ₀ = Σ cₙ ψₙ (normalised). Quick-select buttons instantly load a single eigenstate.
 - Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ computed at every saved frame
 - Uncertainties Δx, Δp, and product Δx·Δp returned for each frame
 - Momentum-space probability density |φ(k,t)|² animated in sync with |ψ(x,t)|²
@@ -90,7 +92,7 @@ QM/
 │   ├── hamiltonian.py          # Finite-difference Hamiltonian (sparse)
 │   ├── eigenvalue_solver.py    # Sparse eigensolver (ARPACK via scipy)
 │   ├── crank_nicolson.py       # Crank-Nicolson time stepper
-│   ├── initial_states.py       # Gaussian wave packet factory
+│   ├── initial_states.py       # Gaussian packet + eigenstate superposition factories
 │   ├── expectation_values.py   # ⟨x⟩, ⟨p⟩, ⟨H⟩, uncertainties
 │   ├── momentum.py             # Momentum-space density |φ(k)|²
 │   ├── probability_current.py  # Probability current J(x,t)
@@ -208,12 +210,15 @@ Returns energies, wavefunctions, grid, potential, and per-state norm errors.
 
 ### `POST /solve/evolve`
 
-Evolve a Gaussian wave packet using Crank-Nicolson.
+Evolve a wave packet using Crank-Nicolson. Supports two initial states.
+
+**Gaussian packet** (default):
 
 ```json
 {
   "grid": {"x_min": -10.0, "x_max": 10.0, "n_points": 500},
   "potential_preset": "infinite_square_well",
+  "initial_state": "gaussian",
   "gaussian_x0": 0.0,
   "gaussian_sigma": 1.0,
   "gaussian_k0": 2.0,
@@ -222,6 +227,23 @@ Evolve a Gaussian wave packet using Crank-Nicolson.
   "save_every": 10
 }
 ```
+
+**Superposition of eigenstates** — the backend solves for `n_super_states` eigenstates internally, then builds ψ₀ = Σ cₙ ψₙ (normalised):
+
+```json
+{
+  "grid": {"x_min": -10.0, "x_max": 10.0, "n_points": 500},
+  "potential_preset": "harmonic_oscillator",
+  "initial_state": "superposition",
+  "n_super_states": 3,
+  "coefficients": [1.0, 0.0, 1.0],
+  "dt": 0.005,
+  "n_steps": 1000,
+  "save_every": 10
+}
+```
+
+Validation: `coefficients` must have length equal to `n_super_states` and must not be all zero.
 
 Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential,
 per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`,
