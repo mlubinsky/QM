@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { AppMode, AppStatus } from '../types/api'
+import { auToAngstrom } from '../utils/units'
 import { POTENTIALS, POTENTIAL_KEYS } from '../data/potentials'
 import { PhysicsPanel } from './PhysicsPanel'
 import { SolverInfoPanel } from './SolverInfoPanel'
@@ -180,10 +181,10 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             >?</button>
           </span>
         </legend>
-        <label htmlFor="x-min">x_min</label>
+        <label htmlFor="x-min">x_min (a.u.) <span className="unit-angstrom">{auToAngstrom(xMin)} Å</span></label>
         <input id="x-min" type="number" value={xMin} onChange={e => { setXMin(Number(e.target.value)); markDirty() }} />
 
-        <label htmlFor="x-max">x_max</label>
+        <label htmlFor="x-max">x_max (a.u.) <span className="unit-angstrom">{auToAngstrom(xMax)} Å</span></label>
         <input id="x-max" type="number" value={xMax} onChange={e => { setXMax(Number(e.target.value)); markDirty() }} />
 
         <label htmlFor="n-points">n_points</label>

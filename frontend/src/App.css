@@ -344,6 +344,14 @@
   opacity: 1;
 }
 
+/* Inline unit annotation, e.g. "−5.29 Å" next to a.u. labels */
+.unit-angstrom {
+  font-weight: normal;
+  font-size: 0.78rem;
+  color: #888;
+  margin-left: 4px;
+}
+
 .slider-row {
   display: flex;
   align-items: center;
