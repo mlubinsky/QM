@@ -15,8 +15,8 @@ Installed into the system/conda Python environment via `pip install`.
 | `uvicorn` | 0.34.3 | ASGI server to run FastAPI |
 | `pydantic` | 2.11.7 | Request/response model validation (FastAPI dependency, v2 required) |
 | `starlette` | 0.46.2 | FastAPI's underlying ASGI toolkit (transitive) |
-| `scipy` | 1.10.0 | `eigsh` sparse eigenvalue solver; `splu` LU factorisation; `sparse.diags` |
-| `numpy` | 1.23.5 | All numerical arrays, `linspace`, `diag`, etc. |
+| `scipy` | 1.15.3 | `eigsh` sparse eigenvalue solver; `splu` LU factorisation; `sparse.diags` |
+| `numpy` | 2.2.6 | All numerical arrays, `linspace`, `diag`, etc. |
 | `asteval` | 1.0.8 | Safe math expression evaluator for user-supplied potentials (spec 05) |
 | `httpx` | 0.28.1 | FastAPI `TestClient` transport layer (used in `test_api.py`) |
 | `anyio` | 4.9.0 | Async I/O abstraction (transitive dependency of FastAPI/httpx) |
