@@ -1,9 +1,29 @@
 """Crank-Nicolson time stepper for the time-dependent Schrödinger equation.
 
-Solves iħ ∂ψ/∂t = H ψ using the implicit Crank-Nicolson scheme:
-  (I + i·dt/2·H) ψ(t+dt) = (I - i·dt/2·H) ψ(t)
+Solves iħ ∂ψ/∂t = H ψ using the implicit Crank-Nicolson (CN) scheme.
+
+Derivation
+----------
+Discretising in time with step dt and evaluating H at the midpoint
+(average of t and t+dt) gives the CN update rule:
+
+    (I + i·dt/2·H) ψ(t+dt) = (I − i·dt/2·H) ψ(t)
+
+Writing L = I + i·dt/2·H and R = I − i·dt/2·H:
+
+    ψ(t+dt) = L⁻¹ R ψ(t)
+
+The propagator L⁻¹ R is unitary (L† = R), so norm is conserved to
+machine precision.  The scheme is unconditionally stable for any dt.
+
+Implementation
+--------------
+L is LU-factorised once using ``scipy.sparse.linalg.splu``.  Each
+time step then costs one sparse matrix-vector product (R @ ψ) and one
+triangular solve (lu.solve), both O(N) for a tridiagonal system.
 
 All quantities in atomic units: ħ = m_e = 1.
+The unit of time is ≈ 24.19 attoseconds.
 """
 
 from dataclasses import dataclass
@@ -20,22 +40,65 @@ import probability_current as _current
 
 @dataclass
 class TimeEvolutionResult:
-    psi_frames: np.ndarray      # shape (n_frames, grid.n), complex128
-    times: np.ndarray           # shape (n_frames,)
-    norm_history: np.ndarray    # shape (n_frames,) — ||ψ(t)||² at each frame
-    grid_x: np.ndarray          # shape (grid.n,)
+    """Output of a Crank-Nicolson time evolution run.
+
+    Attributes
+    ----------
+    psi_frames : np.ndarray
+        Shape ``(n_frames, N)``, complex128.  Wavefunction ψ(x, t) at
+        each saved frame.
+    times : np.ndarray
+        Shape ``(n_frames,)``.  Time coordinate of each frame in a.u.
+    norm_history : np.ndarray
+        Shape ``(n_frames,)``.  ‖ψ(t)‖² = sum(|ψ|²)·dx at each frame.
+        Should stay within ≈ 1e-10 of 1.0 (CN unitarity).
+    grid_x : np.ndarray
+        Shape ``(N,)``.  Grid x-coordinates in atomic units.
+    dx : float
+        Grid spacing in atomic units.
+    expect_x : np.ndarray
+        Shape ``(n_frames,)``.  ⟨x(t)⟩ in atomic units.
+    expect_p : np.ndarray
+        Shape ``(n_frames,)``.  ⟨p(t)⟩ in atomic units.
+    expect_x2 : np.ndarray
+        Shape ``(n_frames,)``.  ⟨x²(t)⟩ in atomic units.
+    expect_p2 : np.ndarray
+        Shape ``(n_frames,)``.  ⟨p²(t)⟩ in atomic units.
+    expect_H : np.ndarray
+        Shape ``(n_frames,)``.  ⟨H(t)⟩ in Hartree.  Constant for a
+        time-independent Hamiltonian (energy conservation diagnostic).
+    momentum_frames : np.ndarray
+        Shape ``(n_frames, N)``.  Momentum-space probability density
+        |φ(k, t)|², ordered from −k_max to +k_max.
+    momentum_k : np.ndarray
+        Shape ``(N,)``.  Wavenumber axis in rad/a.u.
+    current_frames : np.ndarray
+        Shape ``(n_frames, N)``.  Probability current J(x, t) in 1/a.u.²
+    delta_x : np.ndarray
+        Shape ``(n_frames,)``.  Position uncertainty Δx(t) = √(⟨x²⟩−⟨x⟩²).
+    delta_p : np.ndarray
+        Shape ``(n_frames,)``.  Momentum uncertainty Δp(t).
+    delta_x_delta_p : np.ndarray
+        Shape ``(n_frames,)``.  Uncertainty product Δx·Δp ≥ 1/2
+        (Heisenberg bound in atomic units).
+    """
+
+    psi_frames: np.ndarray
+    times: np.ndarray
+    norm_history: np.ndarray
+    grid_x: np.ndarray
     dx: float
-    expect_x: np.ndarray        # shape (n_frames,) — ⟨x⟩ at each frame
-    expect_p: np.ndarray        # shape (n_frames,) — ⟨p⟩ at each frame
-    expect_x2: np.ndarray       # shape (n_frames,) — ⟨x²⟩ at each frame
-    expect_p2: np.ndarray       # shape (n_frames,) — ⟨p²⟩ at each frame
-    expect_H: np.ndarray        # shape (n_frames,) — ⟨H⟩ at each frame
-    momentum_frames: np.ndarray  # shape (n_frames, grid.n) — |φ(k,t)|²
-    momentum_k: np.ndarray       # shape (grid.n,) — k values (rad/a.u.)
-    current_frames: np.ndarray   # shape (n_frames, grid.n) — J(x,t)
-    delta_x: np.ndarray          # shape (n_frames,) — Δx at each frame
-    delta_p: np.ndarray          # shape (n_frames,) — Δp at each frame
-    delta_x_delta_p: np.ndarray  # shape (n_frames,) — Δx·Δp at each frame
+    expect_x: np.ndarray
+    expect_p: np.ndarray
+    expect_x2: np.ndarray
+    expect_p2: np.ndarray
+    expect_H: np.ndarray
+    momentum_frames: np.ndarray
+    momentum_k: np.ndarray
+    current_frames: np.ndarray
+    delta_x: np.ndarray
+    delta_p: np.ndarray
+    delta_x_delta_p: np.ndarray
 
 
 def evolve(
@@ -50,16 +113,57 @@ def evolve(
 ) -> TimeEvolutionResult:
     """Evolve ψ₀ under H for n_steps time steps of size dt.
 
-    Uses LU-factorized Crank-Nicolson — O(n) per step after factorization.
-    Saves one frame every save_every steps; n_frames = n_steps // save_every + 1.
-    Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ are computed at each frame.
+    Parameters
+    ----------
+    hamiltonian : scipy.sparse.spmatrix
+        Sparse Hamiltonian H of shape ``(N, N)``.
+    psi0 : np.ndarray
+        Initial wavefunction, complex, shape ``(N,)``.  Must satisfy
+        ``sum(|ψ₀|²) * dx ≈ 1.0`` (checked to within 1e-6).
+    grid_x : np.ndarray
+        Grid coordinates, shape ``(N,)``, in atomic units.
+    dx : float
+        Grid spacing in atomic units.
+    dt : float
+        Time step in atomic units (1 a.u. ≈ 24.19 as).  CN is
+        unconditionally stable for any dt; accuracy degrades for large dt.
+    n_steps : int
+        Total number of time steps to perform.
+    potential : np.ndarray
+        V(x) on the grid, shape ``(N,)``, in Hartree.  Used only for
+        computing ⟨V⟩ and hence ⟨p²⟩ = 2(⟨H⟩ − ⟨V⟩).
+    save_every : int, optional
+        Save one frame every this many steps.  Default 10.
+        Total frames stored: ``n_frames = n_steps // save_every + 1``
+        (frame 0 is the initial state).
 
-    All quantities in atomic units: ħ = m_e = 1.
+    Returns
+    -------
+    TimeEvolutionResult
+        Dataclass with wavefunction frames, times, norm history,
+        expectation values, momentum density frames, probability current
+        frames, and uncertainty products at each saved frame.
 
     Raises
     ------
     ValueError
-        If ||ψ₀||²·dx deviates from 1.0 by more than 1e-6.
+        If ``sum(|ψ₀|²) * dx`` deviates from 1.0 by more than 1e-6.
+
+    Notes
+    -----
+    The CN update per step is:
+
+        ψ(t+dt) = L⁻¹ · R · ψ(t)
+
+    where L = I + i·dt/2·H and R = I − i·dt/2·H.  L is LU-factorised
+    once (``splu``); each step costs one matrix-vector product and one
+    triangular solve, both O(N).
+
+    Momentum density uses an FFT-based approximation:
+
+        |φ(kⱼ)|² ≈ (dx² / 2π) · |FFT(ψ)[j]|²
+
+    normalised so that ``sum(|φ|²) * dk == 1`` (Parseval).
     """
     norm0 = np.sum(np.abs(psi0) ** 2) * dx
     if abs(norm0 - 1.0) > 1e-6:

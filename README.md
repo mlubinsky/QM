@@ -255,6 +255,83 @@ Returns the list of built-in potential names.
 
 ---
 
+## How it works
+
+### Atomic units
+
+All internal quantities use **atomic units** (ħ = mₑ = e = 1):
+
+| Quantity | Atomic unit | SI equivalent |
+|---|---|---|
+| Length | Bohr radius a₀ | 0.529 Å = 0.0529 nm |
+| Energy | Hartree Eₕ | 27.21 eV |
+| Time | ħ/Eₕ | 24.19 attoseconds |
+| Momentum | ħ/a₀ | — |
+
+The UI displays energies in both Hartree and eV, lengths in both a.u. and Å, and times in both a.u. and attoseconds/femtoseconds.
+
+### Spatial discretisation
+
+The 1-D domain [x_min, x_max] is divided into N uniform grid points with spacing dx = (x_max − x_min)/(N−1). The kinetic energy operator −(ħ²/2m)d²/dx² is approximated by the **3-point central-difference stencil**:
+
+```
+(d²ψ/dx²)ᵢ ≈ (ψᵢ₋₁ − 2ψᵢ + ψᵢ₊₁) / dx²       O(dx²) accuracy
+```
+
+This gives a tridiagonal kinetic-energy matrix T with entries:
+
+```
+T_ii      = +1/dx²
+T_{i,i±1} = −1/(2dx²)
+```
+
+**Dirichlet boundary conditions** (ψ = 0 at both walls) are enforced by zeroing the boundary rows and columns of T and placing a large sentinel on the diagonal. The full Hamiltonian is H = T + diag(V).
+
+### Stationary states — eigenvalue solver
+
+The time-independent Schrödinger equation H ψₙ = Eₙ ψₙ is solved using **ARPACK** (`scipy.sparse.linalg.eigsh`, `which='SM'`). ARPACK is a Krylov-subspace iterative method that only requires matrix-vector products, making it efficient for the sparse tridiagonal H. The k lowest eigenpairs are returned. Wavefunctions are normalised so that Σ|ψₙ|²·dx = 1.
+
+### Time evolution — Crank-Nicolson
+
+The time-dependent Schrödinger equation iħ ∂ψ/∂t = Hψ is solved with the **Crank-Nicolson (CN)** implicit scheme. Discretising in time with step dt:
+
+```
+(I + i·dt/2·H) ψ(t+dt) = (I − i·dt/2·H) ψ(t)
+```
+
+Writing L = I + i·dt/2·H and R = I − i·dt/2·H, each step computes:
+
+```
+ψ(t+dt) = L⁻¹ · R · ψ(t)
+```
+
+Key properties:
+- **Unconditionally stable** — no CFL condition on dt
+- **Unitary** — L† = R, so ‖ψ‖² is conserved to machine precision
+- **O(N) per step** — L is LU-factorised once (`scipy.sparse.linalg.splu`); each step costs one sparse matrix-vector product and one triangular solve
+
+### Momentum-space density — FFT
+
+The momentum-space wavefunction φ(k) is the Fourier transform of ψ(x). On a uniform grid it is approximated using the **Fast Fourier Transform**:
+
+```
+|φ(kⱼ)|² ≈ (dx² / 2π) · |FFT(ψ)[j]|²
+```
+
+normalised so that Σ|φ(kⱼ)|²·Δk = 1 (Parseval's theorem), with Δk = 2π/(N·dx). The k-axis is centred on zero using `fftshift`.
+
+### Probability current
+
+The probability current density is computed from the discretised wavefunction:
+
+```
+J(x, t) = Im[ψ*(x,t) · ∂ψ(x,t)/∂x]
+```
+
+using `numpy.gradient` (central differences) for the spatial derivative. J satisfies the continuity equation ∂|ψ|²/∂t + ∂J/∂x = 0.
+
+---
+
 ## Built-in potentials
 
 | Name | Expression | Notes |
