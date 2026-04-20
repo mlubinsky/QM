@@ -1,3 +1,59 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "schrodinger-solver"
+version = "0.1.0"
+description = "Browser-based solver for the 1D time-dependent and time-independent Schrödinger equation"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Michael Lubinsky" },
+]
+keywords = [
+  "quantum mechanics",
+  "Schrödinger equation",
+  "Crank-Nicolson",
+  "eigenvalue solver",
+  "physics simulation",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.10"
+
+# Runtime dependencies (backend server + solver)
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.34",
+  "pydantic>=2.11",
+  "numpy>=2.0",
+  "scipy>=1.15",
+  "asteval>=1.0",
+]
+
+[project.optional-dependencies]
+# Install with: pip install -e ".[dev]"
+dev = [
+  "httpx>=0.28",      # FastAPI TestClient transport
+  "anyio>=4.9",       # async I/O (transitive, pinned for test stability)
+  "pytest>=7.1",
+]
+
+[project.urls]
+Repository = "https://github.com/mlubinsky/QM"
+
+# ── Tool configuration ────────────────────────────────────────────────────────
+
 [tool.pytest.ini_options]
 pythonpath = ["backend"]
 testpaths  = ["backend/tests"]
