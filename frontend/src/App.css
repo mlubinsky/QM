@@ -352,6 +352,13 @@
   margin-left: 4px;
 }
 
+/* Total simulation time summary line */
+.total-time-row {
+  font-size: 0.82rem;
+  color: #555;
+  margin-top: 2px;
+}
+
 .slider-row {
   display: flex;
   align-items: center;

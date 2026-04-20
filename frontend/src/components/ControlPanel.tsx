@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { AppMode, AppStatus } from '../types/api'
-import { auToAngstrom } from '../utils/units'
+import { auToAngstrom, auTimeToHuman } from '../utils/units'
 import { POTENTIALS, POTENTIAL_KEYS } from '../data/potentials'
 import { PhysicsPanel } from './PhysicsPanel'
 import { SolverInfoPanel } from './SolverInfoPanel'
@@ -409,7 +409,7 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
           )}
 
           <label htmlFor="dt" data-tooltip="Crank-Nicolson time step size (a.u.) — smaller gives higher temporal accuracy">
-            dt
+            dt (a.u.) <span className="unit-angstrom">{auTimeToHuman(dt)}</span>
           </label>
           <input id="dt" type="number" value={dt} onChange={e => { setDt(Number(e.target.value)); markDirty() }} />
 
@@ -420,6 +420,10 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             <input id="n-steps" type="range" min={10} max={10000} value={nSteps}
               onChange={e => { setNSteps(Number(e.target.value)); markDirty() }} />
             <span aria-live="polite">{nSteps}</span>
+          </div>
+          <div className="total-time-row">
+            Total time: <strong>{(dt * nSteps).toFixed(3)} a.u.</strong>{' '}
+            <span className="unit-angstrom">({auTimeToHuman(dt * nSteps)})</span>
           </div>
         </fieldset>
       )}
