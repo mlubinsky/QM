@@ -307,7 +307,7 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
       {/* Legend */}
       <div style={{ paddingLeft: PAD_L, fontSize: '0.78rem', color: '#888', marginTop: 4, display: 'flex', gap: 16 }}>
         <span><span style={{ color: '#4a9eff' }}>━</span> current orbital</span>
-        <span><span style={{ color: '#ffb347' }}>━</span> focused level</span>
+        <span><span style={{ color: '#ffb347' }}>━</span> selected level</span>
         <span><span style={{ color: '#7ddf7d' }}>━</span> reachable (Δℓ = ±1)</span>
         <span style={{ opacity: 0.4 }}>━ forbidden / dimmed</span>
       </div>
