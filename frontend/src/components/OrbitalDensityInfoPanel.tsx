@@ -54,7 +54,7 @@ export function OrbitalDensityInfoPanel() {
           <tbody>
             {[
               ['x, z — position', 'Bohr (a₀)', '1 Bohr = 0.529 Å'],
-              ['colorbar — |ψ|²', 'Bohr⁻³', 'probability density per unit volume'],
+              ['colorbar — |ψ|² / max', 'dimensionless (0–1)', 'fraction of peak density in this orbital'],
             ].map(([axis, unit, si], i) => (
               <tr key={i}>
                 <td style={{ padding: '2px 8px' }}>{axis}</td>
@@ -73,9 +73,11 @@ export function OrbitalDensityInfoPanel() {
       <section>
         <h4 style={{ margin: '0 0 6px' }}>Colorscale</h4>
         <p style={{ margin: 0 }}>
-          Viridis colorscale: dark purple = zero (or near-zero) probability, yellow = maximum.
-          The scale is linear and normalised to the maximum value in the current cross-section,
-          so colors are comparable within one orbital but not directly between different orbitals.
+          Viridis colorscale: dark purple = 0, yellow = 1. The density is <strong>normalised
+          to its maximum value</strong>, so the colorbar always runs 0–1 regardless of the
+          orbital. This makes the nodal structure easy to read without worrying about units.
+          A value of 0.5 means "half the peak density of this orbital" — colors are not
+          directly comparable between different orbitals.
         </p>
       </section>
 

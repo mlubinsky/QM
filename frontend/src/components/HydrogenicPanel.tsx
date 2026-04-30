@@ -83,6 +83,18 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
   const maxR = Math.max(...result.r)
   const angstromRange: [number, number] = [0, maxR * BOHR_TO_ANGSTROM]
 
+  // Find the outermost r where radial density exceeds 0.1% of its peak.
+  // Used to zoom the 2D heatmap into the region where the electron actually lives.
+  const maxP = Math.max(...result.radial_density)
+  const threshold = 0.001 * maxP
+  let displayExtent = result.r[result.r.length - 1]
+  for (let i = result.r.length - 1; i >= 0; i--) {
+    if (result.radial_density[i] > threshold) {
+      displayExtent = result.r[i] * 1.15   // 15% padding
+      break
+    }
+  }
+
   const radialTrace: object = {
     x: result.r,
     y: result.radial_density,
@@ -116,14 +128,27 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
     hoverinfo: 'skip',
   }
 
+  const maxDensity = Math.max(...result.orbital_density.map(row => Math.max(...row)))
+  const normalizedDensity = maxDensity > 0
+    ? result.orbital_density.map(row => row.map(v => v / maxDensity))
+    : result.orbital_density
+
   const heatmap: object = {
-    z: result.orbital_density,
+    z: normalizedDensity,
     x: result.x_axis,
     y: result.z_axis,
     type: 'heatmap',
     colorscale: 'Viridis',
+    zmin: 0,
+    zmax: 1,
     showscale: true,
-    colorbar: { title: '|ψ|² (Bohr⁻³)', thickness: 14, titlefont: { size: 10 } },
+    colorbar: {
+      title: '|ψ|² / max',
+      thickness: 14,
+      titlefont: { size: 10 },
+      tickvals: [0, 0.25, 0.5, 0.75, 1],
+      ticktext: ['0', '0.25', '0.50', '0.75', '1'],
+    },
   }
 
   return (
@@ -185,9 +210,9 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
             data={[heatmap]}
             layout={{
               title: { text: `${result.ion_symbol} ${orbLabel} (m=${m}) — electron density |ψ(x,0,z)|²`, font: { size: 13 } },
-              xaxis: { title: 'x (Bohr)', scaleanchor: 'y', scaleratio: 1 },
-              yaxis: { title: 'z (Bohr)' },
-              margin: { t: 40, b: 60, l: 55, r: 80 },
+              xaxis: { title: { text: 'x (Bohr)', standoff: 8 }, scaleanchor: 'y', scaleratio: 1, range: [-displayExtent, displayExtent] },
+              yaxis: { title: { text: 'z (Bohr)', standoff: 8 }, range: [-displayExtent, displayExtent] },
+              margin: { t: 40, b: 60, l: 60, r: 80 },
               height: 360,
               annotations: [{
                 text: 'Cross-section through nucleus (y = 0)',
