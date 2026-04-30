@@ -133,3 +133,88 @@ describe('App – error handling', () => {
     })
   })
 })
+
+// ── App: URL state written after evolve (bug fix regression) ───────────────
+//
+// Regression for: initState/nSuperStates/coefficients were never written to
+// the URL after a solve — pushUrlParams only used stale initialParams.
+
+describe('App – URL state after evolve', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+  })
+
+  it('writes init=superposition to URL after superposition solve', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    await userEvent.selectOptions(screen.getByLabelText(/initial state/i), 'superposition')
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(window.location.search).toContain('init=superposition')
+    })
+  })
+
+  it('does not write init= to URL after gaussian solve', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    // initState is already 'gaussian' — just solve
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(apiClient.solveEvolve).toHaveBeenCalled()
+    })
+    expect(window.location.search).not.toContain('init=superposition')
+  })
+
+  it('writes n_super to URL when superposition solve succeeds', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    await userEvent.selectOptions(screen.getByLabelText(/initial state/i), 'superposition')
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(window.location.search).toContain('n_super=')
+    })
+  })
+
+  it('writes coefficients to URL when superposition solve succeeds', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    await userEvent.selectOptions(screen.getByLabelText(/initial state/i), 'superposition')
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(window.location.search).toMatch(/c\d+=/)
+    })
+  })
+
+  it('URL after gaussian solve does not contain literal "undefined"', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(apiClient.solveEvolve).toHaveBeenCalled()
+    })
+    expect(window.location.search).not.toContain('undefined')
+  })
+
+  it('URL after superposition solve does not contain literal "undefined"', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: /time evolution/i }))
+    await userEvent.selectOptions(screen.getByLabelText(/initial state/i), 'superposition')
+    await userEvent.click(screen.getByRole('button', { name: /run evolution/i }))
+
+    await waitFor(() => {
+      expect(window.location.search).toContain('init=superposition')
+    })
+    expect(window.location.search).not.toContain('undefined')
+  })
+})

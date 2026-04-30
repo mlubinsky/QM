@@ -136,12 +136,15 @@ export default function App() {
           xmin: req.grid.x_min,
           xmax: req.grid.x_max,
           n: req.grid.n_points,
-          x0: req.gaussian_x0,
-          sigma: req.gaussian_sigma,
-          k0: req.gaussian_k0,
+          x0: req.gaussian_x0 ?? DEFAULTS.x0,
+          sigma: req.gaussian_sigma ?? DEFAULTS.sigma,
+          k0: req.gaussian_k0 ?? DEFAULTS.k0,
           dt: req.dt,
           nSteps: req.n_steps,
           saveEvery: req.save_every ?? DEFAULTS.saveEvery,
+          initState: req.initial_state,
+          nSuperStates: req.n_super_states ?? DEFAULTS.nSuperStates,
+          coefficients: req.coefficients ?? [],
         })
       }
     } catch (err) {
