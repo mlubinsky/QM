@@ -32,7 +32,7 @@ EXPECTED_PRESETS = {
 }
 
 def test_presets_returns_all_seven():
-    r = client.get("/presets")
+    r = client.get("/schrodinger1d/presets")
     assert r.status_code == 200
     returned = set(r.json()["presets"])
     assert returned == EXPECTED_PRESETS
@@ -46,7 +46,7 @@ def test_eigensolve_harmonic_oscillator_ground_state():
         "potential_preset": "harmonic_oscillator",
         "n_states": 5,
     }
-    r = client.post("/solve/eigenstates", json=payload)
+    r = client.post("/schrodinger1d/solve/eigenstates", json=payload)
     assert r.status_code == 200
     body = r.json()
     assert len(body["energies"]) == 5
@@ -60,7 +60,7 @@ def test_eigensolve_invalid_potential_expr_returns_422():
         "potential_expr": "import os; os.system('rm -rf /')",
         "n_states": 3,
     }
-    r = client.post("/solve/eigenstates", json=payload)
+    r = client.post("/schrodinger1d/solve/eigenstates", json=payload)
     assert r.status_code == 422
 
 
@@ -72,7 +72,7 @@ def test_eigensolve_response_shape():
         "potential_preset": "infinite_square_well",
         "n_states": 3,
     }
-    r = client.post("/solve/eigenstates", json=payload)
+    r = client.post("/schrodinger1d/solve/eigenstates", json=payload)
     assert r.status_code == 200
     body = r.json()
     assert len(body["grid_x"]) == n
@@ -96,7 +96,7 @@ _EVOLVE_PAYLOAD = {
 
 
 def test_evolve_norm_history():
-    r = client.post("/solve/evolve", json=_EVOLVE_PAYLOAD)
+    r = client.post("/schrodinger1d/solve/evolve", json=_EVOLVE_PAYLOAD)
     assert r.status_code == 200
     body = r.json()
     for norm in body["norm_history"]:
@@ -105,7 +105,7 @@ def test_evolve_norm_history():
 
 def test_evolve_uncertainty_fields_present_and_valid():
     """delta_x, delta_p, delta_x_delta_p are returned and satisfy Heisenberg bound."""
-    r = client.post("/solve/evolve", json=_EVOLVE_PAYLOAD)
+    r = client.post("/schrodinger1d/solve/evolve", json=_EVOLVE_PAYLOAD)
     assert r.status_code == 200
     body = r.json()
     n_frames = len(body["times"])
@@ -131,7 +131,7 @@ def test_evolve_runaway_computation_returns_422():
         "n_steps": 10000,
         "save_every": 10,
     }
-    r = client.post("/solve/evolve", json=payload)
+    r = client.post("/schrodinger1d/solve/evolve", json=payload)
     assert r.status_code == 422
 
 
@@ -143,7 +143,7 @@ def test_x_min_ge_x_max_returns_422():
         "potential_preset": "harmonic_oscillator",
         "n_states": 3,
     }
-    r = client.post("/solve/eigenstates", json=payload)
+    r = client.post("/schrodinger1d/solve/eigenstates", json=payload)
     assert r.status_code == 422
 
 
@@ -154,5 +154,5 @@ def test_both_potential_null_returns_422():
         "potential_expr": None,
         "n_states": 3,
     }
-    r = client.post("/solve/eigenstates", json=payload)
+    r = client.post("/schrodinger1d/solve/eigenstates", json=payload)
     assert r.status_code == 422

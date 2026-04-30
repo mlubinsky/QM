@@ -18,13 +18,13 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function fetchPresets(): Promise<string[]> {
-  const res = await fetch(`${BASE_URL}/presets`)
+  const res = await fetch(`${BASE_URL}/schrodinger1d/presets`)
   const data = await handleResponse<{ presets: string[] }>(res)
   return data.presets
 }
 
 export async function solveEigenstates(req: EigensolveRequest): Promise<EigensolveResponse> {
-  const res = await fetch(`${BASE_URL}/solve/eigenstates`, {
+  const res = await fetch(`${BASE_URL}/schrodinger1d/solve/eigenstates`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
@@ -33,7 +33,7 @@ export async function solveEigenstates(req: EigensolveRequest): Promise<Eigensol
 }
 
 export async function solveEvolve(req: EvolveRequest): Promise<EvolveResponse> {
-  const res = await fetch(`${BASE_URL}/solve/evolve`, {
+  const res = await fetch(`${BASE_URL}/schrodinger1d/solve/evolve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),

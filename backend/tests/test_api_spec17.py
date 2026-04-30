@@ -23,7 +23,7 @@ BASE = {
 
 def test_gaussian_explicit_still_works():
     """Passing initial_state='gaussian' explicitly should return 200."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "gaussian",
         "gaussian_x0": 0.0,
@@ -37,7 +37,7 @@ def test_gaussian_explicit_still_works():
 
 def test_superposition_two_states():
     """Superposition of two equal-weight eigenstates should return 200."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -51,7 +51,7 @@ def test_superposition_two_states():
 
 def test_superposition_single_eigenstate():
     """Pure eigenstate (n_super_states=1, coefficients=[1]) should work."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 1,
@@ -62,7 +62,7 @@ def test_superposition_single_eigenstate():
 
 def test_superposition_ground_state_only():
     """[1.0, 0.0] selects only the ground state."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -73,7 +73,7 @@ def test_superposition_ground_state_only():
 
 def test_superposition_norm_conserved():
     """Norm should remain close to 1.0 throughout evolution."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -89,7 +89,7 @@ def test_superposition_norm_conserved():
 
 def test_superposition_first_excited_state():
     """Selecting first excited state only: [0.0, 1.0, 0.0]."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 3,
@@ -102,7 +102,7 @@ def test_superposition_first_excited_state():
 
 def test_superposition_missing_coefficients_gives_422():
     """Superposition without coefficients should return 422."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -113,7 +113,7 @@ def test_superposition_missing_coefficients_gives_422():
 
 def test_superposition_all_zero_coefficients_gives_422():
     """All-zero coefficients should return 422."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -124,7 +124,7 @@ def test_superposition_all_zero_coefficients_gives_422():
 
 def test_superposition_wrong_length_gives_422():
     """len(coefficients) != n_super_states should return 422."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 3,
@@ -135,7 +135,7 @@ def test_superposition_wrong_length_gives_422():
 
 def test_superposition_wrong_length_too_many_gives_422():
     """Too many coefficients should also return 422."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -146,7 +146,7 @@ def test_superposition_wrong_length_too_many_gives_422():
 
 def test_superposition_n_super_states_exceeds_limit_gives_422():
     """n_super_states > 20 should be rejected by field constraint."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 25,
@@ -159,7 +159,7 @@ def test_superposition_n_super_states_exceeds_limit_gives_422():
 
 def test_superposition_ignores_gaussian_x0_domain():
     """Superposition should not fail due to gaussian_x0 being outside domain."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "superposition",
         "n_super_states": 2,
@@ -173,7 +173,7 @@ def test_superposition_ignores_gaussian_x0_domain():
 
 def test_invalid_initial_state_gives_422():
     """An unknown initial_state value should be rejected."""
-    resp = client.post("/solve/evolve", json={
+    resp = client.post("/schrodinger1d/solve/evolve", json={
         **BASE,
         "initial_state": "plane_wave",
     })

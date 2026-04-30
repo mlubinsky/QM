@@ -6,11 +6,11 @@ Covers all 7 validation requirements from specs/10-momentum-backend.md.
 import numpy as np
 import pytest
 
-import momentum
-from grid import Grid
-from hamiltonian import build_hamiltonian
-from initial_states import gaussian_packet
-from crank_nicolson import evolve
+from solvers.schrodinger_1d import momentum
+from shared.grid import Grid
+from solvers.schrodinger_1d.hamiltonian import build_hamiltonian
+from solvers.schrodinger_1d.initial_states import gaussian_packet
+from solvers.schrodinger_1d.crank_nicolson import evolve
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
@@ -128,7 +128,7 @@ def test_api_evolve_includes_momentum_fields():
         "n_steps": 20,
         "save_every": 10,
     }
-    resp = client.post("/solve/evolve", json=payload)
+    resp = client.post("/schrodinger1d/solve/evolve", json=payload)
     assert resp.status_code == 200
     data = resp.json()
     assert "momentum_frames" in data

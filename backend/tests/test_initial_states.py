@@ -6,7 +6,7 @@ All solver quantities in atomic units: ħ = m_e = 1.
 import numpy as np
 import pytest
 
-from initial_states import gaussian_packet, eigenstate_superposition
+from solvers.schrodinger_1d.initial_states import gaussian_packet, eigenstate_superposition
 
 
 # Shared grid

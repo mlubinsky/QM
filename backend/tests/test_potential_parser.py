@@ -6,7 +6,7 @@ All solver quantities in atomic units: ħ = m_e = 1.
 import numpy as np
 import pytest
 
-from potential_parser import parse_potential
+from shared.potential_parser import parse_potential
 
 
 X = np.linspace(-5.0, 5.0, 100)

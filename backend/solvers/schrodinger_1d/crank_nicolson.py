@@ -33,9 +33,9 @@ import scipy.sparse as sp
 from scipy.sparse import spmatrix
 from scipy.sparse.linalg import splu
 
-from expectation_values import compute as compute_ev
-import momentum as _momentum
-import probability_current as _current
+from .expectation_values import compute as compute_ev
+from . import momentum as _momentum
+from . import probability_current as _current
 
 
 @dataclass

@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from grid import Grid
-from hamiltonian import build_hamiltonian
-from eigenvalue_solver import solve_eigenstates
+from shared.grid import Grid
+from solvers.schrodinger_1d.hamiltonian import build_hamiltonian
+from solvers.schrodinger_1d.eigenvalue_solver import solve_eigenstates
 
 
 # --- fixtures ---

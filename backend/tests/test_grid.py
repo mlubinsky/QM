@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from grid import Grid
+from shared.grid import Grid
 
 
 def test_dx():

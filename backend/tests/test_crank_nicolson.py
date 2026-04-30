@@ -6,12 +6,12 @@ All quantities in atomic units: ħ = m_e = 1.
 import numpy as np
 import pytest
 
-from grid import Grid
-from hamiltonian import build_hamiltonian
-from eigenvalue_solver import solve_eigenstates
-from crank_nicolson import evolve
-from initial_states import gaussian_packet, eigenstate_superposition
-from potential_parser import parse_potential
+from shared.grid import Grid
+from shared.potential_parser import parse_potential
+from solvers.schrodinger_1d.hamiltonian import build_hamiltonian
+from solvers.schrodinger_1d.eigenvalue_solver import solve_eigenstates
+from solvers.schrodinger_1d.crank_nicolson import evolve
+from solvers.schrodinger_1d.initial_states import gaussian_packet, eigenstate_superposition
 
 
 # ── shared fixtures ──────────────────────────────────────────────────────────
