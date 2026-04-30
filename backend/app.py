@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from solvers.schrodinger_1d.router import router as schrodinger_router
+from solvers.hydrogenic.router import router as hydrogenic_router
 
 app = FastAPI(title="Schrödinger Solver", version="0.1.0")
 
@@ -31,3 +32,4 @@ def health():
 
 
 app.include_router(schrodinger_router, prefix="/schrodinger1d")
+app.include_router(hydrogenic_router, prefix="/hydrogenic")

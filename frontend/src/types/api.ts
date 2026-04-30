@@ -58,7 +58,30 @@ export interface EvolveResponse {
   delta_x_delta_p: number[]   // Δx·Δp at each frame
 }
 
-export type AppMode = 'stationary' | 'time-evolution'
+export type AppMode = 'stationary' | 'time-evolution' | 'hydrogenic'
+
+export interface HydrogenicRequest {
+  Z: number
+  n: number
+  l: number
+  m: number
+  n_points?: number
+  grid_2d_points?: number
+}
+
+export interface HydrogenicResponse {
+  r: number[]
+  radial_density: number[]
+  energy_hartree: number
+  energy_exact_hartree: number
+  energy_ev: number
+  x_axis: number[]
+  z_axis: number[]
+  orbital_density: number[][]
+  ion_symbol: string
+  ion_name: string
+  orbital_label: string
+}
 export type AppStatus = 'idle' | 'loading' | 'success' | 'error'
 
 export interface AppState {

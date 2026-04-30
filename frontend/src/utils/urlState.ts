@@ -18,6 +18,11 @@ export interface UrlParams {
   initState: 'gaussian' | 'superposition'
   nSuperStates: number
   coefficients: number[]
+  // hydrogenic mode
+  hydroZ: number
+  hydroN: number
+  hydroL: number
+  hydroM: number
 }
 
 export const DEFAULTS: UrlParams = {
@@ -38,6 +43,10 @@ export const DEFAULTS: UrlParams = {
   initState: 'gaussian',
   nSuperStates: 2,
   coefficients: [],
+  hydroZ: 1,
+  hydroN: 1,
+  hydroL: 0,
+  hydroM: 0,
 }
 
 function clamp(val: number, min: number, max: number): number {
@@ -71,6 +80,12 @@ export function serializeUrlParams(params: UrlParams): string {
     for (let i = 0; i < params.coefficients.length; i++) {
       entries[`c${i}`] = String(params.coefficients[i])
     }
+  }
+  if (params.mode === 'hydrogenic') {
+    entries.hydro_Z = String(params.hydroZ)
+    entries.hydro_n = String(params.hydroN)
+    entries.hydro_l = String(params.hydroL)
+    entries.hydro_m = String(params.hydroM)
   }
   return new URLSearchParams(entries).toString()
 }
@@ -119,6 +134,10 @@ export function parseUrlParams(sp: URLSearchParams): UrlParams {
   }
 
   return {
+    hydroZ: sp.has('hydro_Z') ? Math.max(1, Math.min(10, parseInt(sp.get('hydro_Z')!, 10))) : DEFAULTS.hydroZ,
+    hydroN: sp.has('hydro_n') ? Math.max(1, Math.min(5,  parseInt(sp.get('hydro_n')!, 10))) : DEFAULTS.hydroN,
+    hydroL: sp.has('hydro_l') ? Math.max(0, parseInt(sp.get('hydro_l')!, 10)) : DEFAULTS.hydroL,
+    hydroM: sp.has('hydro_m') ? parseInt(sp.get('hydro_m')!, 10) : DEFAULTS.hydroM,
     mode:            (sp.get('mode') as AppMode | null) ?? DEFAULTS.mode,
     potential:       sp.get('potential') ?? DEFAULTS.potential,
     expr,

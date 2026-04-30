@@ -3,34 +3,44 @@ import './App.css'
 import { ControlPanel } from './components/ControlPanel'
 import { PlotArea } from './components/PlotArea'
 import { ErrorBanner } from './components/ErrorBanner'
-import { solveEigenstates, solveEvolve, ApiError } from './api/client'
+import { solveEigenstates, solveEvolve, solveHydrogenic, ApiError } from './api/client'
 import { readUrlParams, pushUrlParams, hasNonDefaultUrl, DEFAULTS } from './utils/urlState'
 import type { UrlParams } from './utils/urlState'
 import { POTENTIALS } from './data/potentials'
-import type { AppState, AppMode, EigensolveResponse, EvolveResponse } from './types/api'
-import type { EigensolveRequest, EvolveRequest } from './types/api'
+import type { AppState, AppMode, EigensolveResponse, EvolveResponse, HydrogenicResponse } from './types/api'
+import type { EigensolveRequest, EvolveRequest, HydrogenicRequest } from './types/api'
+import { HydrogenicPanel } from './components/HydrogenicPanel'
 
 type Action =
   | { type: 'SET_MODE'; mode: AppMode }
   | { type: 'LOADING' }
   | { type: 'SUCCESS_EIGEN'; result: EigensolveResponse; preset: string | null }
   | { type: 'SUCCESS_EVOLVE'; result: EvolveResponse }
+  | { type: 'SUCCESS_HYDRO'; result: HydrogenicResponse; Z: number; n: number; l: number; m: number }
   | { type: 'ERROR'; message: string }
   | { type: 'DISMISS_ERROR' }
   | { type: 'SET_FRAME'; frame: number }
   | { type: 'TOGGLE_PLAY' }
   | { type: 'SET_SPEED'; speed: number }
 
-function reducer(state: AppState, action: Action): AppState {
+type AppStateExtended = AppState & {
+  hydroResult: HydrogenicResponse | null
+  hydroParams: { Z: number; n: number; l: number; m: number } | null
+}
+
+function reducer(state: AppStateExtended, action: Action): AppStateExtended {
   switch (action.type) {
     case 'SET_MODE':
-      return { ...state, mode: action.mode, eigenResult: null, evolveResult: null, error: null }
+      return { ...state, mode: action.mode, eigenResult: null, evolveResult: null, hydroResult: null, error: null }
     case 'LOADING':
       return { ...state, status: 'loading', error: null }
     case 'SUCCESS_EIGEN':
       return { ...state, status: 'success', eigenResult: action.result, potentialPreset: action.preset, currentFrame: 0, playing: false }
     case 'SUCCESS_EVOLVE':
       return { ...state, status: 'success', evolveResult: action.result, currentFrame: 0, playing: false }
+    case 'SUCCESS_HYDRO':
+      return { ...state, status: 'success', hydroResult: action.result,
+               hydroParams: { Z: action.Z, n: action.n, l: action.l, m: action.m } }
     case 'ERROR':
       return { ...state, status: 'error', error: action.message }
     case 'DISMISS_ERROR':
@@ -79,6 +89,8 @@ export default function App() {
     error: null,
     eigenResult: null,
     evolveResult: null,
+    hydroResult: null,
+    hydroParams: null,
     potentialPreset: null,
     currentFrame: 0,
     playing: false,
@@ -108,6 +120,21 @@ export default function App() {
   async function handleSolve(params: Record<string, unknown>) {
     dispatch({ type: 'LOADING' })
     try {
+      if (state.mode === 'hydrogenic') {
+        const req = params as unknown as HydrogenicRequest
+        const result = await solveHydrogenic(req)
+        dispatch({ type: 'SUCCESS_HYDRO', result, Z: req.Z, n: req.n, l: req.l, m: req.m })
+        pushUrlParams({
+          ...DEFAULTS,
+          ...initialParams,
+          mode: 'hydrogenic',
+          hydroZ: req.Z,
+          hydroN: req.n,
+          hydroL: req.l,
+          hydroM: req.m,
+        })
+        return
+      }
       if (state.mode === 'stationary') {
         const req = params as unknown as EigensolveRequest
         const result = await solveEigenstates(req)
@@ -200,7 +227,9 @@ export default function App() {
           <span className="mode-equation" aria-live="polite">
             {state.mode === 'stationary'
               ? <span>Ĥψ = Eψ</span>
-              : <span>i ∂ψ/∂t = Ĥψ</span>
+              : state.mode === 'hydrogenic'
+                ? <span>−½∇² − Z/r</span>
+                : <span>i ∂ψ/∂t = Ĥψ</span>
             }
           </span>
           <div role="group" aria-label="mode toggle" className="mode-buttons">
@@ -217,6 +246,13 @@ export default function App() {
               aria-pressed={state.mode === 'time-evolution'}
             >
               Time Evolution
+            </button>
+            <button
+              className={state.mode === 'hydrogenic' ? 'mode-btn mode-btn--active' : 'mode-btn'}
+              onClick={() => dispatch({ type: 'SET_MODE', mode: 'hydrogenic' })}
+              aria-pressed={state.mode === 'hydrogenic'}
+            >
+              Hydrogenic
             </button>
           </div>
         </div>
@@ -236,18 +272,31 @@ export default function App() {
           status={state.status}
           initialParams={initialParams}
         />
-        <PlotArea
-          mode={state.mode}
-          eigenResult={state.eigenResult}
-          evolveResult={state.evolveResult}
-          potentialPreset={state.potentialPreset}
-          currentFrame={state.currentFrame}
-          playing={state.playing}
-          onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
-          onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
-          onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
-          speed={state.speed}
-        />
+        {state.mode === 'hydrogenic'
+          ? state.hydroResult && state.hydroParams && (
+              <HydrogenicPanel
+                result={state.hydroResult}
+                Z={state.hydroParams.Z}
+                n={state.hydroParams.n}
+                l={state.hydroParams.l}
+                m={state.hydroParams.m}
+              />
+            )
+          : (
+            <PlotArea
+              mode={state.mode}
+              eigenResult={state.eigenResult}
+              evolveResult={state.evolveResult}
+              potentialPreset={state.potentialPreset}
+              currentFrame={state.currentFrame}
+              playing={state.playing}
+              onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
+              onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
+              onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
+              speed={state.speed}
+            />
+          )
+        }
       </main>
     </div>
   )

@@ -4,6 +4,7 @@ import { auToAngstrom, auTimeToHuman } from '../utils/units'
 import { POTENTIALS, POTENTIAL_KEYS } from '../data/potentials'
 import { PhysicsPanel } from './PhysicsPanel'
 import { SolverInfoPanel } from './SolverInfoPanel'
+import { HydrogenicInfoPanel } from './HydrogenicInfoPanel'
 import { ParameterSlider } from './ParameterSlider'
 import { RegimeIndicator } from './RegimeIndicator'
 import type { UrlParams } from '../utils/urlState'
@@ -109,6 +110,13 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
   const [nSteps, setNSteps] = useState(initialParams?.nSteps ?? 1000)
   const [saveEvery, setSaveEvery] = useState(initialParams?.saveEvery ?? 10)
 
+  // Hydrogenic mode
+  const [hydroZ, setHydroZ] = useState(initialParams?.hydroZ ?? 1)
+  const [hydroN, setHydroN] = useState(initialParams?.hydroN ?? 1)
+  const [hydroL, setHydroL] = useState(initialParams?.hydroL ?? 0)
+  const [hydroM, setHydroM] = useState(initialParams?.hydroM ?? 0)
+  const [showHydroHelp, setShowHydroHelp] = useState(false)
+
   // Time evolution — initial state selection
   const [initState, setInitState] = useState<'gaussian' | 'superposition'>(
     initialParams?.initState ?? 'gaussian'
@@ -139,6 +147,10 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
         : hasParams
           ? buildExpr(info.expr, paramValues)
           : null,
+    }
+    if (mode === 'hydrogenic') {
+      onSolve({ Z: hydroZ, n: hydroN, l: hydroL, m: hydroM })
+      return
     }
     if (mode === 'stationary') {
       onSolve({ ...base, n_states: nStates })
@@ -446,10 +458,99 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
         </fieldset>
       )}
 
+      {/* Hydrogenic controls */}
+      {mode === 'hydrogenic' && (
+        <fieldset>
+          <legend>
+            <span className="legend-row">
+              Hydrogenic atom
+              <button
+                type="button"
+                className="physics-info-btn"
+                aria-label="Show hydrogenic reference"
+                onClick={() => setShowHydroHelp(true)}
+              >?</button>
+            </span>
+          </legend>
+
+          <label htmlFor="hydro-Z">Nuclear charge Z</label>
+          <div className="slider-row">
+            <input id="hydro-Z" type="range" min={1} max={10} value={hydroZ}
+              onChange={e => { setHydroZ(Number(e.target.value)); markDirty() }} />
+            <span aria-live="polite">{hydroZ}</span>
+          </div>
+
+          <label htmlFor="hydro-n">Principal n</label>
+          <div className="slider-row">
+            <input id="hydro-n" type="range" min={1} max={5} value={hydroN}
+              onChange={e => {
+                const next = Number(e.target.value)
+                setHydroN(next)
+                setHydroL(prev => Math.min(prev, next - 1))
+                setHydroM(prev => {
+                  const newL = Math.min(hydroL, next - 1)
+                  return Math.max(-newL, Math.min(newL, prev))
+                })
+                markDirty()
+              }} />
+            <span aria-live="polite">{hydroN}</span>
+          </div>
+
+          <label htmlFor="hydro-l">Angular l</label>
+          <div className="slider-row">
+            <input id="hydro-l" type="range" min={0} max={hydroN - 1} value={hydroL}
+              onChange={e => {
+                const next = Number(e.target.value)
+                setHydroL(next)
+                setHydroM(prev => Math.max(-next, Math.min(next, prev)))
+                markDirty()
+              }} />
+            <span aria-live="polite">{hydroL}</span>
+          </div>
+
+          <label htmlFor="hydro-m">Magnetic m</label>
+          <div className="slider-row">
+            <input id="hydro-m" type="range" min={-hydroL} max={hydroL} value={hydroM}
+              onChange={e => { setHydroM(Number(e.target.value)); markDirty() }} />
+            <span aria-live="polite">{hydroM}</span>
+          </div>
+        </fieldset>
+      )}
+
+      {/* Hydrogenic help modal */}
+      {showHydroHelp && (
+        <div className="physics-modal-backdrop" onClick={() => setShowHydroHelp(false)}>
+          <div
+            className="physics-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Hydrogenic solver reference"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="physics-modal-header">
+              <span className="physics-modal-title">Hydrogenic atoms — reference</span>
+              <button
+                type="button"
+                className="physics-modal-close"
+                aria-label="Close"
+                onClick={() => setShowHydroHelp(false)}
+              >✕</button>
+            </div>
+            <div className="physics-modal-body">
+              <HydrogenicInfoPanel />
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading && <span role="status">Loading…</span>}
 
       <button className={btnClass} onClick={handleSubmit} disabled={loading}>
-        {mode === 'stationary' ? 'Solve Eigenstates' : 'Run Evolution'}
+        {mode === 'stationary'
+          ? 'Solve Eigenstates'
+          : mode === 'hydrogenic'
+            ? 'Solve orbital'
+            : 'Run Evolution'}
       </button>
     </div>
   )
