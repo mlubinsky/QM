@@ -180,8 +180,8 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
 
   return (
     <div className="control-panel">
-      {/* Grid Controls */}
-      <fieldset>
+      {/* Grid Controls — hidden in hydrogenic mode (grid is auto-managed by the solver) */}
+      {mode !== 'hydrogenic' && <fieldset>
         <legend>
           <span className="legend-row">
             Grid
@@ -205,10 +205,10 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             onChange={e => { setNPoints(Number(e.target.value)); markDirty() }} />
           <span aria-live="polite">{nPoints}</span>
         </div>
-      </fieldset>
+      </fieldset>}
 
-      {/* Potential Selector */}
-      <fieldset>
+      {/* Potential Selector — hidden in hydrogenic mode (V = -Z/r is set by the Z slider) */}
+      {mode !== 'hydrogenic' && <fieldset>
         <legend>Potential</legend>
         <label htmlFor="potential-preset">Potential</label>
         <div className="potential-select-row">
@@ -241,7 +241,7 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
         <input id="custom-expr" type="text" value={customExpr}
           placeholder="e.g. 0.5 * x**2"
           onChange={e => { setCustomExpr(e.target.value); markDirty() }} />
-      </fieldset>
+      </fieldset>}
 
       {/* Grid / solver info modal */}
       {showGridHelp && (
