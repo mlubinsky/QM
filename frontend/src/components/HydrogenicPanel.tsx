@@ -89,7 +89,21 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
     type: 'scatter',
     mode: 'lines',
     line: { color: '#4a9eff', width: 2 },
-    name: 'r²|R|²',
+    name: 'P(r)',
+    hovertemplate: 'r = %{x:.3f} Bohr<br>P(r) = %{y:.5f} Bohr⁻¹<extra></extra>',
+  }
+
+  // Invisible trace on x2 — required to make Plotly render the Å secondary axis
+  const angstromDummy: object = {
+    x: [0, maxR * BOHR_TO_ANGSTROM],
+    y: [0, 0],
+    type: 'scatter',
+    mode: 'lines',
+    line: { width: 0 },
+    xaxis: 'x2',
+    yaxis: 'y',
+    showlegend: false,
+    hoverinfo: 'skip',
   }
 
   const meanRLine: object = {
@@ -98,7 +112,8 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
     type: 'scatter',
     mode: 'lines',
     line: { color: '#ff9f40', dash: 'dash', width: 1.5 },
-    name: `⟨r⟩ = ${meanR.toFixed(2)} a₀ = ${(meanR * BOHR_TO_ANGSTROM).toFixed(2)} Å`,
+    name: `⟨r⟩ = ${meanR.toFixed(2)} Bohr = ${(meanR * BOHR_TO_ANGSTROM).toFixed(2)} Å`,
+    hoverinfo: 'skip',
   }
 
   const heatmap: object = {
@@ -134,24 +149,24 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
             <HelpButton onClick={() => setShowRadialHelp(true)} />
           </div>
           <Plot
-            data={[radialTrace, meanRLine]}
+            data={[radialTrace, meanRLine, angstromDummy]}
             layout={{
               title: { text: `Radial probability density — ${result.ion_symbol} ${orbLabel}`, font: { size: 13 } },
               xaxis: {
-                title: 'r (Bohr)',
+                title: { text: 'r (Bohr)', standoff: 8 },
                 zeroline: false,
                 range: [0, maxR],
               },
               xaxis2: {
-                title: 'r (Å)',
+                title: { text: 'r (Å)', standoff: 8 },
                 overlaying: 'x',
                 side: 'top',
                 range: angstromRange,
                 showgrid: false,
                 zeroline: false,
               },
-              yaxis: { title: 'P(r) = r²|R_nl(r)|² (Bohr⁻¹)' },
-              margin: { t: 55, b: 50, l: 70, r: 20 },
+              yaxis: { title: { text: 'P(r) (Bohr⁻¹)', standoff: 8 } },
+              margin: { t: 75, b: 55, l: 65, r: 20 },
               showlegend: true,
               legend: { x: 0.55, y: 0.95, font: { size: 11 } },
               height: 340,
