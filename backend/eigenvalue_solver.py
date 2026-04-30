@@ -117,7 +117,7 @@ def solve_eigenstates(
     wavefunctions = []
     for i in range(eigenvectors.shape[1]):
         psi = eigenvectors[:, i]
-        psi /= np.sqrt(np.sum(psi ** 2) * dx)
+        psi /= np.sqrt(np.sum(np.abs(psi) ** 2) * dx)
         # Sign: first element with |ψ| > 1e-10 should be positive
         first_sig = psi[np.abs(psi) > 1e-10]
         if len(first_sig) > 0 and first_sig[0] < 0:
@@ -125,7 +125,7 @@ def solve_eigenstates(
         wavefunctions.append(psi)
 
     wavefunctions = np.array(wavefunctions)  # shape (k, n)
-    norm_errors = np.array([abs(1.0 - np.sum(psi ** 2) * dx) for psi in wavefunctions])
+    norm_errors = np.array([abs(1.0 - np.sum(np.abs(psi) ** 2) * dx) for psi in wavefunctions])
 
     return EigenstateResult(
         energies=eigenvalues,
