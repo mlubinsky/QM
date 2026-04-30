@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useState } from 'react'
+import { useReducer, useEffect, useRef, useState } from 'react'
 import './App.css'
 import { ControlPanel } from './components/ControlPanel'
 import { PlotArea } from './components/PlotArea'
@@ -85,6 +85,12 @@ export default function App() {
     speed: 1,
   }))
 
+  // Keep a ref in sync with the current frame so the interval callback can
+  // read the latest value without being a dep (avoids recreating the interval
+  // on every frame tick).
+  const currentFrameRef = useRef(state.currentFrame)
+  currentFrameRef.current = state.currentFrame
+
   // Advance animation frame when playing
   useEffect(() => {
     if (!state.playing || !state.evolveResult) return
@@ -93,11 +99,11 @@ export default function App() {
     const id = setInterval(() => {
       dispatch({
         type: 'SET_FRAME',
-        frame: (state.currentFrame + 1) % nFrames,
+        frame: (currentFrameRef.current + 1) % nFrames,
       })
     }, delay)
     return () => clearInterval(id)
-  }, [state.playing, state.currentFrame, state.evolveResult, state.speed])
+  }, [state.playing, state.evolveResult, state.speed])
 
   async function handleSolve(params: Record<string, unknown>) {
     dispatch({ type: 'LOADING' })
