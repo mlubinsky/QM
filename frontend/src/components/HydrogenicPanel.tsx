@@ -2,6 +2,7 @@ import _Plot from 'react-plotly.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Plot = (_Plot as any).default ?? _Plot
 import type { HydrogenicResponse } from '../types/api'
+import { GrotriaDiagram } from './GrotriaDiagram'
 
 interface HydrogenicPanelProps {
   result: HydrogenicResponse
@@ -9,11 +10,12 @@ interface HydrogenicPanelProps {
   n: number
   l: number
   m: number
+  onSelectLevel?: (n: number, l: number) => void
 }
 
 const L_LABELS = ['s', 'p', 'd', 'f', 'g']
 
-export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
+export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: HydrogenicPanelProps) {
   const lLabel = L_LABELS[l] ?? String(l)
   const orbLabel = `${n}${lLabel}`
   const meanR = (3 * n * n - l * (l + 1)) / (2 * Z)
@@ -42,7 +44,8 @@ export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
     y: result.z_axis,
     type: 'heatmap',
     colorscale: 'Viridis',
-    showscale: false,
+    showscale: true,
+    colorbar: { title: '|ψ|²', thickness: 14, titlefont: { size: 11 } },
   }
 
   return (
@@ -80,16 +83,25 @@ export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
         <Plot
           data={[heatmap]}
           layout={{
-            title: { text: `${result.ion_symbol} ${orbLabel} (m=${m})  |ψ(x,0,z)|²`, font: { size: 13 } },
+            title: { text: `${result.ion_symbol} ${orbLabel} (m=${m}) — electron density |ψ(x,0,z)|²`, font: { size: 13 } },
             xaxis: { title: 'x (Bohr)', scaleanchor: 'y', scaleratio: 1 },
             yaxis: { title: 'z (Bohr)' },
-            margin: { t: 40, b: 50, l: 55, r: 20 },
-            height: 340,
+            margin: { t: 40, b: 60, l: 55, r: 65 },
+            height: 360,
+            annotations: [{
+              text: 'Cross-section through nucleus (y = 0)',
+              x: 0.5, y: -0.14,
+              xref: 'paper', yref: 'paper',
+              showarrow: false,
+              font: { size: 11, color: '#888' },
+            }],
           }}
           style={{ width: '100%' }}
           config={{ displayModeBar: false }}
         />
       </div>
+
+      <GrotriaDiagram Z={Z} activeN={n} activeL={l} onSelectLevel={onSelectLevel} />
     </div>
   )
 }

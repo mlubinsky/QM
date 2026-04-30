@@ -28,6 +28,16 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Momentum-space probability density |φ(k,t)|² animated in sync with |ψ(x,t)|²
 - Probability current density J(x,t) = Im[ψ* ∂ψ/∂x] animated in sync
 
+**Hydrogenic mode** — hydrogen-like ions (one electron, nuclear charge Z = 1–10):
+- Solves the radial Schrödinger equation for the reduced wavefunction u(r) = r·R_nl(r) with effective potential V_eff = −Z/r + l(l+1)/(2r²)
+- Supports quantum numbers n = 1–5, l = 0…n−1, m = −l…l; nuclear charge Z up to Ne⁹⁺
+- Radial density plot r²|R_nl(r)|² with ⟨r⟩ marker and exact analytic comparison
+- 2-D electron density cross-section |ψ(x,0,z)|² through the nucleus in the xz-plane, with colorbar
+- **Grotrian (energy-level) diagram** — all levels n=1–5, l=0–4 (s/p/d/f/g); Lyman and Balmer transition arrows colored by emission wavelength (UV = purple dashed, visible = spectral color, IR = dark red dashed), wavelength in nm; click any level to jump to that orbital
+- Physics reference modal (? button): Hamiltonian, radial reduction derivation, exact energy table, orbital size formula, quantum number table, X-ray scaling, atomic units
+- Energies reported in Hartree and eV alongside the exact value E_n = −Z²/(2n²) Eh
+- URL state persistence for Z, n, l, m
+
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
 - Solver reference modal (? button on Grid panel): grid formula, BCs, CN scheme, units
@@ -98,10 +108,18 @@ QM/
 │   ├── probability_current.py  # Probability current J(x,t)
 │   ├── potential_parser.py     # Safe expression evaluator (asteval)
 │   ├── presets.py              # Built-in potential expressions
+│   ├── solvers/
+│   │   └── hydrogenic/
+│   │       ├── radial_solver.py   # Radial Schrödinger eq. for u(r)=r·R_nl
+│   │       ├── orbitals.py        # 2-D xz cross-section via spherical harmonics
+│   │       └── router.py          # FastAPI router mounted at /hydrogenic
 │   └── tests/                  # pytest test suite
 ├── frontend/
 │   ├── src/
 │   │   ├── components/         # React components
+│   │   │   ├── GrotriaDiagram.tsx     # SVG Grotrian energy-level diagram
+│   │   │   ├── HydrogenicPanel.tsx    # Radial density + orbital density + Grotrian
+│   │   │   └── HydrogenicInfoPanel.tsx # Physics reference modal content
 │   │   ├── api/                # Backend client
 │   │   ├── data/               # Potential metadata (potentials.ts)
 │   │   ├── types/              # TypeScript interfaces
@@ -134,6 +152,8 @@ python -m pytest tests/ -v
 | `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak location, symmetry; evolve() shapes; API response fields |
 | `test_probability_current.py` | J(x,t) sign, continuity equation, zero current for real wavefunctions |
 | `test_api.py` | All HTTP endpoints via FastAPI TestClient |
+| `test_hydrogenic_radial.py` | Radial solver: energy accuracy (< 0.1 %), normalization, ordering, Z-scaling |
+| `test_hydrogenic_api.py` | `/hydrogenic/solve` endpoint: status codes, labels, energies, validation errors |
 
 ### Frontend (Vitest)
 
@@ -154,7 +174,7 @@ Every solver configuration is encoded in the URL so you can bookmark or share an
 
 | Key | Type | Description | Default |
 |-----|------|-------------|---------|
-| `mode` | `stationary` \| `time-evolution` | solver mode | `stationary` |
+| `mode` | `stationary` \| `time-evolution` \| `hydrogenic` | solver mode | `stationary` |
 | `potential` | string | preset key (e.g. `harmonic_oscillator`) | `infinite_square_well` |
 | `expr` | string | custom potential expression (overrides `potential`) | — |
 | `xmin` | float | grid left edge (a.u.) | `-10` |
@@ -168,6 +188,10 @@ Every solver configuration is encoded in the URL so you can bookmark or share an
 | `dt` | float 1e-6–0.1 | time step (a.u.) | `0.001` |
 | `n_steps` | int 10–10000 | number of time steps | `1000` |
 | `save_every` | int | frame decimation | `10` |
+| `hydro_Z` | int 1–10 | nuclear charge (hydrogenic mode) | `1` |
+| `hydro_N` | int 1–5 | principal quantum number | `1` |
+| `hydro_L` | int 0–n−1 | angular quantum number | `0` |
+| `hydro_M` | int −l…l | magnetic quantum number | `0` |
 
 Slider parameters use the `p_` prefix to avoid key collisions.  For example, the double-well `λ` slider encodes as `p_lambda=2.0`.  If `xmin ≥ xmax` the values are swapped; `n`, `n_states`, `dt`, and `n_steps` are clamped to their valid ranges on parse.
 
@@ -248,6 +272,23 @@ Validation: `coefficients` must have length equal to `n_super_states` and must n
 Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential,
 per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`,
 and momentum-space density frames `momentum_frames` with axis `momentum_k` (rad/a.u.).
+
+### `POST /hydrogenic/solve`
+
+Solve for a hydrogen-like orbital (n, l, m) with nuclear charge Z.
+
+```json
+{
+  "Z": 1,
+  "n": 2,
+  "l": 1,
+  "m": 0
+}
+```
+
+Returns radial density r²|R_nl|², radial grid, energies in Hartree and eV alongside the exact value, 2-D orbital density |ψ(x,0,z)|² on an xz grid, ion symbol (e.g. `He⁺`), ion name, and orbital label (e.g. `2p`).
+
+Validation: 1 ≤ Z ≤ 10, 1 ≤ n ≤ 5, 0 ≤ l < n, |m| ≤ l.
 
 ### `GET /presets`
 
@@ -361,6 +402,8 @@ The solver is validated against exact analytic solutions:
     Eₙ = n + ½,   n = 0, 1, 2, …
 
 **Norm conservation:** ‖ψ(t)‖² stays within 10⁻⁶ of 1.0 across all time steps (verified by the test suite and displayed live in the UI).
+
+**Hydrogenic energies:** For each (Z, n, l) state the numerical energy agrees with the exact value E_n = −Z²/(2n²) Hartree to within 0.1 % (verified by the test suite for n=1–4, l=0–3, Z=1–6). The grid auto-scales: r_max = max(3, 20n²/Z) a.u. and dr ≤ 0.1 a.u. to ensure bound-state decay is captured. He⁺ (Z=2) energies are 4× larger than H (Z=1), as expected from the Z² scaling.
 
 **Coherent state trajectory:** For a Gaussian packet in V = ½x², the center x̄(t) = x₀ cos(t) and width σ(t) = σ (no spreading). The test suite verifies both to within 0.05 a.u. after t = π.
 

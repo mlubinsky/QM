@@ -185,6 +185,13 @@ export default function App() {
     }
   }
 
+  async function handleHydroSelect(n: number, l: number) {
+    if (!state.hydroParams) return
+    const { Z, m } = state.hydroParams
+    const clampedM = Math.max(-l, Math.min(l, m))
+    await handleSolve({ Z, n, l, m: clampedM })
+  }
+
   // Auto-solve on mount when URL has non-default params
   useEffect(() => {
     if (!hasNonDefaultUrl(initialParams)) return
@@ -280,6 +287,7 @@ export default function App() {
                 n={state.hydroParams.n}
                 l={state.hydroParams.l}
                 m={state.hydroParams.m}
+                onSelectLevel={handleHydroSelect}
               />
             )
           : (
