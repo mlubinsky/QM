@@ -1,4 +1,6 @@
-import Plot from 'react-plotly.js'
+import _Plot from 'react-plotly.js'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Plot = (_Plot as any).default ?? _Plot
 import type { HydrogenicResponse } from '../types/api'
 
 interface HydrogenicPanelProps {
@@ -16,7 +18,7 @@ export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
   const orbLabel = `${n}${lLabel}`
   const meanR = (3 * n * n - l * (l + 1)) / (2 * Z)
 
-  const radialTrace: Plotly.Data = {
+  const radialTrace: object = {
     x: result.r,
     y: result.radial_density,
     type: 'scatter',
@@ -25,7 +27,7 @@ export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
     name: 'r²|R|²',
   }
 
-  const meanRLine: Plotly.Data = {
+  const meanRLine: object = {
     x: [meanR, meanR],
     y: [0, Math.max(...result.radial_density)],
     type: 'scatter',
@@ -34,7 +36,7 @@ export function HydrogenicPanel({ result, Z, n, l, m }: HydrogenicPanelProps) {
     name: '⟨r⟩',
   }
 
-  const heatmap: Plotly.Data = {
+  const heatmap: object = {
     z: result.orbital_density,
     x: result.x_axis,
     y: result.z_axis,
