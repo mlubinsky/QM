@@ -101,7 +101,7 @@ def solve_eigenstates(
     """
     converged = True
     try:
-        eigenvalues, eigenvectors = eigsh(hamiltonian, k=k, which="SM")
+        eigenvalues, eigenvectors = eigsh(hamiltonian, k=k, which="SA")
     except ArpackNoConvergence as exc:
         logger.warning("eigsh did not converge: %s", exc)
         eigenvalues = exc.eigenvalues
