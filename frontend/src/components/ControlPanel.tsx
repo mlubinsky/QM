@@ -508,10 +508,23 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             <span aria-live="polite">{hydroL}</span>
           </div>
 
-          <label htmlFor="hydro-m">Magnetic m</label>
+          <label htmlFor="hydro-m" style={{ opacity: hydroL === 0 ? 0.45 : 1 }}>
+            Magnetic m
+            <span style={{ fontWeight: 'normal', marginLeft: '0.4em', fontSize: '0.82em', color: '#888' }}>
+              {hydroL === 0 ? '(fixed at 0 when l = 0)' : `∈ [−${hydroL}, ${hydroL}]`}
+            </span>
+          </label>
           <div className="slider-row">
-            <input id="hydro-m" type="range" min={-hydroL} max={hydroL} value={hydroM}
-              onChange={e => { setHydroM(Number(e.target.value)); markDirty() }} />
+            <input
+              id="hydro-m"
+              type="range"
+              min={-hydroL}
+              max={hydroL}
+              value={hydroM}
+              disabled={hydroL === 0}
+              style={{ opacity: hydroL === 0 ? 0.4 : 1 }}
+              onChange={e => { setHydroM(Number(e.target.value)); markDirty() }}
+            />
             <span aria-live="polite">{hydroM}</span>
           </div>
         </fieldset>
