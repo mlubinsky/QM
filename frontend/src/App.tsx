@@ -94,7 +94,7 @@ export default function App() {
   // Advance animation frame when playing
   useEffect(() => {
     if (!state.playing || !state.evolveResult) return
-    const nFrames = state.evolveResult.psi_frames.length
+    const nFrames = state.evolveResult.prob_frames.length
     const delay = Math.round(100 / (state.speed ?? 1))
     const id = setInterval(() => {
       dispatch({

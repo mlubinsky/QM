@@ -56,8 +56,8 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame }: Main
   }
 
   if (mode === 'time-evolution' && evolveResult) {
-    const { grid_x, psi_frames, potential } = evolveResult
-    const frame = psi_frames[currentFrame] ?? psi_frames[0]
+    const { grid_x, prob_frames, potential } = evolveResult
+    const frame = prob_frames[currentFrame] ?? prob_frames[0]
 
     // Clip V(x) to 1.5× the packet energy so large walls don't dominate
     const ePacket = evolveResult.expect_H[0] ?? 1

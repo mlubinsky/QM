@@ -45,8 +45,8 @@ def test_superposition_two_states():
     })
     assert resp.status_code == 200, resp.text
     data = resp.json()
-    assert "psi_frames" in data
-    assert len(data["psi_frames"]) > 0
+    assert "prob_frames" in data
+    assert len(data["prob_frames"]) > 0
 
 
 def test_superposition_single_eigenstate():

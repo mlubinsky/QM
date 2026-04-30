@@ -133,7 +133,7 @@ def test_api_evolve_includes_momentum_fields():
     data = resp.json()
     assert "momentum_frames" in data
     assert "momentum_k" in data
-    n_frames = len(data["psi_frames"])
+    n_frames = len(data["prob_frames"])
     assert len(data["momentum_frames"]) == n_frames
     assert len(data["momentum_k"]) == 64
     # all values non-negative

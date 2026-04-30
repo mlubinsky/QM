@@ -122,7 +122,7 @@ export function PlotArea({
 
       {mode === 'time-evolution' && evolveResult && (
         <AnimationControls
-          nFrames={evolveResult.psi_frames.length}
+          nFrames={evolveResult.prob_frames.length}
           currentFrame={currentFrame}
           playing={playing}
           currentTime={evolveResult.times[currentFrame] ?? 0}

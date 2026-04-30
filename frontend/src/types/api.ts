@@ -40,7 +40,7 @@ export interface EvolveRequest {
 }
 
 export interface EvolveResponse {
-  psi_frames: number[][]      // shape (n_frames, n_points), |ψ|²
+  prob_frames: number[][]     // shape (n_frames, n_points), |ψ(x,t)|²
   times: number[]
   norm_history: number[]
   grid_x: number[]

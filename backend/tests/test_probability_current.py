@@ -144,6 +144,6 @@ def test_api_evolve_includes_current_frames():
     assert resp.status_code == 200
     data = resp.json()
     assert "current_frames" in data
-    n_frames = len(data["psi_frames"])
+    n_frames = len(data["prob_frames"])
     assert len(data["current_frames"]) == n_frames
     assert len(data["current_frames"][0]) == 64

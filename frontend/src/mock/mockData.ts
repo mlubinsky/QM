@@ -43,7 +43,7 @@ const momentumK = Array.from({ length: N }, (_, i) => -kMax + (2 * kMax * i) / (
 const momentumDensity = normalize(gaussian(momentumK, 0, 1), momentumK[1] - momentumK[0]).map(v => v * v)
 
 export const mockEvolveResult: EvolveResponse = {
-  psi_frames: Array.from({ length: nFrames }, () =>
+  prob_frames: Array.from({ length: nFrames }, () =>
     normalize(gaussian(x, 0, 1), dx).map(v => v * v)
   ),
   times: Array.from({ length: nFrames }, (_, i) => i * 0.01),

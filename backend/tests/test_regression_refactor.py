@@ -153,8 +153,8 @@ def test_evolve_at_new_url():
     })
     assert r.status_code == 200
     body = r.json()
-    assert "psi_frames" in body
-    assert len(body["psi_frames"]) > 0
+    assert "prob_frames" in body
+    assert len(body["prob_frames"]) > 0
 
 
 def test_validation_422_still_works_at_new_url():

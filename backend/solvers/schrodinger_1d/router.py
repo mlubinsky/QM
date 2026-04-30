@@ -115,7 +115,7 @@ class EvolveRequest(BaseModel):
 
 
 class EvolveResponse(BaseModel):
-    psi_frames: list[list[float]]
+    prob_frames: list[list[float]]
     times: list[float]
     norm_history: list[float]
     grid_x: list[float]
@@ -224,7 +224,7 @@ def evolve_endpoint(req: EvolveRequest):
     prob_frames = (np.abs(result.psi_frames) ** 2).tolist()
 
     return EvolveResponse(
-        psi_frames=prob_frames,
+        prob_frames=prob_frames,
         times=result.times.tolist(),
         norm_history=result.norm_history.tolist(),
         grid_x=result.grid_x.tolist(),
