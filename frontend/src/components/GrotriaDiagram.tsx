@@ -133,7 +133,7 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
       {/* Caption row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, paddingLeft: PAD_L }}>
         <span style={{ fontSize: '0.82rem', color: '#888' }}>
-          Grotrian diagram — click a level to highlight reachable states&nbsp;·&nbsp;dashed = UV/IR
+          Grotrian diagram — click a level to highlight reachable states&nbsp;·&nbsp;solid = visible light&nbsp;·&nbsp;dashed = UV or IR (outside visible)
         </span>
         {hasFocus && reachableCount === 0 && (
           <span style={{ fontSize: '0.78rem', color: '#ff9f40', fontStyle: 'italic' }}>
