@@ -101,7 +101,14 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
     return result
   }, [Z])
 
+  // Single click → highlight only (shows orange + green reachable)
+  // Double click → solve that orbital
   function handleLevelClick(nv: number, lv: number) {
+    setFocusN(nv)
+    setFocusL(lv)
+  }
+
+  function handleLevelDblClick(nv: number, lv: number) {
     setFocusN(nv)
     setFocusL(lv)
     onSelectLevel?.(nv, lv)
@@ -133,7 +140,7 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
       {/* Caption row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, paddingLeft: PAD_L }}>
         <span style={{ fontSize: '0.82rem', color: '#888' }}>
-          Grotrian diagram — click a level to highlight reachable states&nbsp;·&nbsp;solid = visible light&nbsp;·&nbsp;dashed = UV or IR (outside visible)
+          Grotrian diagram — click to highlight reachable states&nbsp;·&nbsp;double-click to solve&nbsp;·&nbsp;solid = visible light&nbsp;·&nbsp;dashed = UV or IR (outside visible)
         </span>
         {hasFocus && reachableCount === 0 && (
           <span style={{ fontSize: '0.78rem', color: '#ff9f40', fontStyle: 'italic' }}>
@@ -142,7 +149,7 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
         )}
         {hasFocus && reachableCount > 0 && (
           <span style={{ fontSize: '0.78rem', color: '#aaa', fontStyle: 'italic' }}>
-            green = reachable by single-photon emission (Δℓ = ±1)
+            green = reachable by single-photon emission (Δℓ = ±1) — double-click to solve
           </span>
         )}
         <button
@@ -273,7 +280,8 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
             if (isSolved) { stroke = '#4a9eff'; strokeWidth = 2.5 }
             if (reachable) { stroke = '#7ddf7d'; strokeWidth = 2.2 }
             if (isFocused && !isSolved) { stroke = '#ffb347'; strokeWidth = 2.2 }
-            if (isFocused && isSolved) { stroke = '#4a9eff'; strokeWidth = 2.5 }
+            // When both selected and solved: draw orange line slightly above blue
+            const bothSelectedAndSolved = isFocused && isSolved
 
             return (
               <g
@@ -281,6 +289,7 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
                 style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
                 opacity={opacity}
                 onClick={() => handleLevelClick(nv, lv)}
+                onDoubleClick={() => handleLevelDblClick(nv, lv)}
               >
                 <line
                   x1={x - colW / 2} y1={y}
@@ -288,6 +297,14 @@ export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDi
                   stroke={stroke}
                   strokeWidth={strokeWidth}
                 />
+                {bothSelectedAndSolved && (
+                  <line
+                    x1={x - colW / 2} y1={y - 3}
+                    x2={x + colW / 2} y2={y - 3}
+                    stroke="#ffb347"
+                    strokeWidth={2}
+                  />
+                )}
                 {lv === nv - 1 && (
                   <text x={x + colW / 2 + 4} y={y + 4} fontSize={9} fill="#888">
                     n={nv}
