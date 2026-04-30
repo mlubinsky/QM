@@ -128,15 +128,25 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
     hoverinfo: 'skip',
   }
 
-  const maxDensity = Math.max(...result.orbital_density.map(row => Math.max(...row)))
+  // Trim x/z axes and density grid to displayExtent so the plot zooms in
+  // without setting explicit axis ranges (which breaks scaleanchor squareness).
+  const xKeep = result.x_axis.map(x => Math.abs(x) <= displayExtent)
+  const zKeep = result.z_axis.map(z => Math.abs(z) <= displayExtent)
+  const trimmedX = result.x_axis.filter((_, i) => xKeep[i])
+  const trimmedZ = result.z_axis.filter((_, i) => zKeep[i])
+  const trimmedDensity = result.orbital_density
+    .filter((_, zi) => zKeep[zi])
+    .map(row => row.filter((_, xi) => xKeep[xi]))
+
+  const maxDensity = Math.max(...trimmedDensity.map(row => Math.max(...row)))
   const normalizedDensity = maxDensity > 0
-    ? result.orbital_density.map(row => row.map(v => v / maxDensity))
-    : result.orbital_density
+    ? trimmedDensity.map(row => row.map(v => v / maxDensity))
+    : trimmedDensity
 
   const heatmap: object = {
     z: normalizedDensity,
-    x: result.x_axis,
-    y: result.z_axis,
+    x: trimmedX,
+    y: trimmedZ,
     type: 'heatmap',
     colorscale: 'Viridis',
     zmin: 0,
@@ -210,8 +220,8 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
             data={[heatmap]}
             layout={{
               title: { text: `${result.ion_symbol} ${orbLabel} (m=${m}) — electron density |ψ(x,0,z)|²`, font: { size: 13 } },
-              xaxis: { title: { text: 'x (Bohr)', standoff: 8 }, scaleanchor: 'y', scaleratio: 1, range: [-displayExtent, displayExtent] },
-              yaxis: { title: { text: 'z (Bohr)', standoff: 8 }, range: [-displayExtent, displayExtent] },
+              xaxis: { title: { text: 'x (Bohr)', standoff: 8 }, scaleanchor: 'y', scaleratio: 1 },
+              yaxis: { title: { text: 'z (Bohr)', standoff: 8 } },
               margin: { t: 40, b: 60, l: 60, r: 80 },
               height: 360,
               annotations: [{
