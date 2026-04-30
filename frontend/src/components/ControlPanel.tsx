@@ -107,7 +107,7 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
   const [k0, setK0] = useState(initialParams?.k0 ?? 0)
   const [dt, setDt] = useState(initialParams?.dt ?? 0.001)
   const [nSteps, setNSteps] = useState(initialParams?.nSteps ?? 1000)
-  const saveEvery = initialParams?.saveEvery ?? 10
+  const [saveEvery, setSaveEvery] = useState(initialParams?.saveEvery ?? 10)
 
   // Time evolution — initial state selection
   const [initState, setInitState] = useState<'gaussian' | 'superposition'>(
@@ -418,12 +418,30 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
           </label>
           <div className="slider-row">
             <input id="n-steps" type="range" min={10} max={10000} value={nSteps}
-              onChange={e => { setNSteps(Number(e.target.value)); markDirty() }} />
+              onChange={e => {
+                const next = Number(e.target.value)
+                setNSteps(next)
+                setSaveEvery(prev => Math.min(prev, Math.min(100, next)))
+                markDirty()
+              }} />
             <span aria-live="polite">{nSteps}</span>
           </div>
           <div className="total-time-row">
             Total time: <strong>{(dt * nSteps).toFixed(3)} a.u.</strong>{' '}
             <span className="unit-angstrom">({auTimeToHuman(dt * nSteps)})</span>
+          </div>
+
+          <label htmlFor="save-every" data-tooltip="Save one frame every N steps — controls response size and animation resolution">
+            save_every
+          </label>
+          <div className="slider-row">
+            <input id="save-every" type="range" min={1} max={Math.min(100, nSteps)}
+              value={saveEvery}
+              onChange={e => { setSaveEvery(Number(e.target.value)); markDirty() }} />
+            <span aria-live="polite">{saveEvery}</span>
+          </div>
+          <div className="total-time-row">
+            Frames stored: <strong data-testid="frames-stored">{Math.floor(nSteps / saveEvery) + 1}</strong>
           </div>
         </fieldset>
       )}
