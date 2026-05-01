@@ -1,5 +1,6 @@
 import type { EigensolveRequest, EigensolveResponse, EvolveRequest, EvolveResponse,
-              HydrogenicRequest, HydrogenicResponse } from '../types/api'
+              HydrogenicRequest, HydrogenicResponse,
+              SpinMeasureRequest, SpinMeasureResponse, SpinPauliResponse } from '../types/api'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
@@ -49,4 +50,18 @@ export async function solveHydrogenic(req: HydrogenicRequest): Promise<Hydrogeni
     body: JSON.stringify(req),
   })
   return handleResponse<HydrogenicResponse>(res)
+}
+
+export async function spinMeasure(req: SpinMeasureRequest): Promise<SpinMeasureResponse> {
+  const res = await fetch(`${BASE_URL}/spin/measure`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  })
+  return handleResponse<SpinMeasureResponse>(res)
+}
+
+export async function spinPauli(): Promise<SpinPauliResponse> {
+  const res = await fetch(`${BASE_URL}/spin/pauli`)
+  return handleResponse<SpinPauliResponse>(res)
 }

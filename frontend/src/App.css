@@ -589,3 +589,348 @@
     border-right-color: var(--border);
   }
 }
+
+/* ── Spin / Bloch sphere panel ──────────────────────────────────────────── */
+.spin-panel {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.spin-controls {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.spin-sphere-wrap {
+  flex: 1;
+  min-height: 500px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.spin-fieldset {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.spin-fieldset legend,
+.spin-fieldset summary {
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.spin-mode-toggle {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+}
+
+.spin-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spin-sliders label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.spin-sliders input[type="range"] {
+  width: 100%;
+}
+
+.spin-value {
+  font-weight: normal;
+  font-variant-numeric: tabular-nums;
+  color: #555;
+}
+
+.spin-period-note {
+  font-weight: normal;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.spin-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.spin-preset-btn {
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.spin-preset-btn:hover {
+  background: #e0e0e0;
+}
+
+.spin-preset-btn--active {
+  background: #1a6abf;
+  color: #fff;
+  border-color: #1a6abf;
+}
+
+.spin-expectation {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #555;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.spin-components {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spin-component-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spin-component-row label {
+  width: 50px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.spin-component-row input {
+  flex: 1;
+  font-size: 0.82rem;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.spin-norm-note {
+  font-size: 0.75rem;
+  color: #888;
+  font-style: italic;
+}
+
+.spin-b-presets {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.spin-playback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spin-play-btn {
+  padding: 4px 12px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.spin-play-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.spin-play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spin-frame-counter {
+  font-size: 0.78rem;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stern-Gerlach */
+.sg-prob-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 4px 0;
+}
+
+.sg-prob-bar {
+  height: 14px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sg-prob-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.sg-prob-plus  { background: #2a9d2a; }
+.sg-prob-minus { background: #c0392b; }
+
+.sg-prob-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #555;
+}
+
+.sg-measure-btn {
+  align-self: flex-start;
+}
+
+.sg-outcome {
+  font-size: 0.82rem;
+  color: #333;
+  background: #f0f8ff;
+  border: 1px solid #b0c8e8;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.sg-shots-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sg-shots-input {
+  width: 70px;
+  font-size: 0.82rem;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.sg-histogram {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.sg-hist-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sg-hist-label {
+  width: 20px;
+  font-size: 0.78rem;
+  text-align: right;
+  color: #555;
+}
+
+.sg-hist-track {
+  flex: 1;
+  height: 14px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sg-hist-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.sg-hist-count {
+  width: 36px;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: #555;
+}
+
+.sg-hist-note {
+  font-size: 0.75rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* Pauli matrices */
+.pauli-details {
+  padding: 6px 12px;
+}
+
+.pauli-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.pauli-matrix {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.pauli-name {
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pauli-table {
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-family: monospace;
+}
+
+.pauli-table td {
+  border: 1px solid #ccc;
+  padding: 2px 6px;
+  text-align: center;
+  min-width: 24px;
+}
+
+.pauli-eigen {
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.pauli-loading {
+  color: #888;
+  font-size: 0.82rem;
+  padding: 4px 0;
+}
+
+.spin-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spin-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}

@@ -10,6 +10,7 @@ import { POTENTIALS } from './data/potentials'
 import type { AppState, AppMode, EigensolveResponse, EvolveResponse, HydrogenicResponse } from './types/api'
 import type { EigensolveRequest, EvolveRequest, HydrogenicRequest } from './types/api'
 import { HydrogenicPanel } from './components/HydrogenicPanel'
+import { SpinPanel } from './components/SpinPanel'
 
 type Action =
   | { type: 'SET_MODE'; mode: AppMode }
@@ -244,13 +245,18 @@ export default function App() {
             <optgroup label="Atomic">
               <option value="hydrogenic">Hydrogenic</option>
             </optgroup>
+            <optgroup label="Spin">
+              <option value="spin">Spin ½ / Bloch Sphere</option>
+            </optgroup>
           </select>
           <span className="mode-equation" aria-live="polite">
             {state.mode === 'stationary'
               ? <span>Ĥψ = Eψ</span>
               : state.mode === 'hydrogenic'
                 ? <span>−½∇² − Z/r</span>
-                : <span>i ∂ψ/∂t = Ĥψ</span>
+                : state.mode === 'spin'
+                  ? <span>H = ½ω₀(B̂·σ)</span>
+                  : <span>i ∂ψ/∂t = Ĥψ</span>
             }
           </span>
         </div>
@@ -264,36 +270,43 @@ export default function App() {
       )}
 
       <main className="main-layout">
-        <ControlPanel
-          mode={state.mode}
-          onSolve={handleSolve}
-          status={state.status}
-          initialParams={initialParams}
-        />
-        {state.mode === 'hydrogenic'
-          ? state.hydroResult && state.hydroParams && (
-              <HydrogenicPanel
-                result={state.hydroResult}
-                Z={state.hydroParams.Z}
-                n={state.hydroParams.n}
-                l={state.hydroParams.l}
-                m={state.hydroParams.m}
-                onSelectLevel={handleHydroSelect}
-              />
-            )
+        {state.mode === 'spin'
+          ? <SpinPanel />
           : (
-            <PlotArea
-              mode={state.mode}
-              eigenResult={state.eigenResult}
-              evolveResult={state.evolveResult}
-              potentialPreset={state.potentialPreset}
-              currentFrame={state.currentFrame}
-              playing={state.playing}
-              onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
-              onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
-              onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
-              speed={state.speed}
-            />
+            <>
+              <ControlPanel
+                mode={state.mode}
+                onSolve={handleSolve}
+                status={state.status}
+                initialParams={initialParams}
+              />
+              {state.mode === 'hydrogenic'
+                ? state.hydroResult && state.hydroParams && (
+                    <HydrogenicPanel
+                      result={state.hydroResult}
+                      Z={state.hydroParams.Z}
+                      n={state.hydroParams.n}
+                      l={state.hydroParams.l}
+                      m={state.hydroParams.m}
+                      onSelectLevel={handleHydroSelect}
+                    />
+                  )
+                : (
+                  <PlotArea
+                    mode={state.mode}
+                    eigenResult={state.eigenResult}
+                    evolveResult={state.evolveResult}
+                    potentialPreset={state.potentialPreset}
+                    currentFrame={state.currentFrame}
+                    playing={state.playing}
+                    onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
+                    onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
+                    onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
+                    speed={state.speed}
+                  />
+                )
+              }
+            </>
           )
         }
       </main>

@@ -1,6 +1,6 @@
 # Schrödinger Solver
 
-A browser-based solver for the one-dimensional time-dependent and time-independent Schrödinger equation. Run the backend and frontend locally, then open the browser, choose a potential, and explore.
+A browser-based quantum mechanics explorer. Run the backend and frontend locally, choose a mode from the dropdown, and explore.
 
 ![Stationary mode showing harmonic oscillator eigenfunctions and energy levels](docs/screenshot_stationary.png)
 
@@ -13,35 +13,47 @@ A browser-based solver for the one-dimensional time-dependent and time-independe
 - Adjustable parameters (barrier height, well separation, …) via sliders for each potential
 - Custom potential via a safe math expression (e.g. `0.5*x**2 + 0.1*x**4`)
 - Eigenfunctions plotted offset by energy (standard physics convention)
-- Exact-solution comparison table for infinite square well and harmonic oscillator: numerical energies vs analytic values with relative error
-- Physics reference modal (? button) for each potential: Hamiltonian, key formula, description, and what to look for
+- Exact-solution comparison table for infinite square well and harmonic oscillator
+- Physics reference modal (? button) for each potential: Hamiltonian, key formula, description
 
 **Time-evolution mode** — evolve a wave packet under the chosen potential:
 - Crank-Nicolson integrator — unconditionally stable, norm-conserving
 - Animated |ψ(x,t)|² with play/pause/speed controls
+- Two initial-state choices:
+  - **Gaussian packet** — adjustable centre x₀, width σ, momentum k₀
+  - **Superposition of eigenstates** — up to 20 eigenstates with real coefficients cₙ
+- Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ and uncertainties Δx, Δp at every frame
+- Momentum-space density |φ(k,t)|² and probability current J(x,t) animated in sync
 - Norm history plot showing ‖ψ(t)‖² − 1 (conservation diagnostic)
-- **Two initial-state choices:**
-  - **Gaussian packet** — adjustable center x₀, width σ, momentum k₀
-  - **Superposition of eigenstates** — choose up to 20 eigenstates with real coefficients cₙ; ψ₀ = Σ cₙ ψₙ (normalised). Quick-select buttons instantly load a single eigenstate.
-- Expectation values ⟨x⟩, ⟨p⟩, ⟨x²⟩, ⟨p²⟩, ⟨H⟩ computed at every saved frame
-- Uncertainties Δx, Δp, and product Δx·Δp returned for each frame
-- Momentum-space probability density |φ(k,t)|² animated in sync with |ψ(x,t)|²
-- Probability current density J(x,t) = Im[ψ* ∂ψ/∂x] animated in sync
 
 **Hydrogenic mode** — hydrogen-like ions (one electron, nuclear charge Z = 1–10):
-- Solves the radial Schrödinger equation for the reduced wavefunction u(r) = r·R_nl(r) with effective potential V_eff = −Z/r + l(l+1)/(2r²)
-- Supports quantum numbers n = 1–5, l = 0…n−1, m = −l…l; nuclear charge Z up to Ne⁹⁺
+- Solves the radial Schrödinger equation for u(r) = r·R_nl(r) with effective potential V_eff = −Z/r + l(l+1)/(2r²)
+- Quantum numbers n = 1–5, l = 0…n−1, m = −l…l; nuclear charge Z up to Ne⁹⁺
 - Radial density plot r²|R_nl(r)|² with ⟨r⟩ marker and exact analytic comparison
-- 2-D electron density cross-section |ψ(x,0,z)|² through the nucleus in the xz-plane, with colorbar
-- **Grotrian (energy-level) diagram** — all levels n=1–5, l=0–4 (s/p/d/f/g); Lyman and Balmer transition arrows colored by emission wavelength (UV = purple dashed, visible = spectral color, IR = dark red dashed), wavelength in nm; click any level to jump to that orbital
-- Physics reference modal (? button): Hamiltonian, radial reduction derivation, exact energy table, orbital size formula, quantum number table, X-ray scaling, atomic units
-- Energies reported in Hartree and eV alongside the exact value E_n = −Z²/(2n²) Eh
-- URL state persistence for Z, n, l, m
+- 2-D electron density cross-section |ψ(x,0,z)|² in the xz-plane
+- Grotrian diagram — all levels n=1–5, l=0–4; Lyman and Balmer transition arrows coloured by wavelength; click any level to jump to that orbital
+- Energies in Hartree and eV alongside the exact value E_n = −Z²/(2n²) Eh
+- Physics reference modal (? button)
+
+**Spin ½ / Bloch Sphere** — spin-½ quantum mechanics:
+- Interactive 3-D Bloch sphere (Three.js) with OrbitControls (mouse drag/zoom)
+- State input via θ/φ sliders or Re(α)/Re(β)/Im(β) complex components
+- Preset states: |↑⟩, |↓⟩, |±x⟩, |±y⟩
+- Live expectation value readout ⟨σ_x⟩, ⟨σ_y⟩, ⟨σ_z⟩
+- Larmor precession: choose B̂ direction (x/y/z/custom) and ω₀; play/pause animation at 30 fps; trajectory arc drawn on sphere
+- Precession computed analytically client-side (Rodrigues' rotation formula — |r| = 1 exactly)
+- Pauli matrix reference panel (collapsible): σ_x, σ_y, σ_z with eigenvalues and eigenvectors
+- Stern-Gerlach simulator:
+  - Measurement axis selector (x/y/z/custom θ_n, φ_n)
+  - Live exact probability bar P(+½) = (1 + n̂·r)/2
+  - **Measure once** — single Bernoulli draw; state collapses to the post-measurement eigenstate on the sphere
+  - **Run N shots** — calls backend; shows histogram alongside exact probabilities
+- Physics reference modal (? button): Bloch parameterisation, Pauli matrices, precession formula, measurement rule, collapse
 
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
-- Solver reference modal (? button on Grid panel): grid formula, BCs, CN scheme, units
-- URL state persistence — share a configuration via URL
+- Mode selection via grouped dropdown (1D Solvers / Atomic / Spin) — scales to future modes without cluttering the header
+- URL state persistence for 1D and hydrogenic modes — share a configuration via URL
 - Export results as CSV or JSON
 - Interactive API docs at `/docs` (Swagger UI)
 
@@ -67,9 +79,7 @@ uvicorn app:app --reload --port 8000
 ```
 
 The backend allows `http://localhost:5173` by default. To allow additional
-origins (e.g. a different port or a deployed frontend) set the
-`CORS_ORIGINS` environment variable as a comma-separated list before
-starting the server:
+origins set the `CORS_ORIGINS` environment variable as a comma-separated list:
 
 ```bash
 CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com uvicorn app:app --reload --port 8000
@@ -97,38 +107,54 @@ npm run dev
 ```
 QM/
 ├── backend/
-│   ├── app.py                  # FastAPI endpoints
-│   ├── grid.py                 # Uniform 1D grid
-│   ├── hamiltonian.py          # Finite-difference Hamiltonian (sparse)
-│   ├── eigenvalue_solver.py    # Sparse eigensolver (ARPACK via scipy)
-│   ├── crank_nicolson.py       # Crank-Nicolson time stepper
-│   ├── initial_states.py       # Gaussian packet + eigenstate superposition factories
-│   ├── expectation_values.py   # ⟨x⟩, ⟨p⟩, ⟨H⟩, uncertainties
-│   ├── momentum.py             # Momentum-space density |φ(k)|²
-│   ├── probability_current.py  # Probability current J(x,t)
-│   ├── potential_parser.py     # Safe expression evaluator (asteval)
-│   ├── presets.py              # Built-in potential expressions
+│   ├── app.py                        # FastAPI application, mounts all routers
+│   ├── shared/
+│   │   ├── grid.py                   # Uniform 1D grid
+│   │   ├── potential_parser.py       # Safe expression evaluator (asteval)
+│   │   └── units.py                  # Unit conversion constants
 │   ├── solvers/
-│   │   └── hydrogenic/
-│   │       ├── radial_solver.py   # Radial Schrödinger eq. for u(r)=r·R_nl
-│   │       ├── orbitals.py        # 2-D xz cross-section via spherical harmonics
-│   │       └── router.py          # FastAPI router mounted at /hydrogenic
-│   └── tests/                  # pytest test suite
+│   │   ├── schrodinger_1d/
+│   │   │   ├── router.py             # /schrodinger1d endpoints
+│   │   │   ├── hamiltonian.py        # Finite-difference Hamiltonian (sparse)
+│   │   │   ├── eigenvalue_solver.py  # ARPACK eigensolver
+│   │   │   ├── crank_nicolson.py     # Crank-Nicolson time stepper
+│   │   │   ├── initial_states.py     # Gaussian packet + superposition
+│   │   │   ├── expectation_values.py # ⟨x⟩, ⟨p⟩, ⟨H⟩, uncertainties
+│   │   │   ├── momentum.py           # Momentum-space density |φ(k)|²
+│   │   │   ├── probability_current.py# J(x,t)
+│   │   │   └── presets.py            # Built-in potential expressions
+│   │   ├── hydrogenic/
+│   │   │   ├── router.py             # /hydrogenic endpoints
+│   │   │   ├── radial_solver.py      # Radial eq. for u(r)=r·R_nl
+│   │   │   └── orbitals.py           # 2-D xz cross-section
+│   │   └── spin/
+│   │       ├── router.py             # /spin endpoints
+│   │       └── physics.py            # Bloch vector, measurement probabilities
+│   └── tests/                        # pytest test suite
 ├── frontend/
-│   ├── src/
-│   │   ├── components/         # React components
-│   │   │   ├── GrotriaDiagram.tsx     # SVG Grotrian energy-level diagram
-│   │   │   ├── HydrogenicPanel.tsx    # Radial density + orbital density + Grotrian
-│   │   │   └── HydrogenicInfoPanel.tsx # Physics reference modal content
-│   │   ├── api/                # Backend client
-│   │   ├── data/               # Potential metadata (potentials.ts)
-│   │   ├── types/              # TypeScript interfaces
-│   │   └── utils/              # URL state, CSV export
-│   └── ...
-├── specs/                      # Design specs for each module
+│   └── src/
+│       ├── components/
+│       │   ├── BlochSphere.tsx        # Three.js Bloch sphere canvas
+│       │   ├── SpinPanel.tsx          # Spin mode top-level layout
+│       │   ├── SpinStateComposer.tsx  # θ/φ sliders + presets
+│       │   ├── PrecessionControls.tsx # B̂, ω₀, play/pause animation
+│       │   ├── SternGerlachPanel.tsx  # Measurement simulator + histogram
+│       │   ├── PauliMatrixDisplay.tsx # Collapsible matrix reference
+│       │   ├── SpinInfoPanel.tsx      # Physics reference modal content
+│       │   ├── HydrogenicPanel.tsx    # Radial + orbital density + Grotrian
+│       │   ├── GrotriaDiagram.tsx     # SVG Grotrian diagram
+│       │   └── ...                    # Other components
+│       ├── api/client.ts              # Backend API client
+│       ├── types/api.ts               # TypeScript interfaces
+│       └── utils/
+│           ├── spinMath.ts            # Client-side spin math (pure functions)
+│           ├── urlState.ts            # URL serialisation / deserialisation
+│           └── ...
+├── specs/                             # Design specs (one per feature)
+│   └── spin-future-scope.md           # Deferred spin features
 ├── CHANGELOG.md
-├── DEPENDENCIES.md             # Full dependency list with versions
-└── TESTING.md                  # How to run all tests
+├── DEPENDENCIES.md
+└── TESTING.md
 ```
 
 ---
@@ -145,15 +171,16 @@ python -m pytest tests/ -v
 | Test file | What it covers |
 |---|---|
 | `test_grid.py` | Grid spacing and shape |
-| `test_hamiltonian.py` | Symmetry, sparsity, Infinite Square Well ground-state energy |
-| `test_eigenvalue_solver.py` | Infinite Square Well and Harmonic Oscillator energies, normalization, orthogonality |
+| `test_hamiltonian.py` | Symmetry, sparsity, ISW ground-state energy |
+| `test_eigenvalue_solver.py` | ISW and HO energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
-| `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩ for Harmonic Oscillator/Infinite Square Well ground states; Heisenberg bound; Ehrenfest theorem |
-| `test_momentum.py` | k-axis length/spacing/symmetry; |φ(k)|² normalization, peak location, symmetry; evolve() shapes; API response fields |
-| `test_probability_current.py` | J(x,t) sign, continuity equation, zero current for real wavefunctions |
-| `test_api.py` | All HTTP endpoints via FastAPI TestClient |
-| `test_hydrogenic_radial.py` | Radial solver: energy accuracy (< 0.1 %), normalization, ordering, Z-scaling |
-| `test_hydrogenic_api.py` | `/hydrogenic/solve` endpoint: status codes, labels, energies, validation errors |
+| `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩; Heisenberg bound; Ehrenfest theorem |
+| `test_momentum.py` | k-axis, |φ(k)|² normalization, peak location |
+| `test_probability_current.py` | J sign, continuity equation, zero current for real ψ |
+| `test_api.py` | All 1D HTTP endpoints |
+| `test_hydrogenic_radial.py` | Radial solver: energy accuracy, normalization, Z-scaling |
+| `test_hydrogenic_api.py` | `/hydrogenic/solve` status codes, labels, energies |
+| `test_spin_api.py` | `GET /spin/pauli` matrix values; `POST /spin/measure` probabilities, shot counts, axis labels, validation |
 
 ### Frontend (Vitest)
 
@@ -162,13 +189,22 @@ cd frontend
 npm test
 ```
 
+| Test file | What it covers |
+|---|---|
+| `spinMath.test.ts` | `blochVector`, `rodriguezRotate`, `computeTrajectory`, `collapseState` — 25 tests |
+| `spinClient.test.ts` | `spinMeasure` and `spinPauli` API client functions |
+| `apiClient.test.ts` | Fetch wiring, error handling |
+| `wiring.test.tsx` | App-level mode switching, URL state after solve |
+| `matrixElements.test.ts` | Heisenberg-picture matrix elements |
+| Other `*.test.tsx` | Component rendering and interaction |
+
 ---
 
 ## URL sharing
 
-Every solver configuration is encoded in the URL so you can bookmark or share an exact setup.
+Every 1D and hydrogenic configuration is encoded in the URL so you can bookmark or share an exact setup. Spin mode state is not persisted in the URL (page refresh returns to |↑⟩).
 
-**Click "Copy link"** in the plot area to copy the current URL to the clipboard, or copy the address bar directly.  Opening the link in a new tab restores all parameters and re-runs the solver automatically.
+**Click "Copy link"** in the plot area to copy the current URL to the clipboard.
 
 ### URL parameter reference
 
@@ -176,7 +212,7 @@ Every solver configuration is encoded in the URL so you can bookmark or share an
 |-----|------|-------------|---------|
 | `mode` | `stationary` \| `time-evolution` \| `hydrogenic` | solver mode | `stationary` |
 | `potential` | string | preset key (e.g. `harmonic_oscillator`) | `infinite_square_well` |
-| `expr` | string | custom potential expression (overrides `potential`) | — |
+| `expr` | string | custom potential expression | — |
 | `xmin` | float | grid left edge (a.u.) | `-10` |
 | `xmax` | float | grid right edge (a.u.) | `10` |
 | `n` | int 50–2000 | number of grid points | `500` |
@@ -193,106 +229,43 @@ Every solver configuration is encoded in the URL so you can bookmark or share an
 | `hydro_L` | int 0–n−1 | angular quantum number | `0` |
 | `hydro_M` | int −l…l | magnetic quantum number | `0` |
 
-Slider parameters use the `p_` prefix to avoid key collisions.  For example, the double-well `λ` slider encodes as `p_lambda=2.0`.  If `xmin ≥ xmax` the values are swapped; `n`, `n_states`, `dt`, and `n_steps` are clamped to their valid ranges on parse.
-
-### Example URLs
-
-```
-# Harmonic oscillator, wider grid
-?mode=stationary&potential=harmonic_oscillator&xmin=-8&xmax=8&n=500
-
-# Double well with custom barrier height
-?mode=stationary&potential=double_well&p_lambda=2.0&p_a=1.5
-
-# Gaussian packet tunnelling through a barrier
-?mode=time-evolution&potential=gaussian_barrier&x0=-4&k0=5&sigma=0.8&dt=0.005&n_steps=2000
-```
-
 ---
 
 ## API overview
 
-The backend exposes a REST API. With the server running, full interactive docs are at:
+Full interactive docs at `http://localhost:8000/docs` (Swagger UI).
 
-```
-http://localhost:8000/docs
-```
-
-### `POST /solve/eigenstates`
+### `POST /schrodinger1d/solve/eigenstates`
 
 Solve for the lowest `n_states` energy eigenstates.
 
 ```json
-{
-  "grid": {"x_min": -8.0, "x_max": 8.0, "n_points": 500},
-  "potential_preset": "harmonic_oscillator",
-  "n_states": 5
-}
+{ "grid": {"x_min": -8.0, "x_max": 8.0, "n_points": 500},
+  "potential_preset": "harmonic_oscillator", "n_states": 5 }
 ```
 
-Returns energies, wavefunctions, grid, potential, and per-state norm errors.
+### `POST /schrodinger1d/solve/evolve`
 
-### `POST /solve/evolve`
-
-Evolve a wave packet using Crank-Nicolson. Supports two initial states.
-
-**Gaussian packet** (default):
-
-```json
-{
-  "grid": {"x_min": -10.0, "x_max": 10.0, "n_points": 500},
-  "potential_preset": "infinite_square_well",
-  "initial_state": "gaussian",
-  "gaussian_x0": 0.0,
-  "gaussian_sigma": 1.0,
-  "gaussian_k0": 2.0,
-  "dt": 0.005,
-  "n_steps": 1000,
-  "save_every": 10
-}
-```
-
-**Superposition of eigenstates** — the backend solves for `n_super_states` eigenstates internally, then builds ψ₀ = Σ cₙ ψₙ (normalised):
-
-```json
-{
-  "grid": {"x_min": -10.0, "x_max": 10.0, "n_points": 500},
-  "potential_preset": "harmonic_oscillator",
-  "initial_state": "superposition",
-  "n_super_states": 3,
-  "coefficients": [1.0, 0.0, 1.0],
-  "dt": 0.005,
-  "n_steps": 1000,
-  "save_every": 10
-}
-```
-
-Validation: `coefficients` must have length equal to `n_super_states` and must not be all zero.
-
-Returns probability density frames `|ψ(x,t)|²`, time array, norm history, grid, potential,
-per-frame expectation values `expect_x`, `expect_p`, `expect_x2`, `expect_p2`, `expect_H`,
-and momentum-space density frames `momentum_frames` with axis `momentum_k` (rad/a.u.).
+Evolve a wave packet (Crank-Nicolson). Supports `gaussian` and `superposition` initial states.
 
 ### `POST /hydrogenic/solve`
 
-Solve for a hydrogen-like orbital (n, l, m) with nuclear charge Z.
+Solve a hydrogen-like orbital (Z, n, l, m). Returns radial density, 2-D orbital density, energies, and labels.
+
+### `GET /spin/pauli`
+
+Return the three Pauli matrices (real and imaginary parts separately), eigenvalues, and eigenvectors.
+
+### `POST /spin/measure`
+
+Measure a spin-½ state along an arbitrary axis.
 
 ```json
-{
-  "Z": 1,
-  "n": 2,
-  "l": 1,
-  "m": 0
-}
+{ "theta": 1.5708, "phi": 0.0, "axis": [0, 0, 1], "n_shots": 1000 }
 ```
 
-Returns radial density r²|R_nl|², radial grid, energies in Hartree and eV alongside the exact value, 2-D orbital density |ψ(x,0,z)|² on an xz grid, ion symbol (e.g. `He⁺`), ion name, and orbital label (e.g. `2p`).
-
-Validation: 1 ≤ Z ≤ 10, 1 ≤ n ≤ 5, 0 ≤ l < n, |m| ≤ l.
-
-### `GET /presets`
-
-Returns the list of built-in potential names.
+Returns exact probabilities P(+½), P(−½), and Binomial shot counts.
+Validation: axis must be non-zero; 1 ≤ n_shots ≤ 100 000.
 
 ---
 
@@ -304,72 +277,44 @@ All internal quantities use **atomic units** (ħ = mₑ = e = 1):
 
 | Quantity | Atomic unit | SI equivalent |
 |---|---|---|
-| Length | Bohr radius a₀ | 0.529 Å = 0.0529 nm |
+| Length | Bohr radius a₀ | 0.529 Å |
 | Energy | Hartree Eₕ | 27.21 eV |
 | Time | ħ/Eₕ | 24.19 attoseconds |
-| Momentum | ħ/a₀ | — |
+| Frequency | Eₕ/ħ | 41.34 PHz |
 
-The UI displays energies in both Hartree and eV, lengths in both a.u. and Å, and times in both a.u. and attoseconds/femtoseconds.
+### Spatial discretisation (1D solver)
 
-### Spatial discretisation
+The 1-D domain [x_min, x_max] is divided into N uniform grid points. The kinetic energy operator is approximated by a 3-point central-difference stencil giving a sparse tridiagonal Hamiltonian. Dirichlet boundary conditions (ψ = 0 at walls) are enforced.
 
-The 1-D domain [x_min, x_max] is divided into N uniform grid points with spacing dx = (x_max − x_min)/(N−1). The kinetic energy operator −(ħ²/2m)d²/dx² is approximated by the **3-point central-difference stencil**:
+### Stationary states
 
-```
-(d²ψ/dx²)ᵢ ≈ (ψᵢ₋₁ − 2ψᵢ + ψᵢ₊₁) / dx²       O(dx²) accuracy
-```
+Solved with **ARPACK** (`scipy.sparse.linalg.eigsh`, `which='SM'`). Wavefunctions are normalised so Σ|ψₙ|²·dx = 1.
 
-This gives a tridiagonal kinetic-energy matrix T with entries:
+### Time evolution
 
-```
-T_ii      = +1/dx²
-T_{i,i±1} = −1/(2dx²)
-```
+**Crank-Nicolson** implicit scheme — unconditionally stable, exactly unitary (norm-conserving to machine precision), O(N) per step.
 
-**Dirichlet boundary conditions** (ψ = 0 at both walls) are enforced by zeroing the boundary rows and columns of T and placing a large sentinel on the diagonal. The full Hamiltonian is H = T + diag(V).
+### Spin-½ precession
 
-### Stationary states — eigenvalue solver
+Computed **analytically client-side** using Rodrigues' rotation formula. The Bloch vector rotates rigidly around B̂ at rate ω₀ — |r| = 1 is preserved exactly with no numerical integration.
 
-The time-independent Schrödinger equation H ψₙ = Eₙ ψₙ is solved using **ARPACK** (`scipy.sparse.linalg.eigsh`, `which='SM'`). ARPACK is a Krylov-subspace iterative method that only requires matrix-vector products, making it efficient for the sparse tridiagonal H. The k lowest eigenpairs are returned. Wavefunctions are normalised so that Σ|ψₙ|²·dx = 1.
+### Measurement
 
-### Time evolution — Crank-Nicolson
+Probabilities are computed from P(+n̂) = (1 + n̂·r)/2. Shot counts are drawn from a Binomial(N, P) distribution on the backend.
 
-The time-dependent Schrödinger equation iħ ∂ψ/∂t = Hψ is solved with the **Crank-Nicolson (CN)** implicit scheme. Discretising in time with step dt:
+---
 
-```
-(I + i·dt/2·H) ψ(t+dt) = (I − i·dt/2·H) ψ(t)
-```
+## Validation
 
-Writing L = I + i·dt/2·H and R = I − i·dt/2·H, each step computes:
+**Infinite square well** (L = x_max − x_min):  Eₙ = n²π² / 2L²
 
-```
-ψ(t+dt) = L⁻¹ · R · ψ(t)
-```
+**Harmonic oscillator** (ω = 1):  Eₙ = n + ½
 
-Key properties:
-- **Unconditionally stable** — no CFL condition on dt
-- **Unitary** — L† = R, so ‖ψ‖² is conserved to machine precision
-- **O(N) per step** — L is LU-factorised once (`scipy.sparse.linalg.splu`); each step costs one sparse matrix-vector product and one triangular solve
+**Norm conservation:** ‖ψ(t)‖² stays within 10⁻⁶ of 1.0 across all time steps.
 
-### Momentum-space density — FFT
+**Hydrogenic energies:** numerical energy agrees with E_n = −Z²/(2n²) Hartree to within 0.1 % for n=1–4, l=0–3, Z=1–6.
 
-The momentum-space wavefunction φ(k) is the Fourier transform of ψ(x). On a uniform grid it is approximated using the **Fast Fourier Transform**:
-
-```
-|φ(kⱼ)|² ≈ (dx² / 2π) · |FFT(ψ)[j]|²
-```
-
-normalised so that Σ|φ(kⱼ)|²·Δk = 1 (Parseval's theorem), with Δk = 2π/(N·dx). The k-axis is centred on zero using `fftshift`.
-
-### Probability current
-
-The probability current density is computed from the discretised wavefunction:
-
-```
-J(x, t) = Im[ψ*(x,t) · ∂ψ(x,t)/∂x]
-```
-
-using `numpy.gradient` (central differences) for the spatial derivative. J satisfies the continuity equation ∂|ψ|²/∂t + ∂J/∂x = 0.
+**Spin:** |↑⟩ along z → P(+z) = 1.0; |+x⟩ along x → P(+x) = 1.0; |+x⟩ along z → P(+z) = 0.5; precession |r| = 1 at every frame. All verified by the test suite.
 
 ---
 
@@ -377,47 +322,15 @@ using `numpy.gradient` (central differences) for the spatial derivative. J satis
 
 | Name | Expression | Notes |
 |---|---|---|
-| `infinite_square_well` | `0` | Dirichlet BCs act as walls; well width L = x_max − x_min |
-| `harmonic_oscillator` | `0.5 * x**2` | ω = 1 in atomic units |
-| `double_well` | `λ * (x² − a²)²` | Parameterized; default λ=0.5, a=1 (shallow, no tunneling) |
-| `deep_double_well` | `λ * (x² − a²)²` | Same formula; default λ=2, a=√2 (deep tunneling regime) |
-| `finite_square_well` | `-10 if abs(x) < 3 else 0` | Depth 10 a.u., half-width 3 a.u. |
-| `step_potential` | `5 if x > 0 else 0` | Step height 5 a.u. |
-| `gaussian_barrier` | `5 * exp(-0.5 * x**2)` | Height 5 a.u., width σ = 1 a.u. |
+| `infinite_square_well` | `0` | Walls enforced by BCs |
+| `harmonic_oscillator` | `0.5 * x**2` | ω = 1 |
+| `double_well` | `λ(x²−a²)²` | Default λ=0.5, a=1 |
+| `deep_double_well` | `λ(x²−a²)²` | Default λ=2, a=√2 |
+| `finite_square_well` | `−10 if |x|<3 else 0` | Depth 10 a.u. |
+| `step_potential` | `5 if x>0 else 0` | Step height 5 a.u. |
+| `gaussian_barrier` | `5 exp(−x²/2)` | Height 5, width σ=1 |
 
-Custom expressions may use `x`, standard math functions (`sin`, `cos`, `exp`, `abs`, `sqrt`), and `numpy` ufuncs. Python builtins and `import` are blocked.
-
----
-
-## Validation
-
-The solver is validated against exact analytic solutions:
-
-**Infinite square well** (L = x_max − x_min, atomic units):
-
-    Eₙ = n²π² / 2L²,   n = 1, 2, 3, …
-
-**Harmonic oscillator** (ω = 1):
-
-    Eₙ = n + ½,   n = 0, 1, 2, …
-
-**Norm conservation:** ‖ψ(t)‖² stays within 10⁻⁶ of 1.0 across all time steps (verified by the test suite and displayed live in the UI).
-
-**Hydrogenic energies:** For each (Z, n, l) state the numerical energy agrees with the exact value E_n = −Z²/(2n²) Hartree to within 0.1 % (verified by the test suite for n=1–4, l=0–3, Z=1–6). The grid auto-scales: r_max = max(3, 20n²/Z) a.u. and dr ≤ 0.1 a.u. to ensure bound-state decay is captured. He⁺ (Z=2) energies are 4× larger than H (Z=1), as expected from the Z² scaling.
-
-**Coherent state trajectory:** For a Gaussian packet in V = ½x², the center x̄(t) = x₀ cos(t) and width σ(t) = σ (no spreading). The test suite verifies both to within 0.05 a.u. after t = π.
-
-**Expectation values and Ehrenfest theorem:** For the Harmonic Oscillator ground state the test suite verifies ⟨x⟩ = 0, ⟨p⟩ = 0, ⟨H⟩ = ½, and Δx·Δp = ½ (minimum uncertainty state). For the Harmonic Oscillator coherent state it verifies ⟨x(t)⟩ = x₀ cos(t) (Ehrenfest theorem) and ⟨H(t)⟩ = const for energy eigenstates. The Heisenberg bound Δx·Δp ≥ ½ is checked for all tested states.
-
----
-
-## Numerical methods
-
-- **Hamiltonian:** finite-difference second derivative on a uniform grid, three-point stencil, stored as a sparse tridiagonal matrix
-- **Eigenvalue solver:** `scipy.sparse.linalg.eigsh` (ARPACK, shift-invert mode) for the lowest k eigenvalues
-- **Time stepper:** Crank-Nicolson implicit scheme — second-order accurate in time, unconditionally stable, exactly unitary (norm-conserving up to floating-point rounding)
-- **Boundary conditions:** Dirichlet (ψ = 0 at both walls)
-- **Expression safety:** user-supplied potential expressions are evaluated with `asteval`, which does not allow `import`, attribute access, or arbitrary Python execution
+Custom expressions may use `x`, standard math functions, and numpy ufuncs. `import` and attribute access are blocked (asteval).
 
 ---
 

@@ -13,13 +13,15 @@
   },
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
+    "@types/three": "^0.184.0",
     "katex": "^0.16.45",
     "plotly.js": "^3.4.0",
     "plotly.js-dist-min": "^3.4.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-katex": "^3.1.0",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

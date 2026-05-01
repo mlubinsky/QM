@@ -58,7 +58,7 @@ export interface EvolveResponse {
   delta_x_delta_p: number[]   // Δx·Δp at each frame
 }
 
-export type AppMode = 'stationary' | 'time-evolution' | 'hydrogenic'
+export type AppMode = 'stationary' | 'time-evolution' | 'hydrogenic' | 'spin'
 
 export interface HydrogenicRequest {
   Z: number
@@ -82,6 +82,34 @@ export interface HydrogenicResponse {
   ion_name: string
   orbital_label: string
 }
+export interface PauliMatrix {
+  re: number[][]
+  im: number[][]
+}
+
+export interface SpinMeasureRequest {
+  theta: number
+  phi: number
+  axis: [number, number, number]
+  n_shots: number
+}
+
+export interface SpinMeasureResponse {
+  p_plus: number
+  p_minus: number
+  shots_plus: number
+  shots_minus: number
+  axis_label: string
+}
+
+export interface SpinPauliResponse {
+  sigma_x: PauliMatrix
+  sigma_y: PauliMatrix
+  sigma_z: PauliMatrix
+  eigenvalues: number[]
+  eigenvectors: Record<string, { plus: number[]; minus: number[] }>
+}
+
 export type AppStatus = 'idle' | 'loading' | 'success' | 'error'
 
 export interface AppState {
