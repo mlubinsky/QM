@@ -190,13 +190,13 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
               xaxis: {
                 title: { text: 'r (Bohr)', standoff: 8 },
                 zeroline: false,
-                range: [0, maxR],
+                range: [0, displayExtent],
               },
               xaxis2: {
                 title: { text: 'r (Å)', standoff: 8 },
                 overlaying: 'x',
                 side: 'top',
-                range: angstromRange,
+                range: [0, displayExtent * BOHR_TO_ANGSTROM],
                 showgrid: false,
                 zeroline: false,
               },
