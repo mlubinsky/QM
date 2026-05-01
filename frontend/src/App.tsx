@@ -231,6 +231,20 @@ export default function App() {
       <header>
         <h1>Schrödinger Solver</h1>
         <div className="mode-bar">
+          <select
+            className="mode-select"
+            value={state.mode}
+            onChange={e => dispatch({ type: 'SET_MODE', mode: e.target.value as AppMode })}
+            aria-label="Select mode"
+          >
+            <optgroup label="1D Solvers">
+              <option value="stationary">Stationary</option>
+              <option value="time-evolution">Time Evolution</option>
+            </optgroup>
+            <optgroup label="Atomic">
+              <option value="hydrogenic">Hydrogenic</option>
+            </optgroup>
+          </select>
           <span className="mode-equation" aria-live="polite">
             {state.mode === 'stationary'
               ? <span>Ĥψ = Eψ</span>
@@ -239,29 +253,6 @@ export default function App() {
                 : <span>i ∂ψ/∂t = Ĥψ</span>
             }
           </span>
-          <div role="group" aria-label="mode toggle" className="mode-buttons">
-            <button
-              className={state.mode === 'stationary' ? 'mode-btn mode-btn--active' : 'mode-btn'}
-              onClick={() => dispatch({ type: 'SET_MODE', mode: 'stationary' })}
-              aria-pressed={state.mode === 'stationary'}
-            >
-              Stationary
-            </button>
-            <button
-              className={state.mode === 'time-evolution' ? 'mode-btn mode-btn--active' : 'mode-btn'}
-              onClick={() => dispatch({ type: 'SET_MODE', mode: 'time-evolution' })}
-              aria-pressed={state.mode === 'time-evolution'}
-            >
-              Time Evolution
-            </button>
-            <button
-              className={state.mode === 'hydrogenic' ? 'mode-btn mode-btn--active' : 'mode-btn'}
-              onClick={() => dispatch({ type: 'SET_MODE', mode: 'hydrogenic' })}
-              aria-pressed={state.mode === 'hydrogenic'}
-            >
-              Hydrogenic
-            </button>
-          </div>
         </div>
       </header>
 
