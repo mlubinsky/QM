@@ -8,6 +8,12 @@ interface GrotrianDiagramProps {
   onSelectLevel?: (n: number, l: number) => void
 }
 
+interface TooltipState {
+  lines: string[]
+  x: number
+  y: number
+}
+
 const N_MAX = 5
 const L_LABELS = ['s', 'p', 'd', 'f', 'g']
 
@@ -36,10 +42,6 @@ function emissionWavelength(Z: number, nUpper: number, nLower: number): number {
   return (h * c) / (deltaE * hartreeToJoule) * 1e9
 }
 
-// A level (nv, lv) is reachable from (fromN, fromL) if:
-//   - it is a different level
-//   - |Δl| = 1  (E1 selection rule)
-//   - it has lower energy (emission) — we show downward transitions only
 function isReachable(nv: number, lv: number, fromN: number, fromL: number): boolean {
   if (nv === fromN && lv === fromL) return false
   return Math.abs(lv - fromL) === 1 && nv < fromN
@@ -63,6 +65,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   const [showHelp, setShowHelp] = useState(false)
   const [showForbidden, setShowForbidden] = useState(false)
   const [showWavelengths, setShowWavelengths] = useState(false)
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
   const closeHelp = useCallback(() => setShowHelp(false), [])
 
@@ -87,7 +90,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   const colX = (lv: number) => PAD_L + ((lv + 0.5) / N_MAX) * plotW
   const colW = plotW / N_MAX * 0.7
 
-  // All E1-allowed transitions (|Δl| = 1) across all series up to N_MAX
   const allowedTransitions = useMemo(() => {
     const result: { nUp: number; nLo: number; lUp: number; lLo: number; nm: number }[] = []
     for (let nUp = 2; nUp <= N_MAX; nUp++) {
@@ -103,7 +105,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
     return result
   }, [Z])
 
-  // E1-forbidden transitions (Δl = 0 or |Δl| > 1)
   const forbiddenTransitions = useMemo(() => {
     const result: { nUp: number; nLo: number; lUp: number; lLo: number; reason: string }[] = []
     for (let nUp = 2; nUp <= N_MAX; nUp++) {
@@ -153,23 +154,45 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
         .length
     : 0
 
+  function showTooltip(lines: string[], e: React.MouseEvent) {
+    setTooltip({ lines, x: e.clientX, y: e.clientY })
+  }
+  function moveTooltip(e: React.MouseEvent) {
+    setTooltip(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+  }
+  function hideTooltip() { setTooltip(null) }
+
   return (
     <div style={{ marginTop: 24 }}>
+
+      {/* Floating tooltip — rendered outside SVG so it can overflow the diagram */}
+      {tooltip && (
+        <div style={{
+          position: 'fixed',
+          left: tooltip.x + 14,
+          top: tooltip.y - 12,
+          background: '#1e1e2e',
+          border: '1px solid #555',
+          borderRadius: 5,
+          padding: '5px 10px',
+          fontSize: '0.78rem',
+          color: '#ddd',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          lineHeight: 1.7,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        }}>
+          {tooltip.lines.map((line, i) => (
+            <div key={i} style={i === 0 ? { fontWeight: 600 } : {}}>{line}</div>
+          ))}
+        </div>
+      )}
+
       {/* Caption row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, paddingLeft: PAD_L }}>
         <span className="grotrian-caption">
-          Grotrian diagram — click a level to highlight allowed decays&nbsp;·&nbsp;colored arrow = E1 allowed&nbsp;·&nbsp;gray dashed = E1 forbidden&nbsp;·&nbsp;hover any arrow for details
+          Grotrian diagram — click a level to highlight allowed decays&nbsp;·&nbsp;colored arrow = allowed&nbsp;·&nbsp;gray dashed = forbidden&nbsp;·&nbsp;hover any arrow for details
         </span>
-        {hasFocus && reachableCount === 0 && (
-          <span style={{ fontSize: '0.78rem', color: '#ff9f40', fontStyle: 'italic' }}>
-            no single-photon decay allowed — metastable
-          </span>
-        )}
-        {hasFocus && reachableCount > 0 && (
-          <span className="grotrian-hint">
-            green = reachable by single-photon emission (Δℓ = ±1)
-          </span>
-        )}
         <button
           type="button"
           aria-label="Show selection rules reference"
@@ -198,7 +221,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             checked={showForbidden}
             onChange={e => setShowForbidden(e.target.checked)}
           />
-          Show forbidden (E1)
+          Show forbidden transitions
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', userSelect: 'none' }}>
           <input
@@ -209,6 +232,16 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           λ labels
         </label>
       </div>
+
+      {/* Focus status — shown only after a level is clicked */}
+      {hasFocus && (
+        <div style={{ paddingLeft: PAD_L, marginBottom: 4, fontSize: '0.78rem', fontStyle: 'italic' }}>
+          {reachableCount === 0
+            ? <span style={{ color: '#ff9f40' }}>no single-photon decay allowed from this level — metastable</span>
+            : <span className="grotrian-hint">green = reachable by single-photon emission (Δℓ = ±1)</span>
+          }
+        </div>
+      )}
 
       {/* SVG diagram */}
       <svg
@@ -255,7 +288,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           Angular momentum ℓ
         </text>
 
-        {/* Arrow marker defs — one per allowed transition */}
+        {/* Arrow marker defs */}
         <defs>
           {allowedTransitions.map(({ nm }, i) => {
             const { stroke } = transitionColor(nm)
@@ -273,22 +306,29 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           })}
         </defs>
 
-        {/* Forbidden transition lines — rendered behind allowed arrows, no arrowhead */}
+        {/* Forbidden transition lines — behind allowed arrows, no arrowhead */}
         {showForbidden && forbiddenTransitions.map(({ nUp, nLo, lUp, lLo, reason }, i) => {
           const x1 = colX(lUp)
           const x2 = colX(lLo)
           const y1 = yFromE(energy(nUp))
           const y2 = yFromE(energy(nLo))
           const opacity = forbiddenArrowOpacity(nUp, lUp)
+          const lines = [
+            `${nUp}${L_LABELS[lUp]} → ${nLo}${L_LABELS[lLo]}`,
+            `Forbidden: ${reason}`,
+          ]
           return (
-            <g key={`f-${i}`} opacity={opacity} style={{ transition: 'opacity 0.15s' }}>
-              <title>{`${nUp}${L_LABELS[lUp]} → ${nLo}${L_LABELS[lLo]} · Forbidden: ${reason}`}</title>
-              <line
-                x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke="#777"
-                strokeWidth={0.8}
-                strokeDasharray="3,4"
-              />
+            <g
+              key={`f-${i}`}
+              opacity={opacity}
+              style={{ transition: 'opacity 0.15s', cursor: 'default' }}
+              onMouseEnter={e => showTooltip(lines, e)}
+              onMouseMove={moveTooltip}
+              onMouseLeave={hideTooltip}
+            >
+              {/* Wide transparent hit area makes thin lines easy to hover */}
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="transparent" strokeWidth={10} />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#777" strokeWidth={0.8} strokeDasharray="3,4" />
             </g>
           )
         })}
@@ -304,12 +344,23 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           const deltaL = lLo - lUp
           const deltaE_eV = 13.6 * Z * Z * (1 / (nLo * nLo) - 1 / (nUp * nUp))
           const series = SERIES_NAME[nLo] ?? `n=${nLo}`
-          const tooltipText = `${nUp}${L_LABELS[lUp]} → ${nLo}${L_LABELS[lLo]}` +
-            ` · Allowed: Δℓ = ${deltaL > 0 ? '+' : ''}${deltaL}` +
-            ` · λ = ${Math.round(nm)} nm · ΔE = ${deltaE_eV.toFixed(2)} eV · ${series} series`
+          const lines = [
+            `${nUp}${L_LABELS[lUp]} → ${nLo}${L_LABELS[lLo]}`,
+            `Allowed: Δℓ = ${deltaL > 0 ? '+' : ''}${deltaL}`,
+            `λ = ${Math.round(nm)} nm · ΔE = ${deltaE_eV.toFixed(2)} eV`,
+            `${series} series`,
+          ]
           return (
-            <g key={i} opacity={opacity} style={{ transition: 'opacity 0.15s' }}>
-              <title>{tooltipText}</title>
+            <g
+              key={i}
+              opacity={opacity}
+              style={{ transition: 'opacity 0.15s', cursor: 'default' }}
+              onMouseEnter={e => showTooltip(lines, e)}
+              onMouseMove={moveTooltip}
+              onMouseLeave={hideTooltip}
+            >
+              {/* Wide transparent hit area makes thin lines easy to hover */}
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="transparent" strokeWidth={10} />
               <line
                 x1={x1} y1={y1}
                 x2={x2} y2={y2}
@@ -365,15 +416,21 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
                     n={nv}
                   </text>
                 )}
-                {/* Metastable marker: 2s cannot decay to 1s via E1 (Δl=0 forbidden) */}
+                {/* Metastable marker — hover for explanation */}
                 {isMetastable && (
                   <circle
                     cx={x + colW / 2 + 20} cy={y} r={3.5}
                     fill="#ff9f40"
-                    pointerEvents="none"
-                  >
-                    <title>2s — metastable: Δℓ = 0 to reach 1s is E1-forbidden. Lifetime ≈ 0.12 s (two-photon decay) vs ≈ 1.6 ns for 2p — ratio ~10⁸.</title>
-                  </circle>
+                    style={{ cursor: 'default' }}
+                    onMouseEnter={e => { e.stopPropagation(); showTooltip([
+                      '2s — metastable state',
+                      'E1 decay to 1s is forbidden (Δℓ = 0)',
+                      'Lifetime ≈ 0.12 s vs ≈ 1.6 ns for 2p',
+                      'Ratio ~10⁸ · decays by two-photon emission',
+                    ], e) }}
+                    onMouseMove={e => { e.stopPropagation(); moveTooltip(e) }}
+                    onMouseLeave={e => { e.stopPropagation(); hideTooltip() }}
+                  />
                 )}
                 <rect
                   x={x - colW / 2 - 4} y={y - 6}
@@ -415,7 +472,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           <span style={{ color: '#666', fontStyle: 'italic', flexShrink: 0, paddingTop: 1 }}>Arrows:</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
-            {/* Solid colored — visible E1 allowed */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <svg width="22" height="8" style={{ flexShrink: 0 }}>
                 <line x1="0" y1="4" x2="17" y2="4" stroke="#ff0000" strokeWidth="1.5" />
@@ -427,7 +483,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
               </span>
             </div>
 
-            {/* Dashed violet — UV */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <svg width="22" height="8" style={{ flexShrink: 0 }}>
                 <line x1="0" y1="4" x2="22" y2="4" stroke="#9400d3" strokeWidth="1.2" strokeDasharray="4,3" />
@@ -438,7 +493,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
               </span>
             </div>
 
-            {/* Dashed dark red — IR */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <svg width="22" height="8" style={{ flexShrink: 0 }}>
                 <line x1="0" y1="4" x2="22" y2="4" stroke="#8b0000" strokeWidth="1.2" strokeDasharray="4,3" />
@@ -449,7 +503,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
               </span>
             </div>
 
-            {/* Gray dashed — forbidden (only shown when toggle is on) */}
             {showForbidden && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }} className="grotrian-legend-dim">
                 <svg width="22" height="8" style={{ flexShrink: 0 }}>
