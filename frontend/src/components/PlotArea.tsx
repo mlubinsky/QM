@@ -40,6 +40,7 @@ export function PlotArea({
   const [copied, setCopied] = useState(false)
   const [showPhase, setShowPhase] = useState(false)
   const [showNodeInfo, setShowNodeInfo] = useState(false)
+  const [showEnergyInfo, setShowEnergyInfo] = useState(false)
   const result = mode === 'stationary' ? eigenResult : evolveResult
   const currentNorm =
     mode === 'time-evolution' && evolveResult
@@ -61,15 +62,85 @@ export function PlotArea({
     <div className="plot-area">
       {/* Energy level labels (stationary) */}
       {mode === 'stationary' && eigenResult && (
-        <ul className="energy-levels">
-          {eigenResult.energies.map((E, i) => (
-            <li key={i}>
-              E<sub>{i + 1}</sub> ={' '}
-              <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.{' '}
-              <span className="energy-ev">({auToEv(E)} eV)</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="plot-label-row">
+            <span className="plot-label-text">Energy levels</span>
+            <button
+              className="physics-info-btn"
+              aria-label="Energy levels — what they mean"
+              onClick={() => setShowEnergyInfo(true)}
+            >?</button>
+          </div>
+          <ul className="energy-levels">
+            {eigenResult.energies.map((E, i) => (
+              <li key={i}>
+                E<sub>{i + 1}</sub> ={' '}
+                <span data-testid="energy-label">{E.toFixed(4)}</span> a.u.{' '}
+                <span className="energy-ev">({auToEv(E)} eV)</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {showEnergyInfo && (
+        <div className="physics-modal-backdrop" onClick={() => setShowEnergyInfo(false)}>
+          <div className="physics-modal" role="dialog" aria-modal="true"
+               onClick={e => e.stopPropagation()}>
+            <div className="physics-modal-header">
+              <span className="physics-modal-title">Energy Levels</span>
+              <button className="physics-modal-close" aria-label="Close"
+                      onClick={() => setShowEnergyInfo(false)}>✕</button>
+            </div>
+            <div className="physics-modal-body">
+              <p>
+                Each E<sub>n</sub> is an <strong>allowed energy</strong> for a particle
+                bound in this potential. Quantum mechanics permits only these discrete
+                values — any other energy produces a wavefunction that fails to satisfy
+                the boundary conditions. This is the origin of quantisation.
+              </p>
+              <p>
+                <strong>Sign convention.</strong> A negative energy means the particle
+                is bound below the asymptote of the potential (it cannot classically
+                escape). A positive energy means it sits above the asymptote and would
+                be unbound in classical mechanics — though a quantum particle can still
+                be trapped temporarily by a barrier.
+              </p>
+              <p>
+                <strong>Units.</strong> Energies are shown in atomic units (Hartree,
+                a.u.) and in electron-volts (eV) for intuition. 1 Hartree = 27.21 eV.
+                In atomic units ħ = m<sub>e</sub> = 1, so the harmonic oscillator
+                ground state is exactly ½ a.u.
+              </p>
+              <p>
+                <strong>Spacing patterns reveal the potential.</strong>
+              </p>
+              <ul>
+                <li>
+                  <strong>Infinite square well:</strong> E<sub>n</sub> = n²π²/2L² —
+                  levels grow as n², so the gaps widen with each step.
+                </li>
+                <li>
+                  <strong>Harmonic oscillator:</strong> E<sub>n</sub> = n + ½ —
+                  levels are perfectly equally spaced. This equal spacing is unique to
+                  the harmonic oscillator and is why coherent states do not spread.
+                </li>
+                <li>
+                  <strong>Other potentials</strong> have their own characteristic
+                  spacing — anharmonic wells bunch levels at the top, double wells
+                  produce near-degenerate pairs.
+                </li>
+              </ul>
+              <p>
+                <strong>Connection to the plot.</strong> Each dashed horizontal line
+                in the wavefunction plot is drawn at the corresponding energy. The
+                wavefunction ψ<sub>n</sub>(x) is plotted <em>offset upward by its own
+                energy</em> — the standard physics convention that lets you read off
+                the energy directly from the baseline of each wavefunction.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Exact solution formula + error table (Infinite Square Well and Harmonic Oscillator only) */}
