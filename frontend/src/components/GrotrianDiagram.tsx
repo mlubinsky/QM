@@ -264,7 +264,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             const y = yFromE(energy(nv))
             const x = colX(lv)
             const isSolved = nv === activeN && lv === activeL
-            const isFocused = nv === focusN && lv === focusL
             const opacity = levelOpacity(nv, lv)
             const reachable = hasFocus && isReachable(nv, lv, focusN!, focusL!)
 

@@ -81,7 +81,6 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
   }, [showRadialHelp, showOrbitalHelp, closeRadial, closeOrbital])
 
   const maxR = Math.max(...result.r)
-  const angstromRange: [number, number] = [0, maxR * BOHR_TO_ANGSTROM]
 
   // Find the outermost r where radial density exceeds 0.1% of its peak.
   // Used to zoom the 2D heatmap into the region where the electron actually lives.

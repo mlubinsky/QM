@@ -167,10 +167,10 @@ export default function App() {
           x0: req.gaussian_x0 ?? DEFAULTS.x0,
           sigma: req.gaussian_sigma ?? DEFAULTS.sigma,
           k0: req.gaussian_k0 ?? DEFAULTS.k0,
-          dt: req.dt,
-          nSteps: req.n_steps,
+          dt: req.dt ?? DEFAULTS.dt,
+          nSteps: req.n_steps ?? DEFAULTS.nSteps,
           saveEvery: req.save_every ?? DEFAULTS.saveEvery,
-          initState: req.initial_state,
+          initState: req.initial_state ?? DEFAULTS.initState,
           nSuperStates: req.n_super_states ?? DEFAULTS.nSuperStates,
           coefficients: req.coefficients ?? [],
         })
