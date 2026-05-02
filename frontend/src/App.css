@@ -1061,3 +1061,21 @@
   font-weight: 600;
   color: #333;
 }
+
+/* ── App footer ─────────────────────────────────────── */
+.app-footer {
+  margin-top: auto;
+  padding: 10px 0 6px;
+  font-size: 0.75rem;
+  color: #aaa;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-footer {
+    color: #666;
+    border-top-color: #2e2e3e;
+  }
+}

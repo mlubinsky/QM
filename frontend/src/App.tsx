@@ -337,6 +337,10 @@ export default function App() {
           )
         }
       </main>
+
+      <footer className="app-footer">
+        v{__APP_VERSION__} · Michael Lubinsky
+      </footer>
     </div>
   )
 }
