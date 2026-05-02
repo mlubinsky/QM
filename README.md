@@ -31,24 +31,26 @@ A browser-based quantum mechanics explorer. Run the backend and frontend locally
 - Quantum numbers n = 1–5, l = 0…n−1, m = −l…l; nuclear charge Z up to Ne⁹⁺
 - Radial density plot r²|R_nl(r)|² with ⟨r⟩ marker and exact analytic comparison
 - 2-D electron density cross-section |ψ(x,0,z)|² in the xz-plane
-- Grotrian diagram — all levels n=1–5, l=0–4; Lyman and Balmer transition arrows coloured by wavelength; click any level to jump to that orbital
+- Grotrian diagram — all levels n=1–5, l=0–4; transition arrows for all series (Lyman, Balmer, Paschen, Brackett, Pfund) coloured by wavelength; E1-forbidden transitions shown as dashed lines (toggle); hover any arrow for tooltip with λ, ΔE, and series name; click any level to jump to that orbital; permanent metastable marker on 2s
 - Energies in Hartree and eV alongside the exact value E_n = −Z²/(2n²) Eh
 - Physics reference modal (? button)
 
-**Spin ½ / Bloch Sphere** — spin-½ quantum mechanics:
+**Spin ½ / Bloch Sphere** — spin-½ quantum mechanics, organised into two tabs:
+
+*Precession tab*
 - Interactive 3-D Bloch sphere (Three.js) with OrbitControls (mouse drag/zoom)
-- State input via θ/φ sliders or Re(α)/Re(β)/Im(β) complex components
-- Preset states: |↑⟩, |↓⟩, |±x⟩, |±y⟩
+- State input via θ/φ sliders or Re(α)/Re(β)/Im(β) complex components; preset states |↑⟩, |↓⟩, |±x⟩, |±y⟩
 - Live expectation value readout ⟨σ_x⟩, ⟨σ_y⟩, ⟨σ_z⟩
 - Larmor precession: choose B̂ direction (x/y/z/custom) and ω₀; play/pause animation at 30 fps; trajectory arc drawn on sphere
 - Precession computed analytically client-side (Rodrigues' rotation formula — |r| = 1 exactly)
-- Pauli matrix reference panel (collapsible): σ_x, σ_y, σ_z with eigenvalues and eigenvectors
-- Stern-Gerlach simulator:
-  - Measurement axis selector (x/y/z/custom θ_n, φ_n)
-  - Live exact probability bar P(+½) = (1 + n̂·r)/2
-  - **Measure once** — single Bernoulli draw; state collapses to the post-measurement eigenstate on the sphere
-  - **Run N shots** — calls backend; shows histogram alongside exact probabilities
-- Physics reference modal (? button): Bloch parameterisation, Pauli matrices, precession formula, measurement rule, collapse
+- Pauli matrix reference panel: σ_x, σ_y, σ_z with eigenvalues and eigenvectors
+
+*Measurement tab*
+- Stern-Gerlach simulator: measurement axis selector (x/y/z/custom θ_n, φ_n)
+- Live exact probability bar P(+½) = ½(1 + n̂·r̂)
+- **Measure once** — single Bernoulli draw; state collapses to the post-measurement eigenstate on the Bloch sphere
+- **Run N shots** — calls backend; shows histogram alongside exact Born-rule probabilities
+- Physics reference modal (? button): Bloch parameterisation, Pauli matrices, precession formula, Born rule, collapse
 
 **General:**
 - All quantities in atomic units (ħ = mₑ = 1)
@@ -143,7 +145,7 @@ QM/
 │       │   ├── PauliMatrixDisplay.tsx # Collapsible matrix reference
 │       │   ├── SpinInfoPanel.tsx      # Physics reference modal content
 │       │   ├── HydrogenicPanel.tsx    # Radial + orbital density + Grotrian
-│       │   ├── GrotriaDiagram.tsx     # SVG Grotrian diagram
+│       │   ├── GrotrianDiagram.tsx    # SVG Grotrian diagram
 │       │   └── ...                    # Other components
 │       ├── api/client.ts              # Backend API client
 │       ├── types/api.ts               # TypeScript interfaces
