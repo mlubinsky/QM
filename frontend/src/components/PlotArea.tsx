@@ -39,6 +39,7 @@ export function PlotArea({
 }: PlotAreaProps) {
   const [copied, setCopied] = useState(false)
   const [showPhase, setShowPhase] = useState(false)
+  const [showNodeInfo, setShowNodeInfo] = useState(false)
   const result = mode === 'stationary' ? eigenResult : evolveResult
   const currentNorm =
     mode === 'time-evolution' && evolveResult
@@ -113,6 +114,69 @@ export function PlotArea({
               making |ψ|² slosh back and forth. This is quantum interference in action.
             </p>
           )}
+        </div>
+      )}
+
+      {mode === 'stationary' && (
+        <div className="plot-label-row">
+          <span className="plot-label-text">Eigenfunctions</span>
+          <button
+            className="physics-info-btn"
+            aria-label="Eigenfunction nodes — what they mean"
+            onClick={() => setShowNodeInfo(true)}
+          >?</button>
+        </div>
+      )}
+
+      {showNodeInfo && (
+        <div className="physics-modal-backdrop" onClick={() => setShowNodeInfo(false)}>
+          <div className="physics-modal" role="dialog" aria-modal="true"
+               onClick={e => e.stopPropagation()}>
+            <div className="physics-modal-header">
+              <span className="physics-modal-title">Eigenfunctions &amp; Node Counting</span>
+              <button className="physics-modal-close" aria-label="Close"
+                      onClick={() => setShowNodeInfo(false)}>✕</button>
+            </div>
+            <div className="physics-modal-body">
+              <p>
+                A <strong>node</strong> is an interior point where ψ(x) = 0 and changes sign.
+                The boundary zeros (where the walls force ψ = 0) do not count — only the
+                genuine zero-crossings inside the well.
+              </p>
+              <p>
+                The <strong>n-th energy eigenstate always has exactly n−1 nodes</strong>.
+                This follows from the Sturm-Liouville theorem, the same mathematics that
+                governs a vibrating string fixed at both ends: the fundamental mode has no
+                interior nodes, the first harmonic has one node at the centre, and so on.
+              </p>
+              <p>
+                This matters for three reasons:
+              </p>
+              <ul>
+                <li>
+                  <strong>Correctness check.</strong> If the solver returned eigenvalues in
+                  the wrong order, the node counts would be wrong too. Seeing ψ₁ (0 nodes),
+                  ψ₂ (1 node), ψ₃ (2 nodes) instantly confirms the results are physically correct.
+                </li>
+                <li>
+                  <strong>Kinetic energy made visible.</strong> More nodes means more curvature.
+                  The kinetic energy operator is −½ d²ψ/dx², so a wavefunction that oscillates
+                  more has larger second derivatives and higher energy. You can <em>see</em> why
+                  E₃ &gt; E₂ &gt; E₁.
+                </li>
+                <li>
+                  <strong>Orthogonality.</strong> Two eigenstates with different node counts
+                  cannot be the same state. The node count acts as a quantum number — a discrete
+                  label that uniquely identifies each bound state.
+                </li>
+              </ul>
+              <p style={{ marginTop: '10px', color: '#888', fontSize: '0.82rem' }}>
+                For the infinite square well the exact energies are E<sub>n</sub> = n²π²/2L²,
+                growing as n² — exactly as expected for a wave with n−1 interior nodes squeezed
+                into a box of length L.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
