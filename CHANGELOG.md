@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-02) — Spin ½ page: two-tab layout
+
+**Frontend** (`frontend/src/components/SpinPanel.tsx`, `App.css`)
+- Split the single control column into two tabs: **Precession** (unitary dynamics) and **Measurement** (Born-rule collapse). The tabs share the State |ψ⟩ composer and the Bloch sphere so the spin state is preserved when switching.
+- Each tab opens with a one-line physics note: "Unitary evolution — the Bloch vector stays on the sphere surface" / "Measurement collapses the state randomly. P(+½) = ½(1 + n̂·r̂)".
+- Precession tab retains PrecessionControls + Pauli matrix table; Measurement tab retains SternGerlachPanel only.
+- Switching to Measurement clears the precession trajectory from the Bloch sphere so the dynamic cone does not clutter the measurement context.
+- Tab strip styled with classic browser-tab appearance (active tab merges into content below); full dark-mode variants included.
+
+---
+
 ### Fixed (2026-05-02) — Spin precession animation
 
 **Frontend** (`frontend/src/components/PrecessionControls.tsx`)

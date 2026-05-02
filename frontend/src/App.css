@@ -971,6 +971,85 @@
   padding: 4px 0;
 }
 
+/* ── Spin tab strip ─────────────────────────────────── */
+.spin-tabs {
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+
+.spin-tab-btn {
+  flex: 1;
+  padding: 5px 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background: #eaeaea;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.spin-tab-btn + .spin-tab-btn {
+  border-left: none;
+}
+
+.spin-tab-btn:hover:not(.spin-tab-btn--active) {
+  background: #ddd;
+  color: #333;
+}
+
+.spin-tab-btn--active {
+  background: #fff;
+  color: #1a6abf;
+  font-weight: 600;
+  border-color: #ccc;
+  margin-bottom: -2px;
+  z-index: 1;
+  position: relative;
+}
+
+@media (prefers-color-scheme: dark) {
+  .spin-tabs {
+    border-bottom-color: #444;
+  }
+  .spin-tab-btn {
+    background: #22232e;
+    border-color: #444;
+    color: #888;
+  }
+  .spin-tab-btn:hover:not(.spin-tab-btn--active) {
+    background: #2c2d3a;
+    color: #ccc;
+  }
+  .spin-tab-btn--active {
+    background: #1a1b26;
+    color: #4a9eff;
+    border-color: #444;
+    border-bottom-color: #1a1b26;
+  }
+}
+
+.spin-tab-note {
+  margin: 2px 0 0;
+  padding: 4px 6px;
+  font-size: 0.77rem;
+  color: #777;
+  font-style: italic;
+  background: #f7f7fb;
+  border-radius: 4px;
+  border-left: 3px solid #c0c8e8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .spin-tab-note {
+    color: #999;
+    background: #1e1f2c;
+    border-left-color: #3a4060;
+  }
+}
+
 .spin-header-row {
   display: flex;
   align-items: center;

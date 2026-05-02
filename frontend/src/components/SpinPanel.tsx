@@ -40,13 +40,23 @@ function SpinModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+type SpinTab = 'dynamics' | 'measurement'
+
 export function SpinPanel() {
   const [theta, setTheta] = useState(0)
   const [phi, setPhi]     = useState(0)
   const [trajectory, setTrajectory] = useState<Vec3[]>([])
   const [playing, setPlaying]       = useState(false)
   const [showHelp, setShowHelp]     = useState(false)
+  const [activeTab, setActiveTab]   = useState<SpinTab>('dynamics')
   const closeHelp = useCallback(() => setShowHelp(false), [])
+
+  function handleTabChange(tab: SpinTab) {
+    setActiveTab(tab)
+    // Clear precession trail when switching to measurement — the trajectory
+    // cone has no meaning in the Born-rule context and would confuse the view.
+    if (tab === 'measurement') setTrajectory([])
+  }
 
   function handleStateChange(t: number, p: number) {
     setTheta(t)
@@ -63,26 +73,58 @@ export function SpinPanel() {
             <span className="spin-title">Spin ½ / Bloch Sphere</span>
             <HelpButton onClick={() => setShowHelp(true)} />
           </div>
+
+          {/* Tab strip */}
+          <div className="spin-tabs">
+            <button
+              className={`spin-tab-btn ${activeTab === 'dynamics' ? 'spin-tab-btn--active' : ''}`}
+              onClick={() => handleTabChange('dynamics')}
+            >
+              Precession
+            </button>
+            <button
+              className={`spin-tab-btn ${activeTab === 'measurement' ? 'spin-tab-btn--active' : ''}`}
+              onClick={() => handleTabChange('measurement')}
+            >
+              Measurement
+            </button>
+          </div>
+
+          {/* State composer is shared — both tabs need an initial spin state */}
           <SpinStateComposer
             theta={theta}
             phi={phi}
             onChange={handleStateChange}
           />
-          <PrecessionControls
-            theta={theta}
-            phi={phi}
-            onTrajectory={setTrajectory}
-            onFrame={(t, p) => { setTheta(t); setPhi(p); setPlaying(true) }}
-          />
-          <SternGerlachPanel
-            theta={theta}
-            phi={phi}
-            onCollapse={(t, p) => { setTheta(t); setPhi(p) }}
-          />
-          <PauliMatrixDisplay />
+
+          {activeTab === 'dynamics' ? (
+            <>
+              <p className="spin-tab-note">
+                Unitary evolution — the Bloch vector stays on the sphere surface.
+              </p>
+              <PrecessionControls
+                theta={theta}
+                phi={phi}
+                onTrajectory={setTrajectory}
+                onFrame={(t, p) => { setTheta(t); setPhi(p); setPlaying(true) }}
+              />
+              <PauliMatrixDisplay />
+            </>
+          ) : (
+            <>
+              <p className="spin-tab-note">
+                Measurement collapses the state randomly. P(+½) = ½(1 + n̂·r̂)
+              </p>
+              <SternGerlachPanel
+                theta={theta}
+                phi={phi}
+                onCollapse={(t, p) => { setTheta(t); setPhi(p) }}
+              />
+            </>
+          )}
         </div>
 
-        {/* Right column: Bloch sphere */}
+        {/* Right column: Bloch sphere — always visible */}
         <div className="spin-sphere-wrap">
           <BlochSphere
             theta={theta}
