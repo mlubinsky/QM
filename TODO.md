@@ -4,6 +4,21 @@
 
 ## Planned
 
+### Sequential Stern-Gerlach chain (spin module)
+
+The current SG simulator measures one device at a time. The most striking quantum result requires a chain of devices with explicit beam blocking:
+
+```
+|+z⟩ → [SG-z] → block |−z⟩ → [SG-x] → block |−x⟩ → [SG-z] → 50/50 again
+```
+
+The final 50/50 — measuring spin-z on a state already filtered for +z — is the result that makes state collapse and measurement erasure concrete. The physics foundation is already in place (collapse correctly updates the Bloch sphere state); what's needed is a dedicated UI showing:
+
+- Multiple SG boxes in a linear chain
+- Per-output blocking/passing controls (block +½, block −½, or pass both)
+- State propagating through the chain with running probabilities at each stage
+- A clear label explaining why the last SG-z gives 50/50 despite earlier filtering
+
 ## Future / Nice-to-Have
 
 ### Module Sequencing Roadmap
