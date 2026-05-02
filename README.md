@@ -186,9 +186,15 @@ python -m pytest tests/ -v
 | `test_eigenvalue_solver.py` | ISW and HO energies, normalization, orthogonality |
 | `test_crank_nicolson.py` | Norm conservation, energy conservation, tunneling, coherent-state trajectory |
 | `test_expectation_values.py` | ⟨x⟩, ⟨p⟩, ⟨H⟩; Heisenberg bound; Ehrenfest theorem |
-| `test_momentum.py` | k-axis, |φ(k)|² normalization, peak location |
+| `test_momentum.py` | k-axis length/spacing/symmetry; \|φ(k)\|² normalization; peak location; API response fields |
 | `test_probability_current.py` | J sign, continuity equation, zero current for real ψ |
-| `test_api.py` | All 1D HTTP endpoints |
+| `test_potential_parser.py` | Expression parser — valid expressions, forbidden names, scalar broadcast |
+| `test_initial_states.py` | Gaussian packet: normalization, centre position, width |
+| `test_negative_eigenvalue_potentials.py` | Finite square well bound states — negative energies, normalization |
+| `test_api.py` | Core 1D HTTP endpoints: `/health`, `/presets`, `/eigensolve`, `/evolve` |
+| `test_api_spec16.py` | `save_every` validation — rejects `save_every > n_steps`, accepts boundary case |
+| `test_api_spec17.py` | Initial-state selection endpoint: Gaussian and superposition of eigenstates |
+| `test_regression_refactor.py` | Module import paths after solver-namespace refactor |
 | `test_hydrogenic_radial.py` | Radial solver: energy accuracy, normalization, Z-scaling |
 | `test_hydrogenic_api.py` | `/hydrogenic/solve` status codes, labels, energies |
 | `test_spin_api.py` | `GET /spin/pauli` matrix values; `POST /spin/measure` probabilities, shot counts, axis labels, validation |
