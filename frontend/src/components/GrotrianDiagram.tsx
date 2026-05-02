@@ -132,7 +132,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
     <div style={{ marginTop: 24 }}>
       {/* Caption row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, paddingLeft: PAD_L }}>
-        <span style={{ fontSize: '0.82rem', color: '#888' }}>
+        <span className="grotrian-caption">
           Grotrian diagram — click a level to solve and highlight reachable states&nbsp;·&nbsp;solid = visible light&nbsp;·&nbsp;dashed = UV or IR (outside visible)
         </span>
         {hasFocus && reachableCount === 0 && (
@@ -141,7 +141,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           </span>
         )}
         {hasFocus && reachableCount > 0 && (
-          <span style={{ fontSize: '0.78rem', color: '#aaa', fontStyle: 'italic' }}>
+          <span className="grotrian-hint">
             green = reachable by single-photon emission (Δℓ = ±1)
           </span>
         )}
@@ -302,10 +302,10 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
       </svg>
 
       {/* Legend */}
-      <div style={{ paddingLeft: PAD_L, fontSize: '0.78rem', color: '#888', marginTop: 4, display: 'flex', gap: 16 }}>
+      <div className="grotrian-legend" style={{ paddingLeft: PAD_L, marginTop: 4, display: 'flex', gap: 16 }}>
         <span><span style={{ color: '#4a9eff' }}>━</span> current orbital</span>
         <span><span style={{ color: '#7ddf7d' }}>━</span> reachable (Δℓ = ±1)</span>
-        <span style={{ opacity: 0.4 }}>━ forbidden / dimmed</span>
+        <span className="grotrian-legend-dim">━ forbidden / dimmed</span>
       </div>
 
       {/* Selection rules modal */}
