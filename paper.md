@@ -1,10 +1,12 @@
 ---
-title: 'Schrödinger Solver: A Browser-Based Tool for 1D Quantum Mechanics'
+title: 'Schrödinger Solver: A Browser-Based Interactive Tool for Quantum Mechanics'
 tags:
   - quantum mechanics
   - Schrödinger equation
   - Crank-Nicolson
-  - wavefunction
+  - hydrogenic atoms
+  - spin-half
+  - Bloch sphere
   - Python
   - React
 authors:
@@ -14,65 +16,85 @@ authors:
 affiliations:
   - name: Independent Researcher   # TODO: replace with actual affiliation
     index: 1
-date: 30 March 2026
+date: 2 May 2026
 bibliography: paper.bib
 ---
 
 # Summary
 
-Schrödinger Solver is an open-source, browser-based tool for solving the
-one-dimensional Schrödinger equation, both in stationary and time-dependent
-form. Users select a potential energy function, set grid and packet
-parameters, and immediately see wavefunctions, energy levels, and animated
-probability densities — all without installing any software.
+Schrödinger Solver is an open-source, browser-based tool for exploring
+quantum mechanics interactively across three complementary domains: one-dimensional
+wave mechanics, hydrogen-like atomic orbitals, and spin-½ dynamics.
 
 The backend is a Python REST API built with FastAPI [@fastapi] that exposes
-two solvers: a sparse eigensolver for bound-state energies and wavefunctions,
-and a Crank-Nicolson time stepper for wavepacket dynamics. The frontend is a
-React [@react] single-page application that renders interactive Plotly
-[@plotly] figures and communicates with the backend over HTTP. All physical
-quantities are in atomic units ($\hbar = m_e = 1$).
+solvers for each domain. The frontend is a React [@react] single-page
+application that renders interactive Plotly [@plotly] and Three.js figures
+and communicates with the backend over HTTP. All physical quantities are in
+atomic units ($\hbar = m_e = 1$).
 
-Six built-in potentials are provided (infinite square well, harmonic
-oscillator, double well, finite square well, step potential, Gaussian
-barrier), together with a safe custom-expression parser so users can define
-their own $V(x)$. The tool displays exact analytic energies alongside
-numerical results for the infinite square well and harmonic oscillator,
-enabling immediate quantitative validation. For time-evolution runs, the
-expectation values $\langle x(t) \rangle$, $\langle p(t) \rangle$, and
-$\Delta x \cdot \Delta p$ are computed at every saved frame and plotted
-alongside the animated wavepacket.
+**1D mode** offers two solvers sharing a common grid and potential infrastructure.
+The *stationary* solver finds bound-state energies and wavefunctions for
+seven built-in potentials (infinite square well, harmonic oscillator, double
+well, finite square well, step potential, Gaussian barrier) plus any
+user-defined $V(x)$ entered as a safe math expression. The *time-evolution*
+solver animates wavepacket dynamics under the same potentials, reporting
+expectation values $\langle x \rangle$, $\langle p \rangle$, $\langle H \rangle$,
+uncertainties $\Delta x \cdot \Delta p$, and the momentum-space density
+$|\phi(k,t)|^2$ at every saved frame.
+
+**Hydrogenic mode** solves the radial Schrödinger equation for hydrogen-like
+ions (nuclear charge $Z = 1$–10, quantum numbers $n \leq 5$). Results include
+the radial probability density $r^2|R_{nl}|^2$, the 2-D electron density
+cross-section $|\psi(x,0,z)|^2$, the angular density $|Y_{lm}(\theta)|^2$
+as a polar plot, and a Grotrian energy-level diagram with transition arrows
+for all spectral series (Lyman through Pfund), coloured by emission wavelength.
+Numerically computed energies are compared to the exact values
+$E_n = -Z^2/(2n^2)$ Hartree.
+
+**Spin-½ mode** provides an interactive Bloch sphere rendered in Three.js.
+The *Precession* tab animates Larmor precession around a user-chosen magnetic
+field direction $\hat{B}$ using the Rodrigues rotation formula, preserving
+$|\mathbf{r}| = 1$ exactly. The *Measurement* tab implements a
+Stern-Gerlach simulator: the exact Born-rule probability $P(+\hat{n}) =
+\tfrac{1}{2}(1 + \hat{n} \cdot \hat{r})$ is displayed as a live bar, a
+single-shot measurement collapses the Bloch vector to the post-measurement
+eigenstate, and a multi-shot experiment draws from the binomial distribution
+and displays the result histogram alongside the exact probability.
 
 # Statement of Need
 
-Interactive visualization of quantum mechanics is widely used in physics
-education, yet existing tools each cover only part of the workflow a
-researcher or student needs:
+Interactive visualization tools for quantum mechanics are widely used in
+physics education, but existing tools each cover only part of the conceptual
+landscape a student or researcher needs, and most require either a heavy
+local installation or accept significant restrictions on quantitative output:
 
 - **PhET simulations** [@phet] are visually engaging but provide no
   quantitative output, no API, and no ability to define custom potentials.
 - **QuTiP** [@qutip] is a powerful Python library for open quantum systems
-  but has no browser interface and is not aimed at 1D single-particle
-  problems.
+  but has no browser interface and is not aimed at single-particle 1D problems.
 - **qmsolve** [@qmsolve] offers Python-based 1D and 3D solvers with
   Matplotlib output but requires a local Python environment and does not
   expose an HTTP API.
-- **Visual Quantum Mechanics** and similar browser tools are fixed-scenario
-  demonstrations, not general solvers.
+- Browser-based atomic orbital viewers exist but are fixed-scenario
+  demonstrations, not general solvers, and do not support time evolution
+  or spin dynamics.
 
-Schrödinger Solver fills this gap by combining:
+Schrödinger Solver addresses these gaps through four design choices:
 
-1. **Zero-installation access** — the browser UI requires only a running
-   backend; end users need no Python or Node.js knowledge.
+1. **Unified scope** — 1D wave mechanics, hydrogenic atoms, and spin-½ are
+   covered in a single coherent interface with a shared visual language,
+   making the connections between representations explicit (e.g. the
+   wavefunction factorisation $\psi = R \cdot Y$ is shown visually by
+   placing the radial density and the $|Y_{lm}|^2$ polar plot side by side).
 2. **Quantitative validation built in** — exact analytic energies and
    relative errors are displayed alongside every numerical result for known
-   potentials.
+   potentials, enabling immediate verification without switching tools.
 3. **Programmable access** — the REST API (documented at `/docs` via Swagger
    UI) allows scripted parameter sweeps, notebook integration, and automated
    testing without going through the browser.
-4. **Physically complete output** — norm history, expectation values,
-   uncertainties, and Ehrenfest trajectories are all returned in the API
-   response and displayed in the UI, going beyond a simple wavefunction plot.
+4. **Explorer workflow** — parameters can be varied continuously via sliders;
+   results update immediately, supporting the compare-and-contrast style of
+   learning recommended by physics education research.
 
 The primary audience is advanced undergraduates, graduate students, and
 researchers who want to explore quantum dynamics interactively and verify
@@ -80,7 +102,7 @@ solver correctness quantitatively.
 
 # Methods
 
-## Hamiltonian
+## 1D Hamiltonian
 
 The spatial domain $[x_{\min}, x_{\max}]$ is discretised onto a uniform
 grid of $N$ points with spacing $\Delta x$. The Hamiltonian
@@ -113,6 +135,33 @@ rounding regardless of the time step. The left-hand matrix is factorised
 once via sparse LU decomposition (`scipy.sparse.linalg.splu`), giving
 $O(N)$ cost per time step after the factorisation.
 
+## Radial Solver (Hydrogenic)
+
+The substitution $u(r) = r R_{nl}(r)$ reduces the radial Schrödinger
+equation to the 1D form
+
+$$-\frac{1}{2}\frac{d^2u}{dr^2} + V_{\text{eff}}(r)\,u = E\,u, \quad
+V_{\text{eff}} = -\frac{Z}{r} + \frac{l(l+1)}{2r^2}$$
+
+which is solved on an adaptive radial grid using the same sparse eigensolver
+as the 1D stationary solver. The 2-D electron density on the $xz$-plane is
+computed from the exact spherical harmonics $Y_{lm}$ via
+`scipy.special.sph_harm` [@scipy]. The angular density $|Y_{lm}(\theta)|^2$
+is evaluated on a dense $\theta$ grid and returned as a closed Cartesian
+curve for the polar plot.
+
+## Spin-½ Precession
+
+Larmor precession is computed analytically client-side using Rodrigues'
+rotation formula. The Bloch vector $\mathbf{r}$ rotates around $\hat{B}$
+at rate $\omega_0$:
+
+$$\mathbf{r}(t) = \mathbf{r}(0)\cos(\omega_0 t)
+  + (\hat{B}\times\mathbf{r}(0))\sin(\omega_0 t)
+  + \hat{B}(\hat{B}\cdot\mathbf{r}(0))(1-\cos(\omega_0 t))$$
+
+This preserves $|\mathbf{r}| = 1$ exactly with no numerical integration error.
+
 ## Expectation Values
 
 At each saved frame the following observables are computed:
@@ -139,43 +188,54 @@ execution.
 # Validation
 
 The solver is validated against exact analytic solutions by an automated
-test suite (pytest, 37 backend tests).
+test suite (pytest, 100+ backend tests across all modules).
+
+## 1D Solvers
 
 **Infinite square well** ($L = x_{\max} - x_{\min}$):
-
 $$E_n = \frac{n^2\pi^2}{2L^2}, \quad n = 1,2,3,\ldots$$
-
-Numerical energies agree to within 0.5 % for $N = 500$ grid points.
+Numerical energies agree to within 0.5% for $N = 500$ grid points.
 
 **Harmonic oscillator** ($\omega = 1$):
-
 $$E_n = n + \tfrac{1}{2}, \quad n = 0,1,2,\ldots$$
-
-Numerical energies agree to within 0.5 % for $N = 500$ grid points. The
-in-browser exact-solution panel displays the relative error for each
-computed eigenstate.
+Numerical energies agree to within 0.5% for $N = 500$ grid points.
 
 **Norm conservation:** $\|\psi(t)\|^2$ remains within $10^{-6}$ of 1.0
-across all time steps, confirmed by an automated test.
+across all time steps.
 
-**Coherent state trajectory:** For a Gaussian packet with width
-$\sigma = 1/\sqrt{2}$ (ground-state width) displaced to $x_0$ in the
-harmonic oscillator potential, the exact solution predicts
-$\langle x(t)\rangle = x_0\cos(t)$ and $\sigma(t) = \sigma$ (no spreading).
-The numerical centre and width both agree with the analytic values to within
-0.05 a.u. after $t = \pi$ (half period), confirmed by an automated test.
+**Coherent state trajectory:** For a Gaussian packet with ground-state
+width $\sigma = 1/\sqrt{2}$ displaced to $x_0$ in the harmonic oscillator,
+the numerical centre $\langle x(t)\rangle$ and width $\sigma(t)$ agree with
+the analytic values to within 0.05 a.u. after $t = \pi$ (half period).
 
 **Ehrenfest theorem:** $\langle x(t)\rangle = x_0\cos(t)$ is verified at
 $t \approx \pi/2$ and $t \approx \pi$ to within 0.1 a.u.
 
 **Heisenberg bound:** $\Delta x\,\Delta p \geq \tfrac{1}{2}$ is verified
-for harmonic oscillator eigenstates and displaced Gaussian packets, with the
-ground state saturating the bound to within $10^{-3}$ (the residual
-discrepancy is a finite-grid discretisation artefact).
+for harmonic oscillator eigenstates and displaced Gaussian packets, with
+the ground state saturating the bound to within $10^{-3}$.
+
+## Hydrogenic Solver
+
+Numerical energies agree with $E_n = -Z^2/(2n^2)$ Hartree to within 0.1%
+for $n = 1$–4, $l = 0$–3, $Z = 1$–6. Radial wavefunctions satisfy
+$\int_0^\infty |u_{nl}(r)|^2\,dr = 1$ to within $10^{-4}$.
+Energy ordering $E_{n,l} < E_{n',l'}$ for $n < n'$ is verified for all
+tested combinations.
+
+## Spin-½
+
+Certainty cases verified: $|\!\uparrow\rangle$ along $z$ gives $P(+z) = 1$;
+$|\!+x\rangle$ along $x$ gives $P(+x) = 1$; $|\!+x\rangle$ along $z$
+gives $P(+z) = 0.5$. Precession preserves $|\mathbf{r}| = 1$ at every frame
+by construction (Rodrigues formula). Post-measurement state collapse verified
+by checking that a second measurement along the same axis always returns the
+same outcome.
 
 # Acknowledgements
 
 The author thanks the open-source communities behind NumPy, SciPy, FastAPI,
-React, and Plotly, without which this project would not have been possible.
+React, Plotly, and Three.js, without which this project would not have been
+possible.
 
 # References

@@ -63,7 +63,7 @@ A browser-based quantum mechanics explorer. Run the backend and frontend locally
 
 ## Quick start
 
-You need Python ≥ 3.10 and Node.js ≥ 18.
+You need Python ≥ 3.10 and Node.js ≥ 18. The backend and frontend are separate processes — **open two terminal windows**, one for each step below.
 
 ### 1. Clone
 
@@ -91,7 +91,7 @@ CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com uvicorn app
 Verify:
 ```bash
 curl http://localhost:8000/health
-# → {"status":"ok","version":"0.1.0"}
+# → {"status":"ok","version":"0.2026.0502"}
 ```
 
 ### 3. Start the frontend

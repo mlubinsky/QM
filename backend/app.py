@@ -15,7 +15,9 @@ from solvers.schrodinger_1d.router import router as schrodinger_router
 from solvers.hydrogenic.router import router as hydrogenic_router
 from solvers.spin.router import router as spin_router
 
-app = FastAPI(title="Schrödinger Solver", version="0.1.0")
+__version__ = "0.2026.0502"
+
+app = FastAPI(title="Schrödinger Solver", version=__version__)
 
 _cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")]
 
@@ -29,7 +31,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": __version__}
 
 
 app.include_router(schrodinger_router, prefix="/schrodinger1d")
