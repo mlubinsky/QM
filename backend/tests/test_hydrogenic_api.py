@@ -33,8 +33,46 @@ def test_response_has_required_fields():
     data = r.json()
     for field in ("r", "radial_density", "energy_hartree", "energy_exact_hartree",
                   "energy_ev", "x_axis", "z_axis", "orbital_density",
-                  "ion_symbol", "ion_name", "orbital_label"):
+                  "ion_symbol", "ion_name", "orbital_label",
+                  "sph_harm_x", "sph_harm_z"):
         assert field in data, f"Missing field: {field}"
+
+
+def test_sph_harm_polar_shape_and_closure():
+    r = post({"Z": 1, "n": 2, "l": 1, "m": 0, "n_points": 200, "grid_2d_points": 40})
+    assert r.status_code == 200
+    data = r.json()
+    x, z = data["sph_harm_x"], data["sph_harm_z"]
+    assert len(x) == len(z)
+    assert len(x) > 0
+    # curve must be closed
+    assert abs(x[0] - x[-1]) < 1e-12
+    assert abs(z[0] - z[-1]) < 1e-12
+
+
+def test_sph_harm_polar_s_orbital_is_circle():
+    # l=0, m=0: |Y_00|^2 is constant → polar curve is a circle, max r = 1
+    r = post({"Z": 1, "n": 1, "l": 0, "m": 0, "n_points": 200, "grid_2d_points": 40})
+    data = r.json()
+    x, z = data["sph_harm_x"], data["sph_harm_z"]
+    radii = [xi**2 + zi**2 for xi, zi in zip(x, z)]
+    # All points should be at roughly the same radius (unit circle after normalisation)
+    assert max(radii) - min(radii) < 1e-6
+
+
+def test_sph_harm_polar_normalised_to_one():
+    # Max radius of the closed curve should be 1.0 after normalisation
+    for payload in [
+        {"Z": 1, "n": 1, "l": 0, "m": 0},
+        {"Z": 1, "n": 2, "l": 1, "m": 0},
+        {"Z": 1, "n": 2, "l": 1, "m": 1},
+        {"Z": 1, "n": 3, "l": 2, "m": 2},
+    ]:
+        r = post({**payload, "n_points": 200, "grid_2d_points": 40})
+        data = r.json()
+        x, z = data["sph_harm_x"], data["sph_harm_z"]
+        max_r = max(xi**2 + zi**2 for xi, zi in zip(x, z)) ** 0.5
+        assert abs(max_r - 1.0) < 1e-6, f"max_r={max_r} for {payload}"
 
 
 # ── Shape checks ───────────────────────────────────────────────────────────────

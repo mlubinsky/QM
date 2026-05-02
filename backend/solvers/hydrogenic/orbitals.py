@@ -34,6 +34,12 @@ class OrbitalResult:
     density: np.ndarray   # shape (grid_points, grid_points), |ψ(x,0,z)|²
 
 
+@dataclass
+class SphHarmPolar:
+    x_curve: np.ndarray   # shape (2*n_theta+1,), closed Cartesian x
+    z_curve: np.ndarray   # shape (2*n_theta+1,), closed Cartesian z
+
+
 def xz_cross_section(
     r: np.ndarray,
     u: np.ndarray,
@@ -83,3 +89,28 @@ def xz_cross_section(
     density = np.maximum(R_interp ** 2 * Y_sq, 0.0)
 
     return OrbitalResult(x_axis=x_axis, z_axis=z_axis, density=density)
+
+
+def spherical_harmonic_polar(l: int, m: int, n_theta: int = 180) -> SphHarmPolar:
+    """Closed (x, z) curve of the normalised |Y_l^m(θ)|² polar diagram.
+
+    θ runs 0 → π along the right half; the left half is the mirror image.
+    Normalised to max = 1 so the shape fills the plot regardless of l, m.
+    """
+    theta = np.linspace(0.0, np.pi, n_theta)
+    Y = sph_harm(m, l, 0.0, theta)
+    r = np.abs(Y) ** 2
+
+    peak = r.max()
+    if peak > 0:
+        r = r / peak
+
+    x_right = r * np.sin(theta)
+    z_right = r * np.cos(theta)
+    x_left  = -r[::-1] * np.sin(theta[::-1])
+    z_left  =  r[::-1] * np.cos(theta[::-1])
+
+    x_curve = np.concatenate([x_right, x_left, [x_right[0]]])
+    z_curve = np.concatenate([z_right, z_left, [z_right[0]]])
+
+    return SphHarmPolar(x_curve=x_curve, z_curve=z_curve)

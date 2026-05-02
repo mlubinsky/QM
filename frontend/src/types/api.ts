@@ -81,6 +81,8 @@ export interface HydrogenicResponse {
   ion_symbol: string
   ion_name: string
   orbital_label: string
+  sph_harm_x: number[]
+  sph_harm_z: number[]
 }
 export interface PauliMatrix {
   re: number[][]

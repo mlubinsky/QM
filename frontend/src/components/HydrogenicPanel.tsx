@@ -6,6 +6,7 @@ import type { HydrogenicResponse } from '../types/api'
 import { GrotrianDiagram } from './GrotrianDiagram'
 import { RadialDensityInfoPanel } from './RadialDensityInfoPanel'
 import { OrbitalDensityInfoPanel } from './OrbitalDensityInfoPanel'
+import { SphericalHarmonicInfoPanel } from './SphericalHarmonicInfoPanel'
 
 interface HydrogenicPanelProps {
   result: HydrogenicResponse
@@ -69,16 +70,18 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
 
   const [showRadialHelp, setShowRadialHelp] = useState(false)
   const [showOrbitalHelp, setShowOrbitalHelp] = useState(false)
+  const [showSphHarmHelp, setShowSphHarmHelp] = useState(false)
   const closeRadial = useCallback(() => setShowRadialHelp(false), [])
   const closeOrbital = useCallback(() => setShowOrbitalHelp(false), [])
+  const closeSphHarm = useCallback(() => setShowSphHarmHelp(false), [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { closeRadial(); closeOrbital() }
+      if (e.key === 'Escape') { closeRadial(); closeOrbital(); closeSphHarm() }
     }
-    if (showRadialHelp || showOrbitalHelp) window.addEventListener('keydown', onKey)
+    if (showRadialHelp || showOrbitalHelp || showSphHarmHelp) window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [showRadialHelp, showOrbitalHelp, closeRadial, closeOrbital])
+  }, [showRadialHelp, showOrbitalHelp, showSphHarmHelp, closeRadial, closeOrbital, closeSphHarm])
 
   const maxR = Math.max(...result.r)
 
@@ -210,30 +213,83 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
           />
         </div>
 
-        {/* Orbital density heatmap */}
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 6, right: 8, zIndex: 1 }}>
-            <HelpButton onClick={() => setShowOrbitalHelp(true)} />
+        {/* Orbital density + spherical harmonic — side by side */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+
+          {/* Orbital density heatmap */}
+          <div style={{ position: 'relative', flex: '1 1 0', minWidth: 0 }}>
+            <div style={{ position: 'absolute', top: 6, right: 8, zIndex: 1 }}>
+              <HelpButton onClick={() => setShowOrbitalHelp(true)} />
+            </div>
+            <Plot
+              data={[heatmap]}
+              layout={{
+                title: { text: `${result.ion_symbol} ${orbLabel} (m=${m}) — |ψ(x,0,z)|²`, font: { size: 12 } },
+                xaxis: { title: { text: 'x (Bohr)', standoff: 8 }, scaleanchor: 'y', scaleratio: 1 },
+                yaxis: { title: { text: 'z (Bohr)', standoff: 8 } },
+                margin: { t: 40, b: 60, l: 60, r: 80 },
+                height: 360,
+                annotations: [{
+                  text: 'Cross-section through nucleus (y = 0)',
+                  x: 0.5, y: -0.14,
+                  xref: 'paper', yref: 'paper',
+                  showarrow: false,
+                  font: { size: 11, color: '#888' },
+                }],
+              }}
+              style={{ width: '100%' }}
+              config={{ displayModeBar: false }}
+            />
           </div>
-          <Plot
-            data={[heatmap]}
-            layout={{
-              title: { text: `${result.ion_symbol} ${orbLabel} (m=${m}) — electron density |ψ(x,0,z)|²`, font: { size: 13 } },
-              xaxis: { title: { text: 'x (Bohr)', standoff: 8 }, scaleanchor: 'y', scaleratio: 1 },
-              yaxis: { title: { text: 'z (Bohr)', standoff: 8 } },
-              margin: { t: 40, b: 60, l: 60, r: 80 },
-              height: 360,
-              annotations: [{
-                text: 'Cross-section through nucleus (y = 0)',
-                x: 0.5, y: -0.14,
-                xref: 'paper', yref: 'paper',
-                showarrow: false,
-                font: { size: 11, color: '#888' },
-              }],
-            }}
-            style={{ width: '100%' }}
-            config={{ displayModeBar: false }}
-          />
+
+          {/* Spherical harmonic polar plot */}
+          <div style={{ position: 'relative', flex: '1 1 0', minWidth: 0 }}>
+            <div style={{ position: 'absolute', top: 6, right: 8, zIndex: 1 }}>
+              <HelpButton onClick={() => setShowSphHarmHelp(true)} />
+            </div>
+            <Plot
+              data={[{
+                x: result.sph_harm_x,
+                y: result.sph_harm_z,
+                type: 'scatter',
+                mode: 'lines',
+                fill: 'toself',
+                fillcolor: 'rgba(74, 158, 255, 0.18)',
+                line: { color: '#4a9eff', width: 2 },
+                hoverinfo: 'skip',
+              }]}
+              layout={{
+                title: { text: `|Y<sub>${l}</sub><sup>${m}</sup>(θ)|² — angular shape`, font: { size: 12 } },
+                xaxis: {
+                  title: { text: 'x', standoff: 6 },
+                  scaleanchor: 'y',
+                  scaleratio: 1,
+                  zeroline: true,
+                  zerolinecolor: '#555',
+                  showgrid: false,
+                },
+                yaxis: {
+                  title: { text: 'z  (quantisation axis)', standoff: 6 },
+                  zeroline: true,
+                  zerolinecolor: '#555',
+                  showgrid: false,
+                },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
+                height: 360,
+                showlegend: false,
+                annotations: [{
+                  text: 'Normalised to max = 1 · rotate around z for 3D shape',
+                  x: 0.5, y: -0.14,
+                  xref: 'paper', yref: 'paper',
+                  showarrow: false,
+                  font: { size: 10, color: '#888' },
+                }],
+              }}
+              style={{ width: '100%' }}
+              config={{ displayModeBar: false }}
+            />
+          </div>
+
         </div>
       </div>
 
@@ -248,6 +304,12 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
       {showOrbitalHelp && (
         <PlotModal title="Electron density cross-section — reference" onClose={closeOrbital}>
           <OrbitalDensityInfoPanel />
+        </PlotModal>
+      )}
+
+      {showSphHarmHelp && (
+        <PlotModal title="Spherical harmonic polar diagram — reference" onClose={closeSphHarm}>
+          <SphericalHarmonicInfoPanel />
         </PlotModal>
       )}
     </div>

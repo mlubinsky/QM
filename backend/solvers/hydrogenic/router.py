@@ -10,7 +10,7 @@ from pydantic import BaseModel, field_validator, model_validator
 
 from shared.units import HARTREE_TO_EV
 from .radial_solver import solve as radial_solve
-from .orbitals import xz_cross_section
+from .orbitals import xz_cross_section, spherical_harmonic_polar
 
 router = APIRouter()
 
@@ -77,6 +77,8 @@ class HydrogenicResponse(BaseModel):
     ion_symbol: str
     ion_name: str
     orbital_label: str
+    sph_harm_x: list[float]
+    sph_harm_z: list[float]
 
 
 # ── Endpoint ──────────────────────────────────────────────────────────────────
@@ -99,8 +101,9 @@ def solve_hydrogenic(req: HydrogenicRequest) -> HydrogenicResponse:
     density_1d = radial.radial_density[state_idx]
     energy = float(radial.energies[state_idx])
 
-    # 2-D cross-section
+    # 2-D cross-section and spherical harmonic polar curve
     orbital = xz_cross_section(radial.r, u, req.l, req.m, req.grid_2d_points)
+    sph_polar = spherical_harmonic_polar(req.l, req.m)
 
     # Exact analytical energy
     energy_exact = -(req.Z ** 2) / (2 * req.n ** 2)
@@ -122,4 +125,6 @@ def solve_hydrogenic(req: HydrogenicRequest) -> HydrogenicResponse:
         ion_symbol=ion_symbol,
         ion_name=ion_name,
         orbital_label=orbital_label,
+        sph_harm_x=sph_polar.x_curve.tolist(),
+        sph_harm_z=sph_polar.z_curve.tolist(),
     )
