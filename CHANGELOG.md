@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (2026-05-02) — Spin precession animation
+
+**Frontend** (`frontend/src/components/PrecessionControls.tsx`)
+- **Play button now visibly animates precession.** The trajectory `useEffect` was re-firing on every animation frame because `onFrame` updates `theta`/`phi` in the parent, which flowed back as props and reset `frameRef.current = 0` each tick. Fixed by guarding with `if (playingRef.current) return` so trajectory is only recomputed when the user changes sliders or parameters, never during playback.
+- Changed default B̂ preset from `+z` to `+x`. With the spin vector initialised at θ = 0 (pointing along +z) and B̂ also along +z, the Rodrigues rotation is degenerate (vector parallel to axis → no movement). Defaulting to `+x` gives an immediately visible precession cone on the first Play click.
+
+---
+
 ### Added (2026-05-02) — Grotrian diagram: selection rules as first-class visual feature
 
 **Frontend** (`frontend/src/components/GrotrianDiagram.tsx`)

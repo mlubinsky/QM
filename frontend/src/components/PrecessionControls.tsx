@@ -15,7 +15,7 @@ const N_FRAMES = 120
 type BPreset = 'x' | 'y' | 'z' | 'custom'
 
 export function PrecessionControls({ theta, phi, onTrajectory, onFrame }: Props) {
-  const [bPreset, setBPreset]   = useState<BPreset>('z')
+  const [bPreset, setBPreset]   = useState<BPreset>('x')
   const [bTheta, setBTheta]     = useState(0)
   const [bPhi, setBPhi]         = useState(0)
   const [omega0, setOmega0]     = useState(1.0)
@@ -39,8 +39,11 @@ export function PrecessionControls({ theta, phi, onTrajectory, onFrame }: Props)
     ]
   }
 
-  // Recompute trajectory whenever inputs change
+  // Recompute trajectory whenever inputs change, but not while animation is running.
+  // (onFrame updates theta/phi every frame; without this guard, the trajectory would
+  // reset to frame 0 on every tick and the spin vector would never visibly precess.)
   useEffect(() => {
+    if (playingRef.current) return
     const traj = computeTrajectory(theta, phi, getBhat(), omega0, tMax, N_FRAMES)
     trajRef.current = traj
     onTrajectory(traj)
@@ -135,6 +138,9 @@ export function PrecessionControls({ theta, phi, onTrajectory, onFrame }: Props)
           onChange={e => setTMax(parseFloat(e.target.value))} />
       </div>
 
+      <p style={{ margin: '6px 0 4px', fontSize: '0.8rem', color: '#aaa', fontStyle: 'italic' }}>
+        Animate spin vector precessing around B̂
+      </p>
       <div className="spin-playback">
         <button className="spin-play-btn" onClick={() => setPlaying(p => !p)}>
           {playing ? 'Pause' : 'Play'}
