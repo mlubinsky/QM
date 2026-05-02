@@ -77,9 +77,13 @@ cd QM
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt                    # exact pins — recommended for running
 uvicorn app:app --reload --port 8000
 ```
+
+> **Alternative (editable install):** `pip install -e ".[dev]"` from the repo root installs
+> loose-pinned runtime deps plus test tools in one step. Use this if you prefer the
+> standard `pyproject.toml` workflow over the pinned `requirements.txt`.
 
 The backend allows `http://localhost:5173` by default. To allow additional
 origins set the `CORS_ORIGINS` environment variable as a comma-separated list:
@@ -168,8 +172,11 @@ QM/
 
 ```bash
 cd backend
-pip install -r requirements-dev.txt  # adds httpx and pytest on top of runtime deps
+pip install -r requirements-dev.txt  # exact pins: runtime deps + httpx + pytest
 python -m pytest tests/ -v
+# or, using pyproject.toml extras:
+# pip install -e ".[dev]"   (from repo root, loose pins)
+# python -m pytest tests/ -v
 ```
 
 | Test file | What it covers |

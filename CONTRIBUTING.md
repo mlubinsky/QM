@@ -9,6 +9,28 @@ Open an issue and include:
 - What you expected
 - What actually happened (error message, screenshot, or unexpected output)
 
+## Development setup
+
+Backend — choose either install method:
+
+```bash
+# Option A — exact pins (matches CI)
+cd backend
+pip install -r requirements-dev.txt
+
+# Option B — editable install via pyproject.toml (loose pins)
+cd ..                          # repo root
+pip install -e ".[dev]"
+```
+
+Frontend:
+
+```bash
+cd frontend
+cp .env.example .env           # first time only
+npm install
+```
+
 ## Running the tests before submitting a PR
 
 Backend:
