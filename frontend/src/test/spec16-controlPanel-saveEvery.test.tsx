@@ -52,18 +52,18 @@ describe('Spec 16 — ControlPanel save_every', () => {
 
   it('renders a save_every slider in time-evolution mode', () => {
     render(<ControlPanel mode="time-evolution" onSolve={vi.fn()} />)
-    expect(screen.getByLabelText(/save_every/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/steps per frame/i)).toBeInTheDocument()
   })
 
   it('does not render save_every slider in stationary mode', () => {
     render(<ControlPanel mode="stationary" onSolve={vi.fn()} />)
-    expect(screen.queryByLabelText(/save_every/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/steps per frame/i)).not.toBeInTheDocument()
   })
 
   it('moving save_every slider updates the payload', () => {
     const onSolve = vi.fn()
     render(<ControlPanel mode="time-evolution" onSolve={onSolve} />)
-    fireEvent.change(screen.getByLabelText(/save_every/i), { target: { value: '25' } })
+    fireEvent.change(screen.getByLabelText(/steps per frame/i), { target: { value: '25' } })
     fireEvent.click(screen.getByRole('button', { name: /run evolution/i }))
     expect(onSolve).toHaveBeenCalledWith(
       expect.objectContaining({ save_every: 25 })
@@ -80,7 +80,7 @@ describe('Spec 16 — ControlPanel save_every', () => {
 
   it('frames-stored updates when save_every slider moves', () => {
     render(<ControlPanel mode="time-evolution" onSolve={vi.fn()} />)
-    fireEvent.change(screen.getByLabelText(/save_every/i), { target: { value: '100' } })
+    fireEvent.change(screen.getByLabelText(/steps per frame/i), { target: { value: '100' } })
     // floor(1000 / 100) + 1 = 11
     expect(screen.getByTestId('frames-stored')).toHaveTextContent('11')
   })
