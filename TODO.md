@@ -10,12 +10,6 @@ Ordered by priority within each group.
 
 #### Quick wins
 
-**Node counting annotation** (stationary mode)
-Automatically count and annotate the number of nodes in each wavefunction.
-The n-th state of the ISW has exactly n−1 nodes — computed from zero-crossings
-of ψ, displayed as a small label on each eigenfunction trace. Builds intuition
-instantly with no backend changes.
-
 **Keyboard shortcuts for animation** (time-evolution mode)
 - Space = play/pause
 - Left/right arrow = step one frame
@@ -30,13 +24,6 @@ animation. Makes the azimuthal precession rate ω₀ readable at a glance.
 
 #### High educational value, moderate cost
 
-**Real and imaginary parts of ψ(x,t)** (time-evolution mode)
-Add a toggle (checkbox) to show Re(ψ) and Im(ψ) alongside |ψ|². This makes
-phase visible: a stationary state has ψ ∝ e^{−iEt} (spinning phase, static
-probability) while a superposition actually "sloshes". One of the most
-commonly misunderstood points in quantum mechanics. Touches only the frontend
-plot component — no backend changes needed.
-
 **Eigenstate decomposition display** (time-evolution mode)
 When a Gaussian packet or custom superposition is initialized, compute and
 display the energy decomposition |⟨ψₙ|ψ(0)⟩|² as a bar chart before running
@@ -49,14 +36,6 @@ Overlay the classical probability distribution P_cl(x) = 1/(π√(A²−x²)) on
 the |ψₙ|² plot for the harmonic oscillator. For high n this is the
 correspondence principle made visually obvious. Toggle checkbox; purely
 frontend.
-
-**Sequential measurements in spin** (Measurement tab)
-After "Measure once" along axis n̂₁, allow an immediate second measurement
-along a different axis n̂₂ without manually resetting. Demonstrates that:
-(a) state collapsed after the first measurement, (b) the second probabilities
-depend on the first outcome, (c) measurements along non-commuting axes are
-incompatible. Core of quantum weirdness; purely frontend, no backend needed.
-Related to the SG chain item below but simpler — just two sequential devices.
 
 **Transmission coefficient for tunneling** (time-evolution mode)
 After the wavepacket has passed a barrier or step potential, compute the
@@ -149,3 +128,19 @@ sphere state); what is needed is a dedicated UI showing:
   Natural capstone before quantum field theory.
 
 ## Completed
+
+**Node counting annotation** (stationary mode) — 2026-05-02
+Each eigenfunction legend entry now shows its node count (e.g. "ψ₂ (1 node)"),
+counted from zero-crossings with a boundary margin. Confirms Sturm-Liouville
+ordering at a glance.
+
+**Real and imaginary parts of ψ(x,t)** (time-evolution mode) — 2026-05-02
+Checkbox "Show Re(ψ) and Im(ψ)" added above the main plot. Re(ψ) shown as a
+green dashed line, Im(ψ) as orange dotted. Backend adds `re_frames` and
+`im_frames` to `EvolveResponse`; frontend renders them in sync with animation.
+
+**Sequential measurements in spin** (Measurement tab) — 2026-05-02
+"Measure once" now appends each result to a persistent history panel. When
+consecutive measurements use different axes, an explanatory note fires explaining
+state collapse and non-commutativity. A second note fires on the classic z→x→z
+sequence to explain measurement erasure.
