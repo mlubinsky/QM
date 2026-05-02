@@ -333,20 +333,26 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
                 e<sup>i<span className="param-k0">k₀</span>x</sup>
               </div>
 
-              <label htmlFor="gauss-x0" data-tooltip="Initial center position of the wave packet (a.u.)">
-                <span className="param-x0">x₀</span>
-              </label>
-              <input id="gauss-x0" type="number" value={x0} onChange={e => { setX0(Number(e.target.value)); markDirty() }} />
+              <div className="param-row">
+                <label htmlFor="gauss-x0" data-tooltip="Initial center position of the wave packet (a.u.)">
+                  <span className="param-x0">x₀</span>
+                </label>
+                <input id="gauss-x0" type="number" value={x0} onChange={e => { setX0(Number(e.target.value)); markDirty() }} />
+              </div>
 
-              <label htmlFor="gauss-sigma" data-tooltip="Gaussian width (a.u.) — position uncertainty Δx ≈ σ/√2, momentum uncertainty Δp ≈ 1/(2σ)">
-                <span className="param-sigma">σ</span>
-              </label>
-              <input id="gauss-sigma" type="number" value={sigma} onChange={e => { setSigma(Number(e.target.value)); markDirty() }} />
+              <div className="param-row">
+                <label htmlFor="gauss-sigma" data-tooltip="Gaussian width (a.u.) — position uncertainty Δx ≈ σ/√2, momentum uncertainty Δp ≈ 1/(2σ)">
+                  <span className="param-sigma">σ</span>
+                </label>
+                <input id="gauss-sigma" type="number" value={sigma} onChange={e => { setSigma(Number(e.target.value)); markDirty() }} />
+              </div>
 
-              <label htmlFor="gauss-k0" data-tooltip="Initial momentum / wavenumber (a.u.); the packet travels with group velocity v = k₀">
-                <span className="param-k0">k₀</span>
-              </label>
-              <input id="gauss-k0" type="number" value={k0} onChange={e => { setK0(Number(e.target.value)); markDirty() }} />
+              <div className="param-row">
+                <label htmlFor="gauss-k0" data-tooltip="Initial momentum / wavenumber (a.u.); the packet travels with group velocity v = k₀">
+                  <span className="param-k0">k₀</span>
+                </label>
+                <input id="gauss-k0" type="number" value={k0} onChange={e => { setK0(Number(e.target.value)); markDirty() }} />
+              </div>
             </>
           )}
 
@@ -420,10 +426,14 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             </>
           )}
 
-          <label htmlFor="dt" data-tooltip="Crank-Nicolson time step size (a.u.) — smaller gives higher temporal accuracy">
-            dt (a.u.) <span className="unit-angstrom">{auTimeToHuman(dt)}</span>
-          </label>
-          <input id="dt" type="number" value={dt} onChange={e => { setDt(Number(e.target.value)); markDirty() }} />
+          <div className="param-row">
+            <label htmlFor="dt" data-tooltip="Crank-Nicolson time step size (a.u.) — smaller gives higher temporal accuracy">
+              dt
+            </label>
+            <input id="dt" type="number" min="0.0001" step="0.001" value={dt}
+              onChange={e => { setDt(Math.max(0.0001, Number(e.target.value))); markDirty() }} />
+            <span className="unit-angstrom param-unit">{auTimeToHuman(dt)}</span>
+          </div>
 
           <label htmlFor="n-steps" data-tooltip="Total number of time steps; total simulated time = n_steps × dt">
             n_steps
@@ -443,8 +453,8 @@ export function ControlPanel({ mode, onSolve, status = 'idle', initialParams }: 
             <span className="unit-angstrom">({auTimeToHuman(dt * nSteps)})</span>
           </div>
 
-          <label htmlFor="save-every" data-tooltip="Save one frame every N steps — controls response size and animation resolution">
-            save_every
+          <label htmlFor="save-every" data-tooltip="Record one animation frame every N simulation steps — larger values reduce memory use and response size">
+            Steps per frame
           </label>
           <div className="slider-row">
             <input id="save-every" type="range" min={1} max={Math.min(100, nSteps)}

@@ -65,4 +65,6 @@ export const mockEvolveResult: EvolveResponse = {
   delta_x:         Array.from({ length: nFrames }, () => Math.SQRT1_2),
   delta_p:         Array.from({ length: nFrames }, () => Math.SQRT1_2),
   delta_x_delta_p: Array.from({ length: nFrames }, () => 0.5),
+  re_frames: Array.from({ length: nFrames }, () => gaussian(x, 0, 1).map(v => v / Math.sqrt(2))),
+  im_frames: Array.from({ length: nFrames }, () => gaussian(x, 0, 1).map(v => v / Math.sqrt(2))),
 }

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Improved (2026-05-02) — Time-evolution control panel UX
+
+- **Inline parameter rows** (`ControlPanel.tsx`, `App.css`): x₀, σ, k₀, and dt now display label and input on the same line using a new `.param-row` flex layout, reducing the vertical space consumed by the Initial State fieldset.
+- **dt validation** (`ControlPanel.tsx`): Added `min="0.0001"` and `step="0.001"` to the dt input; the `onChange` handler clamps to ≥ 0.0001, preventing the negative total-time display that appeared when a user typed a negative value.
+- **Renamed "save_every" → "Steps per frame"** (`ControlPanel.tsx`): The new label is self-explanatory — one animation frame is recorded every N simulation steps. Updated tooltip accordingly.
+- **Dark-mode fixes** (`App.css`): Added dark-mode colour overrides for `.total-time-row` and the new `.param-unit` annotation span.
+
+---
+
 ### Fixed (2026-05-02) — Plot layout: restore full height and reduce whitespace
 
 - **PlotArea layout regression** (`PlotArea.tsx`, `App.css`): The `?` info buttons added for Energy Levels and Eigenfunctions had introduced wrapper `<div>` elements that consumed flex column space and broke Plotly's height calculation, causing both plots to shrink. Fixed by using zero-height absolutely-positioned overlays so the buttons cost no layout height. The eigenfunctions `?` button now lives in a `height:0; overflow:visible` div immediately before `<MainPlot>`, and the energy-levels `?` button is absolutely positioned inside the existing `<ul>` wrapper.

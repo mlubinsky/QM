@@ -381,10 +381,40 @@
 }
 
 /* Total simulation time summary line */
+/* Inline label + input row (x₀, σ, k₀, dt) */
+.param-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param-row label {
+  flex-shrink: 0;
+  min-width: 2ch;
+  font-weight: 700;
+}
+
+.param-row input[type="number"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.param-unit {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: #777;
+  white-space: nowrap;
+}
+
 .total-time-row {
   font-size: 0.82rem;
   color: #555;
   margin-top: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .total-time-row { color: #999; }
+  .param-unit     { color: #999; }
 }
 
 .slider-row {
