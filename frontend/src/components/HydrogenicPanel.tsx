@@ -3,7 +3,7 @@ import _Plot from 'react-plotly.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Plot = (_Plot as any).default ?? _Plot
 import type { HydrogenicResponse } from '../types/api'
-import { GrotriaDiagram } from './GrotriaDiagram'
+import { GrotrianDiagram } from './GrotrianDiagram'
 import { RadialDensityInfoPanel } from './RadialDensityInfoPanel'
 import { OrbitalDensityInfoPanel } from './OrbitalDensityInfoPanel'
 
@@ -238,7 +238,7 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
         </div>
       </div>
 
-      <GrotriaDiagram Z={Z} activeN={n} activeL={l} onSelectLevel={onSelectLevel} />
+      <GrotrianDiagram Z={Z} activeN={n} activeL={l} onSelectLevel={onSelectLevel} />
 
       {showRadialHelp && (
         <PlotModal title="Radial probability density — reference" onClose={closeRadial}>

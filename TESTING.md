@@ -54,7 +54,7 @@ Verify it's up:
 curl http://localhost:8000/health
 # → {"status":"ok","version":"0.1.0"}
 
-curl http://localhost:8000/presets
+curl http://localhost:8000/schrodinger1d/presets
 # → {"presets":["infinite_square_well","harmonic_oscillator",...]}
 ```
 
@@ -71,7 +71,7 @@ npm run dev
 
 Test eigenstate solve:
 ```bash
-curl -s -X POST http://localhost:8000/solve/eigenstates \
+curl -s -X POST http://localhost:8000/schrodinger1d/solve/eigenstates \
   -H "Content-Type: application/json" \
   -d '{"grid":{"x_min":-8,"x_max":8,"n_points":500},"potential_preset":"harmonic_oscillator","n_states":5}' \
   | python -m json.tool | grep energies
@@ -80,7 +80,7 @@ Expected: `"energies": [0.5, 1.5, 2.5, 3.5, 4.5]` (approximately)
 
 Test expectation values from time evolution:
 ```bash
-curl -s -X POST http://localhost:8000/solve/evolve \
+curl -s -X POST http://localhost:8000/schrodinger1d/solve/evolve \
   -H "Content-Type: application/json" \
   -d '{"grid":{"x_min":-8,"x_max":8,"n_points":300},"potential_preset":"harmonic_oscillator","gaussian_x0":0,"gaussian_sigma":0.707,"gaussian_k0":0,"dt":0.01,"n_steps":100,"save_every":10}' \
   | python -m json.tool | grep -E '"expect_x"|"expect_H"'
@@ -89,7 +89,7 @@ Expected: `expect_x` values near 0 (packet centered at origin), `expect_H` value
 
 Test momentum-space fields:
 ```bash
-curl -s -X POST http://localhost:8000/solve/evolve \
+curl -s -X POST http://localhost:8000/schrodinger1d/solve/evolve \
   -H "Content-Type: application/json" \
   -d '{"grid":{"x_min":-8,"x_max":8,"n_points":64},"potential_preset":"harmonic_oscillator","gaussian_k0":2.0,"dt":0.01,"n_steps":20,"save_every":10}' \
   | python -m json.tool | grep -E '"momentum_k"|"momentum_frames"'
@@ -98,7 +98,7 @@ Expected: `momentum_k` array of 64 values centred on 0; `momentum_frames` with 3
 
 Test validation rejection:
 ```bash
-curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/solve/eigenstates \
+curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/schrodinger1d/solve/eigenstates \
   -H "Content-Type: application/json" \
   -d '{"grid":{"x_min":5,"x_max":-5,"n_points":100},"potential_preset":"harmonic_oscillator"}'
 # → 422
@@ -106,7 +106,7 @@ curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/solve/eigen
 
 Test bad potential expression:
 ```bash
-curl -s -X POST http://localhost:8000/solve/eigenstates \
+curl -s -X POST http://localhost:8000/schrodinger1d/solve/eigenstates \
   -H "Content-Type: application/json" \
   -d '{"grid":{"x_min":-5,"x_max":5,"n_points":100},"potential_expr":"import os"}'
 # → 422 with detail message

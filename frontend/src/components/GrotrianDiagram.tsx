@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
 import { SelectionRulesPanel } from './SelectionRulesPanel'
 
-interface GrotriaDiagramProps {
+interface GrotrianDiagramProps {
   Z: number
   activeN: number
   activeL: number
@@ -45,7 +45,7 @@ function isReachable(nv: number, lv: number, fromN: number, fromL: number): bool
   return Math.abs(lv - fromL) === 1 && nv < fromN
 }
 
-export function GrotriaDiagram({ Z, activeN, activeL, onSelectLevel }: GrotriaDiagramProps) {
+export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: GrotrianDiagramProps) {
   const SVG_W = 500
   const SVG_H = 400
   const PAD_L = 52
