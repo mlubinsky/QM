@@ -54,20 +54,34 @@ function clamp(val: number, min: number, max: number): number {
 }
 
 export function serializeUrlParams(params: UrlParams): string {
-  const entries: Record<string, string> = {
-    mode:      params.mode,
-    potential: params.potential,
-    xmin:      String(params.xmin),
-    xmax:      String(params.xmax),
-    n:         String(params.n),
-    n_states:  String(params.nStates),
-    x0:        String(params.x0),
-    sigma:     String(params.sigma),
-    k0:        String(params.k0),
-    dt:        String(params.dt),
-    n_steps:   String(params.nSteps),
-    save_every: String(params.saveEvery),
+  const entries: Record<string, string> = { mode: params.mode }
+
+  // Spin has no persistent state — just the mode flag
+  if (params.mode === 'spin') {
+    return new URLSearchParams(entries).toString()
   }
+
+  // Hydrogenic — only the four quantum numbers matter
+  if (params.mode === 'hydrogenic') {
+    entries.hydro_Z = String(params.hydroZ)
+    entries.hydro_n = String(params.hydroN)
+    entries.hydro_l = String(params.hydroL)
+    entries.hydro_m = String(params.hydroM)
+    return new URLSearchParams(entries).toString()
+  }
+
+  // 1D modes (stationary, time-evolution)
+  entries.potential  = params.potential
+  entries.xmin       = String(params.xmin)
+  entries.xmax       = String(params.xmax)
+  entries.n          = String(params.n)
+  entries.n_states   = String(params.nStates)
+  entries.x0         = String(params.x0)
+  entries.sigma      = String(params.sigma)
+  entries.k0         = String(params.k0)
+  entries.dt         = String(params.dt)
+  entries.n_steps    = String(params.nSteps)
+  entries.save_every = String(params.saveEvery)
   if (params.expr !== null) {
     entries.expr = params.expr
   }
@@ -75,17 +89,11 @@ export function serializeUrlParams(params: UrlParams): string {
     entries[`p_${k}`] = String(v)
   }
   if (params.initState === 'superposition') {
-    entries.init = 'superposition'
+    entries.init    = 'superposition'
     entries.n_super = String(params.nSuperStates)
     for (let i = 0; i < params.coefficients.length; i++) {
       entries[`c${i}`] = String(params.coefficients[i])
     }
-  }
-  if (params.mode === 'hydrogenic') {
-    entries.hydro_Z = String(params.hydroZ)
-    entries.hydro_n = String(params.hydroN)
-    entries.hydro_l = String(params.hydroL)
-    entries.hydro_m = String(params.hydroM)
   }
   return new URLSearchParams(entries).toString()
 }

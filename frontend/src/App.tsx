@@ -196,21 +196,47 @@ export default function App() {
   // Auto-solve on mount when URL has non-default params
   useEffect(() => {
     if (!hasNonDefaultUrl(initialParams)) return
+    const mode = initialParams.mode
+
+    // Spin has no state to restore
+    if (mode === 'spin') return
+
+    const onErr = (err: unknown) => {
+      const message = err instanceof ApiError ? err.detail : err instanceof Error ? err.message : 'Unknown error'
+      dispatch({ type: 'ERROR', message })
+    }
+
+    if (mode === 'hydrogenic') {
+      dispatch({ type: 'LOADING' })
+      solveHydrogenic({
+        Z: initialParams.hydroZ,
+        n: initialParams.hydroN,
+        l: initialParams.hydroL,
+        m: initialParams.hydroM,
+      })
+        .then(result => dispatch({
+          type: 'SUCCESS_HYDRO', result,
+          Z: initialParams.hydroZ,
+          n: initialParams.hydroN,
+          l: initialParams.hydroL,
+          m: initialParams.hydroM,
+        }))
+        .catch(onErr)
+      return
+    }
+
     const potential = buildPotentialFromUrlParams(initialParams)
     const grid = { x_min: initialParams.xmin, x_max: initialParams.xmax, n_points: initialParams.n }
-    if (initialParams.mode === 'stationary') {
+
+    if (mode === 'stationary') {
       dispatch({ type: 'LOADING' })
       solveEigenstates({ grid, ...potential, n_states: initialParams.nStates })
         .then(result => dispatch({ type: 'SUCCESS_EIGEN', result, preset: potential.potential_preset }))
-        .catch(err => {
-          const message = err instanceof ApiError ? err.detail : err instanceof Error ? err.message : 'Unknown error'
-          dispatch({ type: 'ERROR', message })
-        })
+        .catch(onErr)
     } else {
       dispatch({ type: 'LOADING' })
       solveEvolve({
-        grid,
-        ...potential,
+        grid, ...potential,
         gaussian_x0: initialParams.x0,
         gaussian_sigma: initialParams.sigma,
         gaussian_k0: initialParams.k0,
@@ -219,10 +245,7 @@ export default function App() {
         save_every: initialParams.saveEvery,
       })
         .then(result => dispatch({ type: 'SUCCESS_EVOLVE', result }))
-        .catch(err => {
-          const message = err instanceof ApiError ? err.detail : err instanceof Error ? err.message : 'Unknown error'
-          dispatch({ type: 'ERROR', message })
-        })
+        .catch(onErr)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -235,7 +258,11 @@ export default function App() {
           <select
             className="mode-select"
             value={state.mode}
-            onChange={e => dispatch({ type: 'SET_MODE', mode: e.target.value as AppMode })}
+            onChange={e => {
+              const newMode = e.target.value as AppMode
+              dispatch({ type: 'SET_MODE', mode: newMode })
+              pushUrlParams({ ...initialParams, mode: newMode })
+            }}
             aria-label="Select mode"
           >
             <optgroup label="1D Solvers">
