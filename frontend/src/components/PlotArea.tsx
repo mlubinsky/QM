@@ -60,17 +60,14 @@ export function PlotArea({
 
   return (
     <div className="plot-area">
-      {/* Energy level labels (stationary) */}
+      {/* Energy level labels (stationary) — ? overlaid, adds zero height */}
       {mode === 'stationary' && eigenResult && (
-        <>
-          <div className="plot-label-row">
-            <span className="plot-label-text">Energy levels</span>
-            <button
-              className="physics-info-btn"
-              aria-label="Energy levels — what they mean"
-              onClick={() => setShowEnergyInfo(true)}
-            >?</button>
-          </div>
+        <div style={{ position: 'relative' }}>
+          <button
+            className="physics-info-btn plot-info-btn-overlay"
+            aria-label="Energy levels — what they mean"
+            onClick={() => setShowEnergyInfo(true)}
+          >?</button>
           <ul className="energy-levels">
             {eigenResult.energies.map((E, i) => (
               <li key={i}>
@@ -80,7 +77,7 @@ export function PlotArea({
               </li>
             ))}
           </ul>
-        </>
+        </div>
       )}
 
       {showEnergyInfo && (
@@ -188,17 +185,6 @@ export function PlotArea({
         </div>
       )}
 
-      {mode === 'stationary' && (
-        <div className="plot-label-row">
-          <span className="plot-label-text">Eigenfunctions</span>
-          <button
-            className="physics-info-btn"
-            aria-label="Eigenfunction nodes — what they mean"
-            onClick={() => setShowNodeInfo(true)}
-          >?</button>
-        </div>
-      )}
-
       {showNodeInfo && (
         <div className="physics-modal-backdrop" onClick={() => setShowNodeInfo(false)}>
           <div className="physics-modal" role="dialog" aria-modal="true"
@@ -251,6 +237,16 @@ export function PlotArea({
         </div>
       )}
 
+      {/* Zero-height row — positions ? button over the plot top-right without consuming flex space */}
+      {mode === 'stationary' && (
+        <div style={{ height: 0, position: 'relative', overflow: 'visible' }}>
+          <button
+            className="physics-info-btn plot-info-btn-overlay"
+            aria-label="Eigenfunction nodes — what they mean"
+            onClick={() => setShowNodeInfo(true)}
+          >?</button>
+        </div>
+      )}
       <MainPlot
         mode={mode}
         eigenResult={eigenResult}

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (2026-05-02) — Plot layout: restore full height and reduce whitespace
+
+- **PlotArea layout regression** (`PlotArea.tsx`, `App.css`): The `?` info buttons added for Energy Levels and Eigenfunctions had introduced wrapper `<div>` elements that consumed flex column space and broke Plotly's height calculation, causing both plots to shrink. Fixed by using zero-height absolutely-positioned overlays so the buttons cost no layout height. The eigenfunctions `?` button now lives in a `height:0; overflow:visible` div immediately before `<MainPlot>`, and the energy-levels `?` button is absolutely positioned inside the existing `<ul>` wrapper.
+- **Compact Plotly margins** (`MainPlot.tsx`, `SecondaryPlot.tsx`, `MomentumPlot.tsx`, `CurrentPlot.tsx`): Replaced Plotly's default margins (~100px top, ~80px sides) with `{ t:36, b:44, l:56, r:12 }` across all plot components, eliminating the large blank bands above plot titles and below axis labels.
+
+---
+
 ### Added (2026-05-02) — Three educational quick wins
 
 **Re(ψ) / Im(ψ) toggle** (time-evolution mode)

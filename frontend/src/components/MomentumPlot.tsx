@@ -27,6 +27,7 @@ export function MomentumPlot({ evolveResult, currentFrame }: MomentumPlotProps) 
   const layout: Partial<Plotly.Layout> = {
     title: { text: 'Momentum Distribution' },
     autosize: true,
+    margin: { t: 36, b: 44, l: 56, r: 12 },
     xaxis: { title: { text: 'k (rad/a.u.)' } },
     yaxis: { title: { text: '|φ(k,t)|²' } },
   }

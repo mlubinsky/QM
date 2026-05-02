@@ -80,6 +80,7 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset
   const layout: Partial<Plotly.Layout> = {
     title: { text: mode === 'stationary' ? 'Energy Levels' : 'Norm History' },
     autosize: true,
+    margin: { t: 36, b: 44, l: 56, r: 12 },
     xaxis: { title: { text: mode === 'stationary' ? 'x (a.u.)' : 't (a.u.)' } },
     yaxis: { title: { text: mode === 'stationary' ? 'Energy (a.u.)' : '‖ψ(t)‖² − 1' } },
   }

@@ -115,6 +115,7 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, showPh
   const layout: Partial<Plotly.Layout> = {
     title: { text: mode === 'stationary' ? 'Eigenfunctions' : '|ψ(x,t)|²' },
     autosize: true,
+    margin: { t: 36, b: 44, l: 56, r: 12 },
     xaxis: { title: { text: 'x (a.u.)' } },
     yaxis: { title: { text: mode === 'stationary' ? 'Energy (a.u.)' : 'amplitude' } },
   }
