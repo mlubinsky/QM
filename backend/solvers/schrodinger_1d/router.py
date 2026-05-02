@@ -116,6 +116,8 @@ class EvolveRequest(BaseModel):
 
 class EvolveResponse(BaseModel):
     prob_frames: list[list[float]]
+    re_frames: list[list[float]]    # Re(ψ(x,t)) at each saved frame
+    im_frames: list[list[float]]    # Im(ψ(x,t)) at each saved frame
     times: list[float]
     norm_history: list[float]
     grid_x: list[float]
@@ -222,9 +224,13 @@ def evolve_endpoint(req: EvolveRequest):
         raise HTTPException(status_code=500, detail="Internal solver error.") from exc
 
     prob_frames = (np.abs(result.psi_frames) ** 2).tolist()
+    re_frames   = result.psi_frames.real.tolist()
+    im_frames   = result.psi_frames.imag.tolist()
 
     return EvolveResponse(
         prob_frames=prob_frames,
+        re_frames=re_frames,
+        im_frames=im_frames,
         times=result.times.tolist(),
         norm_history=result.norm_history.tolist(),
         grid_x=result.grid_x.tolist(),

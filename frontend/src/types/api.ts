@@ -41,6 +41,8 @@ export interface EvolveRequest {
 
 export interface EvolveResponse {
   prob_frames: number[][]     // shape (n_frames, n_points), |ψ(x,t)|²
+  re_frames: number[][]       // Re(ψ(x,t)) at each frame
+  im_frames: number[][]       // Im(ψ(x,t)) at each frame
   times: number[]
   norm_history: number[]
   grid_x: number[]

@@ -38,6 +38,7 @@ export function PlotArea({
   onSpeedChange,
 }: PlotAreaProps) {
   const [copied, setCopied] = useState(false)
+  const [showPhase, setShowPhase] = useState(false)
   const result = mode === 'stationary' ? eigenResult : evolveResult
   const currentNorm =
     mode === 'time-evolution' && evolveResult
@@ -94,11 +95,33 @@ export function PlotArea({
         </div>
       )}
 
+      {mode === 'time-evolution' && (
+        <div className="phase-toggle-row">
+          <label className="phase-toggle-label">
+            <input
+              type="checkbox"
+              checked={showPhase}
+              onChange={e => setShowPhase(e.target.checked)}
+            />
+            {' '}Show Re(ψ) and Im(ψ)
+          </label>
+          {showPhase && (
+            <p className="phase-toggle-note">
+              A stationary state has ψ = φ(x)·e<sup>−iEt</sup>: Re(ψ) and Im(ψ) spin
+              at frequency E while |ψ|² stays fixed. In a superposition of two eigenstates,
+              the two components spin at different speeds — their phase difference oscillates,
+              making |ψ|² slosh back and forth. This is quantum interference in action.
+            </p>
+          )}
+        </div>
+      )}
+
       <MainPlot
         mode={mode}
         eigenResult={eigenResult}
         evolveResult={evolveResult}
         currentFrame={currentFrame}
+        showPhase={showPhase}
       />
 
       {mode === 'time-evolution' && (

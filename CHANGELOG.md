@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-02) — Three educational quick wins
+
+**Re(ψ) / Im(ψ) toggle** (time-evolution mode)
+- Backend (`router.py`): `EvolveResponse` now includes `re_frames` and `im_frames` (real and imaginary parts of ψ at each saved frame), extracted from the already-stored complex `psi_frames`.
+- Frontend (`types/api.ts`): `EvolveResponse` interface updated with `re_frames` and `im_frames`.
+- Frontend (`PlotArea.tsx`): "Show Re(ψ) and Im(ψ)" checkbox above the main plot. When checked, a help note explains: a stationary state has ψ = φ(x)·e^{−iEt} so Re/Im spin while |ψ|² stays fixed; in a superposition the phase difference oscillates, making |ψ|² slosh — quantum interference.
+- Frontend (`MainPlot.tsx`): Re(ψ) rendered as green dashed line, Im(ψ) as orange dotted line, both updating each animation frame.
+
+**Node counting** (stationary mode)
+- Frontend (`MainPlot.tsx`): Each eigenfunction legend entry now shows its node count, e.g. "ψ₂ (1 node)". Nodes are counted from zero-crossings of the raw wavefunction, excluding a 5-point boundary margin to avoid counting the Dirichlet BC zeros. The n-th eigenstate always has exactly n−1 nodes (Sturm-Liouville theorem).
+
+**Sequential measurements** (spin Measurement tab)
+- Frontend (`SternGerlachPanel.tsx`): "Measure once" now appends each result to a persistent history panel showing axis, prior probability, and outcome for every shot. When two consecutive measurements use different axes, an explanatory note fires: "After measuring along z, the state collapsed to a z-axis eigenstate — it has no memory of its previous direction." A second note fires when the user completes the classic z→x→z sequence, explaining measurement erasure. A "Clear" button resets the history.
+
+---
+
 ### Added (2026-05-02) — Spin ½ page: two-tab layout
 
 **Frontend** (`frontend/src/components/SpinPanel.tsx`, `App.css`)

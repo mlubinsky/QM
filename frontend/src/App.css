@@ -1079,3 +1079,150 @@
     border-top-color: #2e2e3e;
   }
 }
+
+/* ── Re/Im phase toggle ─────────────────────────────── */
+.phase-toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.phase-toggle-label {
+  font-size: 0.83rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.phase-toggle-note {
+  margin: 0;
+  padding: 5px 8px;
+  font-size: 0.77rem;
+  color: #666;
+  font-style: italic;
+  background: #f5f8ff;
+  border-left: 3px solid #b0c0e8;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .phase-toggle-note {
+    color: #999;
+    background: #1a1c2a;
+    border-left-color: #3a4468;
+  }
+}
+
+/* ── SG measurement history ─────────────────────────── */
+.sg-history {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sg-history {
+    background: #1e1f2a;
+    border-color: #3a3a50;
+  }
+}
+
+.sg-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.sg-history-title {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sg-history-title { color: #aaa; }
+}
+
+.sg-history-clear {
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  color: #777;
+}
+
+.sg-history-clear:hover {
+  background: #eee;
+  color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sg-history-clear {
+    border-color: #555;
+    color: #888;
+  }
+  .sg-history-clear:hover {
+    background: #2a2b38;
+    color: #ccc;
+  }
+}
+
+.sg-history-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.79rem;
+  flex-wrap: wrap;
+}
+
+.sg-history-step {
+  color: #aaa;
+  min-width: 14px;
+}
+
+.sg-history-prob {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.sg-history-outcome {
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.sg-history-plus  { color: #2a9d2a; }
+.sg-history-minus { color: #c0392b; }
+
+.sg-history-note {
+  margin: 4px 0 0;
+  padding: 5px 7px;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #666;
+  background: #fffbe6;
+  border-left: 3px solid #e0b800;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sg-history-note {
+    color: #bbb;
+    background: #1f1e10;
+    border-left-color: #8a7200;
+  }
+}
