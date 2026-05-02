@@ -11,10 +11,10 @@ tags:
   - React
 authors:
   - name: Michael Lubinsky
-    orcid: 0000-0000-0000-0000   # TODO: replace with actual ORCID
+    orcid: 0009-0002-2300-1543
     affiliation: 1
 affiliations:
-  - name: Independent Researcher   # TODO: replace with actual affiliation
+  - name: Independent Researcher
     index: 1
 date: 2 May 2026
 bibliography: paper.bib
