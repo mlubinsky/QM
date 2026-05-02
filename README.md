@@ -74,7 +74,8 @@ cd QM
 
 ```bash
 cd backend
-pip install fastapi uvicorn scipy numpy asteval httpx
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 uvicorn app:app --reload --port 8000
 ```
 
@@ -165,6 +166,7 @@ QM/
 
 ```bash
 cd backend
+pip install -r requirements-dev.txt  # adds httpx and pytest on top of runtime deps
 python -m pytest tests/ -v
 ```
 
