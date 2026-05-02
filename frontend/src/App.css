@@ -17,6 +17,12 @@
   margin-bottom: 12px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .app header {
+    border-bottom-color: #3a3a4a;
+  }
+}
+
 .app header h1 {
   margin: 0;
   font-size: 1.4rem;
@@ -32,8 +38,14 @@
 .mode-equation {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.05rem;
-  color: #444;
+  color: #111;
   min-width: 10ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mode-equation {
+    color: #e8e8e8;
+  }
 }
 
 .mode-select {
@@ -45,6 +57,14 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mode-select {
+    background: #2a2b35;
+    color: #e0e0e0;
+    border-color: #555;
+  }
 }
 
 .mode-select:focus {
