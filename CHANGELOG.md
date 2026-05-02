@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-02) — Grotrian diagram: selection rules as first-class visual feature
+
+**Frontend** (`frontend/src/components/GrotrianDiagram.tsx`)
+- Expanded allowed transitions from Lyman+Balmer only to all series (Lyman, Balmer, Paschen, Brackett, Pfund) — removes the `nLo ≤ 2` restriction and also adds previously missing transitions where the upper state has lower ℓ (e.g. 3s → 2p).
+- E1-forbidden transitions (Δℓ = 0 or |Δℓ| > 1) rendered as thin gray dashed lines without arrowheads; toggled off by default via a "Show forbidden (E1)" checkbox. When focused on a level, forbidden arrows from that level brighten while all others fade further.
+- SVG `<title>` tooltip on every arrow: allowed arrows show transition label, Δℓ, λ, ΔE in eV, and series name; forbidden arrows show the specific rule violated (e.g. "Δℓ = 0 (parity unchanged — E1 dipole matrix element = 0)").
+- Permanent amber `●` marker on the 2s level with a hover tooltip explaining the ~10⁸ lifetime ratio vs 2p and two-photon decay mechanism.
+- "λ labels" checkbox (default off) to toggle wavelength annotations on arrows; previously always-on labels would overlap with the expanded transition set.
+- Two-section legend below the diagram: **Levels** row (current orbital, reachable, dimmed, metastable) and **Arrows** rows with inline SVG line samples showing exact stroke color and dasharray for each category, plus physics examples (H-α 656 nm for visible, Lyman series for UV, Paschen/Brackett for IR). Gray dashed legend entry appears only when the forbidden toggle is on.
+- Caption placed above controls so the checkboxes are unambiguously scoped to the Grotrian diagram.
+
+---
+
 ### Added (2026-05-01) — Spherical harmonic polar diagram
 
 **Backend** (`backend/solvers/hydrogenic/orbitals.py`, `router.py`)
