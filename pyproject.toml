@@ -4,8 +4,8 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "schrodinger-solver"
-version = "0.1.0"
-description = "Browser-based solver for the 1D time-dependent and time-independent Schrödinger equation"
+version = "0.2026.0502"
+description = "Browser-based interactive explorer for quantum mechanics: 1D Schrödinger equation (stationary and time-evolution), hydrogen-like atoms, and spin-½ / Bloch sphere"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -17,6 +17,14 @@ keywords = [
   "Crank-Nicolson",
   "eigenvalue solver",
   "physics simulation",
+  "hydrogen atom",
+  "hydrogenic",
+  "Grotrian diagram",
+  "spin",
+  "Bloch sphere",
+  "Stern-Gerlach",
+  "interactive",
+  "education",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
