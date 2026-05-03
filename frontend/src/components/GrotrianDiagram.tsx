@@ -235,12 +235,9 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
       </div>
 
       {/* Focus status — shown only after a level is clicked */}
-      {hasFocus && (
+      {hasFocus && reachableCount === 0 && (
         <div style={{ paddingLeft: PAD_L, marginBottom: 4, fontSize: '0.78rem', fontStyle: 'italic' }}>
-          {reachableCount === 0
-            ? <span style={{ color: '#ff9f40' }}>no single-photon decay allowed from this level — metastable</span>
-            : <span className="grotrian-hint">green = reachable by single-photon emission (Δℓ = ±1)</span>
-          }
+          <span style={{ color: '#ff9f40' }}>no single-photon decay allowed from this level — metastable</span>
         </div>
       )}
 
