@@ -67,33 +67,31 @@ A browser-based quantum mechanics explorer. Run the backend and frontend locally
 
 ## Quick start
 
-You need Python ≥ 3.10 and Node.js ≥ 18. The backend and frontend are separate processes — **open two terminal windows**, one for each step below.
-
-### 1. Clone
+**Prerequisites:** Python ≥ 3.10 and Node.js ≥ 18.
 
 ```bash
 git clone https://github.com/mlubinsky/QM.git
 cd QM
+./run.sh        # Mac / Linux — starts backend + frontend, then open http://localhost:5173
+run.bat         # Windows    — same, opens two console windows
 ```
 
-### 2. Start the backend
+That's it. Press **Ctrl+C** (or close the console windows on Windows) to stop.
+
+---
+
+### Manual setup (if you prefer separate terminals)
+
+<details>
+<summary>Show manual steps</summary>
+
+**Terminal 1 — backend:**
 
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt                    # exact pins — recommended for running
+pip install -r requirements.txt
 uvicorn app:app --reload --port 8000
-```
-
-> **Alternative (editable install):** `pip install -e ".[dev]"` from the repo root installs
-> loose-pinned runtime deps plus test tools in one step. Use this if you prefer the
-> standard `pyproject.toml` workflow over the pinned `requirements.txt`.
-
-The backend allows `http://localhost:5173` by default. To allow additional
-origins set the `CORS_ORIGINS` environment variable as a comma-separated list:
-
-```bash
-CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com uvicorn app:app --reload --port 8000
 ```
 
 Verify:
@@ -102,7 +100,7 @@ curl http://localhost:8000/health
 # → {"status":"ok","version":"0.2026.0502"}
 ```
 
-### 3. Start the frontend
+**Terminal 2 — frontend:**
 
 ```bash
 cd frontend
@@ -110,6 +108,16 @@ npm install
 npm run dev
 # → open http://localhost:5173
 ```
+
+> **Alternative (editable install):** `pip install -e ".[dev]"` from the repo root installs
+> loose-pinned runtime deps plus test tools in one step.
+
+To allow additional CORS origins:
+```bash
+CORS_ORIGINS=http://localhost:5173,https://your-frontend.example.com uvicorn app:app --reload --port 8000
+```
+
+</details>
 
 ---
 
