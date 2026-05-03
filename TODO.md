@@ -151,6 +151,41 @@ sphere state); what is needed is a dedicated UI showing:
 
 ---
 
+## Deployment / Packaging
+
+### Docker Compose (before JOSS submission)
+
+Add `docker-compose.yml` plus two Dockerfiles so the app starts with a single
+command on any machine regardless of Python/Node installation:
+
+```
+docker compose up
+# → open http://localhost:5173
+```
+
+Scope:
+- `backend/Dockerfile` — Python slim image, `pip install -r requirements.txt`, `uvicorn`
+- `frontend/Dockerfile` — Node image for `npm run build`, then `nginx:alpine` to serve the Vite dist
+- `docker-compose.yml` — wires the two services, exposes ports 8000 and 5173
+- README: add one-line Docker alternative alongside `run.sh`
+
+Primary motivation: JOSS reviewers need to reproduce the software on an
+unfamiliar machine; a working `docker compose up` is a strong reproducibility
+signal.
+
+### GitHub Actions: publish Docker image to GHCR (after Docker Compose works)
+
+Add a workflow that builds and pushes a tagged image to GitHub Container
+Registry on each release tag. README can then say:
+
+```
+docker compose up   # no build step — pulls pre-built image
+```
+
+Reduces first-run time from ~2 min (local build) to ~10 s (pull).
+
+---
+
 ## Future / Nice-to-Have
 
 ### 2D solver (time-dependent + stationary)
