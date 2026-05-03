@@ -70,29 +70,22 @@
 /* ── Grotrian diagram text ──────────────────────────── */
 .grotrian-caption {
   font-size: 0.82rem;
-  color: #444;
+  color: var(--text-h);
 }
 
 .grotrian-hint {
   font-size: 0.78rem;
-  color: #555;
+  color: var(--text-h);
   font-style: italic;
 }
 
 .grotrian-legend {
   font-size: 0.78rem;
-  color: #444;
+  color: var(--text-h);
 }
 
 .grotrian-legend-dim {
-  color: #777;
-}
-
-@media (prefers-color-scheme: dark) {
-  .grotrian-caption { color: #bbb; }
-  .grotrian-hint    { color: #aaa; }
-  .grotrian-legend  { color: #bbb; }
-  .grotrian-legend-dim { color: #888; }
+  color: var(--text);
 }
 
 .mode-select:focus {

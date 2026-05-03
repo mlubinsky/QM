@@ -163,7 +163,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   function hideTooltip() { setTooltip(null) }
 
   return (
-    <div style={{ marginTop: 24 }}>
+    <div style={{ marginTop: 24, color: 'var(--text-h)' }}>
 
       {/* Floating tooltip — rendered outside SVG so it can overflow the diagram */}
       {tooltip && (
@@ -191,7 +191,8 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
       {/* Caption row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, paddingLeft: PAD_L }}>
         <span className="grotrian-caption">
-          Grotrian diagram — click a level to highlight allowed decays&nbsp;·&nbsp;colored arrow = allowed&nbsp;·&nbsp;gray dashed = forbidden&nbsp;·&nbsp;hover any arrow for details
+          <strong>Grotrian diagram</strong><br />
+          click a level to highlight allowed decays&nbsp;·&nbsp;colored arrow = allowed&nbsp;·&nbsp;gray dashed = forbidden&nbsp;·&nbsp;hover any arrow for details
         </span>
         <button
           type="button"
@@ -214,7 +215,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
       </div>
 
       {/* Toggle controls — placed under caption so they clearly belong to this diagram */}
-      <div style={{ display: 'flex', gap: 14, marginBottom: 4, paddingLeft: PAD_L, fontSize: '0.8rem', color: '#bbb' }}>
+      <div style={{ display: 'flex', gap: 14, marginBottom: 4, paddingLeft: PAD_L, fontSize: '0.8rem', color: 'var(--text-h)' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', userSelect: 'none' }}>
           <input
             type="checkbox"
@@ -257,7 +258,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           transform={`rotate(-90, 12, ${PAD_T + plotH / 2})`}
           textAnchor="middle"
           fontSize={11}
-          fill="#aaa"
+          fill="currentColor"
         >
           Energy (Eh)
         </text>
@@ -268,7 +269,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           return (
             <g key={nv}>
               <line x1={PAD_L - 5} y1={y} x2={PAD_L} y2={y} stroke="#555" strokeWidth={0.8} />
-              <text x={PAD_L - 7} y={y + 4} textAnchor="end" fontSize={9} fill="#aaa">
+              <text x={PAD_L - 7} y={y + 4} textAnchor="end" fontSize={9} fill="currentColor">
                 {energy(nv).toFixed(2)}
               </text>
             </g>
@@ -280,11 +281,11 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
 
         {/* X-axis column headers */}
         {Array.from({ length: N_MAX }, (_, lv) => (
-          <text key={lv} x={colX(lv)} y={PAD_T + plotH + 20} textAnchor="middle" fontSize={11} fill="#aaa">
+          <text key={lv} x={colX(lv)} y={PAD_T + plotH + 20} textAnchor="middle" fontSize={11} fill="currentColor">
             {L_LABELS[lv]}
           </text>
         ))}
-        <text x={PAD_L + plotW / 2} y={SVG_H - 2} textAnchor="middle" fontSize={10} fill="#666">
+        <text x={PAD_L + plotW / 2} y={SVG_H - 2} textAnchor="middle" fontSize={10} fill="currentColor">
           Angular momentum ℓ
         </text>
 
