@@ -4,6 +4,17 @@
 
 ## Planned
 
+### Recommended implementation order (reviewed 2026-05-02)
+
+| Priority | Item | Effort | JOSS value |
+|----------|------|--------|-----------|
+| 1 | Classical comparison overlays (HO + wave packet) | 1–2 days | High |
+| 2 | Preset labs — 3 experiments using existing solvers | 3–5 days | Very high |
+| 3 | Eigenstate decomposition chart | 2 days | Medium |
+| 4 | 2D solver | 3–4 weeks | Very high — defer |
+
+---
+
 ### Usability and educational improvements (current feature set)
 
 Ordered by priority within each group.
@@ -24,18 +35,26 @@ animation. Makes the azimuthal precession rate ω₀ readable at a glance.
 
 #### High educational value, moderate cost
 
-**Eigenstate decomposition display** (time-evolution mode)
+**Eigenstate decomposition display** (time-evolution mode) — *Priority 3*
 When a Gaussian packet or custom superposition is initialized, compute and
 display the energy decomposition |⟨ψₙ|ψ(0)⟩|² as a bar chart before running
 time evolution. Answers "which energy eigenstates am I exciting?" and makes
 the connection between the wavepacket and the energy eigenbasis explicit.
-Small backend addition; frontend bar chart.
+Small backend addition; frontend bar chart. (Skip drag-and-drop superposition
+builder — high UI cost for marginal gain; the bar chart alone delivers the value.)
 
-**Classical vs. quantum comparison** (stationary mode, harmonic oscillator)
-Overlay the classical probability distribution P_cl(x) = 1/(π√(A²−x²)) on
-the |ψₙ|² plot for the harmonic oscillator. For high n this is the
-correspondence principle made visually obvious. Toggle checkbox; purely
-frontend.
+**Classical vs. quantum comparison** (stationary mode + time-evolution mode) — *Priority 1*
+Two sub-features sharing the same pedagogical theme (correspondence principle):
+
+- *Harmonic oscillator classical overlay* — overlay P_cl(x) = 1/(π√(A²−x²)) on
+  the stationary-mode |ψₙ|² plot. Classical turning point A follows directly from
+  the eigenenergy: A = √(2E/ω²). Toggle checkbox; purely frontend, ~10 lines of
+  backend.
+- *Wave packet group vs. phase velocity* (time-evolution mode) — annotate the
+  animated wave packet with the group velocity v_g = ∂ω/∂k ≈ k₀ (slope of ⟨x(t)⟩)
+  and the phase velocity v_ph = ω/k. A short label or dashed tangent line on the
+  ⟨x(t)⟩ expectation-value subplot makes the distinction concrete without any
+  new computation — ⟨x(t)⟩ and ⟨p(t)⟩ are already returned by the backend.
 
 **Transmission coefficient for tunneling** (time-evolution mode)
 After the wavepacket has passed a barrier or step potential, compute the
@@ -58,16 +77,21 @@ trace. No additional solver needed — purely analytic.
 
 
 
-**Physics scenario presets ("labs")** (all modes)
+**Physics scenario presets ("labs")** (all modes) — *Priority 2*
 Alongside the existing potential presets, add named complete setups that
-pre-fill all parameters and show a one-paragraph explanation:
-- *Tunneling demo* — Gaussian packet hitting a Gaussian barrier, k₀ chosen
-  so T ≈ 30%
+pre-fill all parameters and show a one-paragraph physics background +
+"what to observe" prompt. Scope: 3 labs using only existing solvers — no
+new backend physics required. Stark/Zeeman effect and perturbation-theory labs
+belong in Phase 2 (see roadmap below).
+
+Recommended first three:
+- *Tunneling resonance* — Gaussian packet hitting a rectangular barrier, k₀
+  chosen so T ≈ 30%; prompt asks the user to raise/lower barrier and watch T change.
 - *Coherent state* — harmonic oscillator, σ = ground-state width, x₀ displaced;
-  shows no wavepacket spreading
-- *Uncertainty lab* — ISW, prompts user to vary σ and observe Δx·Δp ≥ ½
-- *Larmor resonance* — spin precession at ω₀ chosen to complete exactly one
-  precession period over t_max
+  demonstrates that a minimum-uncertainty state propagates without spreading.
+- *Wave packet dispersion* — free particle (flat potential), two different σ values;
+  illustrates how a narrow packet (sharp x → broad k spread) disperses faster,
+  connecting to the uncertainty principle.
 
 **Perturbation theory comparison** (stationary mode)
 Add a perturbation strength ε slider. Show the first-order energy shift
@@ -115,6 +139,29 @@ sphere state); what is needed is a dedicated UI showing:
 ---
 
 ## Future / Nice-to-Have
+
+### 2D solver (time-dependent + stationary)
+
+The single largest gap vs. QMsolve. Would enable double-slit interference,
+2D harmonic oscillator, and quantum billiards — all visually distinctive and
+pedagogically iconic.
+
+**Why deferred:** 2D Crank-Nicolson requires ADI (alternating direction implicit)
+or split-step Fourier; a 200×200 grid produces 40,000-point frames that stress
+the browser's Plotly heatmap renderer. Performance needs a WebGL-based renderer
+or server-side frame encoding before this is viable as a web app. Estimate 3–4
+weeks of implementation, plus separate frontend performance work.
+
+**When to revisit:** After the current feature set is stable and JOSS submission
+is underway (~late 2026). The grid abstraction in the backend was designed to be
+dimension-agnostic, so the groundwork is already in place.
+
+Planned visualisation:
+- Heatmap + contour for |ψ(x,y,t)|²
+- Optional probability current vector field J(x,y,t)
+- Presets: double-slit aperture, 2D infinite square well, 2D HO, stadium billiard
+
+---
 
 ### Module Sequencing Roadmap
 
