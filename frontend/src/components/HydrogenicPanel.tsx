@@ -7,6 +7,7 @@ import { GrotrianDiagram } from './GrotrianDiagram'
 import { RadialDensityInfoPanel } from './RadialDensityInfoPanel'
 import { OrbitalDensityInfoPanel } from './OrbitalDensityInfoPanel'
 import { SphericalHarmonicInfoPanel } from './SphericalHarmonicInfoPanel'
+import { OrbitalIsosurface } from './OrbitalIsosurface'
 
 interface HydrogenicPanelProps {
   result: HydrogenicResponse
@@ -292,6 +293,12 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
 
         </div>
       </div>
+
+      <OrbitalIsosurface
+        isoAxis={result.iso_axis}
+        isoValues={result.iso_values}
+        orbitalLabel={result.orbital_label}
+      />
 
       <GrotrianDiagram Z={Z} activeN={n} activeL={l} onSelectLevel={onSelectLevel} />
 

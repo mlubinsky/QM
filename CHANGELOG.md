@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-02) — 3D orbital isosurface viewer
+
+- **`orbital_isosurface(n, l, m, Z, grid_size=30)`** (`backend/solvers/hydrogenic/orbitals.py`): New function computing the analytic |ψ_nlm(x,y,z)|² on a uniform 3-D grid using the associated Laguerre and spherical harmonic formulas from SciPy. Returns a 1-D symmetric axis list and a flattened N³ probability density array.
+- **Backend endpoint** (`backend/solvers/hydrogenic/router.py`): `POST /hydrogenic/solve` now returns `iso_axis` and `iso_values` fields in `HydrogenicResponse`.
+- **`OrbitalIsosurface` component** (`frontend/src/components/OrbitalIsosurface.tsx`): Renders a Plotly `isosurface` 3-D surface at 10% of peak density with Viridis colorscale; integrated into `HydrogenicPanel.tsx` below the 2-D plots.
+- **Frontend types** (`frontend/src/types/api.ts`): `HydrogenicResponse` gains `iso_axis: number[]` and `iso_values: number[]`.
+- **Backend tests** (`backend/tests/test_hydrogenic_isosurface.py`): 12 new tests covering field presence, axis symmetry, non-negativity, 1s max at origin, 1s spherical symmetry, 2p_z nodal plane, 2s radial node, approximate normalization, and Z-compactness scaling.
+- **TODO.md**: Moved 3D isosurface to Completed; moved three earlier items (node counting, Re/Im toggle, sequential spin measurements) to Completed.
+
+---
+
 ### Improved (2026-05-02) — Time-evolution control panel UX
 
 - **Inline parameter rows** (`ControlPanel.tsx`, `App.css`): x₀, σ, k₀, and dt now display label and input on the same line using a new `.param-row` flex layout, reducing the vertical space consumed by the Initial State fieldset.

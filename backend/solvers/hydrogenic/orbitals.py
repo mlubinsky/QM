@@ -19,6 +19,7 @@ scipy.special.sph_harm signature: sph_harm(m, l, phi, theta).
 from dataclasses import dataclass
 
 import numpy as np
+from scipy.special import eval_genlaguerre, factorial
 try:
     from scipy.special import sph_harm_y as _sph_harm_y
     def sph_harm(m: int, l: int, phi: float, theta) -> "np.ndarray":  # type: ignore[override]
@@ -114,3 +115,66 @@ def spherical_harmonic_polar(l: int, m: int, n_theta: int = 180) -> SphHarmPolar
     z_curve = np.concatenate([z_right, z_left, [z_right[0]]])
 
     return SphHarmPolar(x_curve=x_curve, z_curve=z_curve)
+
+
+def orbital_isosurface(
+    n: int,
+    l: int,
+    m: int,
+    Z: int,
+    grid_size: int = 30,
+) -> tuple[list[float], list[float]]:
+    """Compute |ψ_nlm(x,y,z)|² on a uniform 3-D Cartesian grid.
+
+    Uses the closed-form analytic hydrogen-like wavefunction:
+        ψ_nlm = R_nl(r) · Y_l^m(θ, φ)
+    where R_nl is built from the associated Laguerre polynomial via
+    scipy.special.eval_genlaguerre and Y_l^m via the existing sph_harm
+    wrapper (handles scipy ≥ 1.15 API change).
+
+    Parameters
+    ----------
+    n, l, m : int   Principal, angular, magnetic quantum numbers.
+    Z       : int   Nuclear charge (1–10).
+    grid_size : int Number of points per axis (default 30; use ≥ 40 for
+                    accurate normalisation checks).
+
+    Returns
+    -------
+    axis   : list[float]  1-D symmetric grid, length grid_size.
+    values : list[float]  Flattened N³ density in ijk (x-major) order.
+
+    Normalisation
+    -------------
+    R_nl uses the standard formula (atomic units, a₀ = 1):
+        norm = sqrt((2Z/n)³ · (n−l−1)! / (2n · (n+l)!))
+        R_nl = norm · exp(−ρ/2) · ρ^l · L_{n−l−1}^{2l+1}(ρ),   ρ = 2Zr/n
+    Verified: ∫₀^∞ R_nl² r² dr = 1 for (1,0), (2,0), (2,1).
+    """
+    # Grid extent: 5 × ⟨r⟩ where ⟨r⟩_nl ≈ n(n+1)/Z for the outermost orbital
+    r_max = max(5.0 * n * (n + 1) / Z, 4.0)
+    axis = np.linspace(-r_max, r_max, grid_size)
+
+    X, Y, Zg = np.meshgrid(axis, axis, axis, indexing="ij")
+
+    r = np.sqrt(X ** 2 + Y ** 2 + Zg ** 2)
+    r_safe = np.where(r < 1e-12, 1e-12, r)
+
+    theta = np.arccos(np.clip(Zg / r_safe, -1.0, 1.0))
+    phi   = np.arctan2(Y, X)
+
+    # Radial part
+    rho  = 2.0 * Z * r / n
+    norm = np.sqrt(
+        (2.0 * Z / n) ** 3
+        * factorial(n - l - 1)
+        / (2.0 * n * factorial(n + l))
+    )
+    R = norm * np.exp(-rho / 2.0) * (rho ** l) * eval_genlaguerre(n - l - 1, 2 * l + 1, rho)
+
+    # Angular part — reuse the compatibility wrapper already in this module
+    Ylm = sph_harm(m, l, phi, theta)
+
+    psi_sq = np.maximum(R ** 2 * np.abs(Ylm) ** 2, 0.0)
+
+    return axis.tolist(), psi_sq.flatten().tolist()

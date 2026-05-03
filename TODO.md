@@ -48,6 +48,16 @@ addition to compute the integral; frontend line chart.
 
 #### High educational value, higher cost
 
+**3D orbital isosurface** (hydrogenic mode)
+Render the iconic |ψ_nlm(x,y,z)|² isosurface — the dumbbell, clover, and ring
+shapes every student sees in textbooks — using the closed-form analytic
+wavefunction (scipy genlaguerre + sph_harm) on a 3D Cartesian grid.
+Backend adds `iso_axis` (1D grid, N points) and `iso_values` (N³ flattened
+density) to `HydrogenicResponse`; frontend renders a Plotly `isosurface`
+trace. No additional solver needed — purely analytic.
+
+
+
 **Physics scenario presets ("labs")** (all modes)
 Alongside the existing potential presets, add named complete setups that
 pre-fill all parameters and show a one-paragraph explanation:

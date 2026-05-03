@@ -85,6 +85,8 @@ export interface HydrogenicResponse {
   orbital_label: string
   sph_harm_x: number[]
   sph_harm_z: number[]
+  iso_axis: number[]
+  iso_values: number[]
 }
 export interface PauliMatrix {
   re: number[][]
