@@ -35,8 +35,8 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     const mount = mountRef.current
     if (!mount) return
 
-    const width  = mount.clientWidth
-    const height = mount.clientHeight
+    const width  = mount.clientWidth  || 420
+    const height = mount.clientHeight || 420
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -196,7 +196,8 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     // Resize observer
     const ro = new ResizeObserver(() => {
       if (!mount) return
-      const w = mount.clientWidth, h = mount.clientHeight
+      const w = mount.clientWidth  || 420
+      const h = mount.clientHeight || 420
       camera.aspect = w / h
       camera.updateProjectionMatrix()
       renderer.setSize(w, h)
