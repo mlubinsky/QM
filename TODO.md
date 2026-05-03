@@ -2,6 +2,19 @@
 
 ## In Progress
 
+### Spin ½ / Bloch Sphere usability and education improvements
+
+| # | Feature | File(s) | Status |
+|---|---------|---------|--------|
+| 5 | Degrees alongside radians on θ/φ sliders | SpinStateComposer.tsx | ✅ done 2026-05-03 |
+| 4 | Live \|ψ⟩ ket display with numerical α, β | SpinStateComposer.tsx | ✅ done 2026-05-03 |
+| 6 | Robertson uncertainty relation Δσₓ·Δσᵧ ≥ \|⟨σ_z⟩\| | SpinStateComposer.tsx | ✅ done 2026-05-03 |
+| 3 | Eigenstate dots at ±x, ±y on Bloch sphere | BlochSphere.tsx | ✅ done 2026-05-03 |
+| 1 | Projection lines from arrow tip to each axis | BlochSphere.tsx | ✅ done 2026-05-03 |
+| 8 | "Identical preparation" reset+measure button | SternGerlachPanel.tsx | ⬜ planned |
+| 2 | θ arc on sphere showing polar angle | BlochSphere.tsx | ⬜ planned |
+| 7 | Animated N-shot collapse sequence on sphere | BlochSphere.tsx + SternGerlachPanel.tsx | ⬜ planned |
+
 ## Planned
 
 ### Recommended implementation order (reviewed 2026-05-02)

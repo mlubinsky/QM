@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Improved (2026-05-03) — Spin ½ / Bloch Sphere: five usability and education improvements
+
+- **Degrees alongside radians** (`SpinStateComposer.tsx`): θ and φ slider labels now show both the radian value and the degree equivalent, e.g. `1.571 rad (90.0°)`.
+- **Live |ψ⟩ ket display** (`SpinStateComposer.tsx`): A monospace line below the expectation values shows the wavefunction `|ψ⟩ = α|↑⟩ + β|↓⟩` with current numerical α (real) and β (complex) updated in real time as sliders move.
+- **Robertson uncertainty relation** (`SpinStateComposer.tsx`): Displays `Δσₓ·Δσᵧ ≥ |⟨σ_z⟩|` with computed LHS and RHS values and a green ✓ / red ✗ indicator. Derived from `[σₓ, σᵧ] = 2iσ_z`; always satisfied for pure states.
+- **Eigenstate dots on sphere** (`BlochSphere.tsx`): Small dots at ±x and ±y poles with HTML labels `|+x⟩`, `|−x⟩`, `|+y⟩`, `|−y⟩`. The ±z poles already had `|↑⟩`/`|↓⟩` labels.
+- **Projection lines** (`BlochSphere.tsx`): Three colour-coded dashed lines drawn from the tip of the Bloch vector to the foot on each axis (red → x, green → y, blue → z), updated every render frame. Makes `⟨σ_z⟩ = cos θ` visually concrete.
+
+---
+
 ### Improved (2026-05-03) — Grotrian diagram: four usability and learning improvements
 
 - **Level hover tooltip** (`GrotrianDiagram.tsx`): Hovering any energy level now shows a tooltip with its quantum numbers, spectroscopic label, and energy in both Eh and eV (e.g. `n=3, ℓ=1 (3p)  E = −0.0556 Eh = −1.51 eV`).

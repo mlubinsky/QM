@@ -22,6 +22,9 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
   const arrowRef   = useRef<THREE.ArrowHelper | null>(null)
   const trajRef    = useRef<THREE.Line | null>(null)
   const mAxisRef   = useRef<THREE.Line | null>(null)
+  const projXRef   = useRef<THREE.Line | null>(null)
+  const projYRef   = useRef<THREE.Line | null>(null)
+  const projZRef   = useRef<THREE.Line | null>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const cameraRef  = useRef<THREE.PerspectiveCamera | null>(null)
   const controlsRef = useRef<OrbitControls | null>(null)
@@ -96,8 +99,12 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
       ['x', new THREE.Vector3(1.55, 0,    0),    '#e74c3c'],
       ['y', new THREE.Vector3(0,    0,    1.55), '#2ecc71'],
       ['z', new THREE.Vector3(0,    1.55, 0),    '#3498db'],
-      ['|↑⟩', new THREE.Vector3(0, 1.2,  0),    '#aaaaff'],
-      ['|↓⟩', new THREE.Vector3(0, -1.2, 0),    '#aaaaff'],
+      ['|↑⟩', new THREE.Vector3(0,  1.2,  0),   '#aaaaff'],
+      ['|↓⟩', new THREE.Vector3(0, -1.2,  0),   '#aaaaff'],
+      ['|+x⟩', new THREE.Vector3(1.15, 0,  0),  '#e74c3c'],
+      ['|−x⟩', new THREE.Vector3(-1.15, 0, 0),  '#e74c3c'],
+      ['|+y⟩', new THREE.Vector3(0, 0,  1.15),  '#2ecc71'],
+      ['|−y⟩', new THREE.Vector3(0, 0, -1.15),  '#2ecc71'],
     ]
 
     const labelEls: HTMLElement[] = []
@@ -110,6 +117,30 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
       mount.appendChild(el)
       labelEls.push(el)
     }
+
+    // Eigenstate dots at ±x, ±y (±z already shown via |↑⟩/|↓⟩ labels)
+    const dotGeo = new THREE.SphereGeometry(0.045, 8, 8)
+    const eigenstates: [number, number, number][] = [
+      [1, 0, 0], [-1, 0, 0],   // ±x in THREE = ±x physics
+      [0, 0, 1], [0, 0, -1],   // ±y physics maps to THREE (0,0,±1)
+    ]
+    for (const [ex, ey, ez] of eigenstates) {
+      const dot = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: 0xaaaaff }))
+      dot.position.set(ex, ey, ez)
+      scene.add(dot)
+    }
+
+    // Projection lines from arrow tip to each axis (updated per frame)
+    function makeProjLine(color: number) {
+      const geo = new THREE.BufferGeometry()
+      const line = new THREE.Line(geo,
+        new THREE.LineDashedMaterial({ color, dashSize: 0.06, gapSize: 0.04, transparent: true, opacity: 0.55 }))
+      scene.add(line)
+      return line
+    }
+    projXRef.current = makeProjLine(AXIS_COLOR.x)
+    projYRef.current = makeProjLine(AXIS_COLOR.y)
+    projZRef.current = makeProjLine(AXIS_COLOR.z)
 
     // State arrow (initial direction up)
     const arrow = new THREE.ArrowHelper(
@@ -182,7 +213,7 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     }
   }, [])
 
-  // ── Update state arrow when (theta, phi) change ───────────────────────────
+  // ── Update state arrow and projection lines when (theta, phi) change ────────
   useEffect(() => {
     const arrow = arrowRef.current
     if (!arrow) return
@@ -191,6 +222,17 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     const ry = Math.sin(theta) * Math.sin(phi)
     const rz = Math.cos(theta)
     arrow.setDirection(new THREE.Vector3(rx, rz, ry).normalize())
+
+    // Projection lines: tip → foot on each axis
+    const tip = new THREE.Vector3(rx, rz, ry)
+    function updateProj(line: THREE.Line | null, foot: THREE.Vector3) {
+      if (!line) return
+      line.geometry.setFromPoints([tip, foot])
+      line.computeLineDistances()
+    }
+    updateProj(projXRef.current, new THREE.Vector3(rx, 0, 0))
+    updateProj(projYRef.current, new THREE.Vector3(0, 0, ry))
+    updateProj(projZRef.current, new THREE.Vector3(0, rz, 0))
   }, [theta, phi])
 
   // ── Update trajectory arc ─────────────────────────────────────────────────

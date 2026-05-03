@@ -772,6 +772,42 @@
   margin-top: 2px;
 }
 
+.spin-ket {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-family: ui-monospace, monospace;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.spin-ket-label {
+  color: #888;
+  flex-shrink: 0;
+}
+
+.spin-uncertainty {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 0.76rem;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+.spin-uncertainty-label {
+  color: #888;
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .spin-value        { color: #bbb; }
+  .spin-expectation  { color: #bbb; }
+  .spin-ket          { color: #ccc; }
+  .spin-ket-label    { color: #777; }
+  .spin-uncertainty  { color: #bbb; }
+  .spin-uncertainty-label { color: #777; }
+}
+
 .spin-components {
   display: flex;
   flex-direction: column;
