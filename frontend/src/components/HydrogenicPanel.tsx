@@ -8,6 +8,7 @@ import { RadialDensityInfoPanel } from './RadialDensityInfoPanel'
 import { OrbitalDensityInfoPanel } from './OrbitalDensityInfoPanel'
 import { SphericalHarmonicInfoPanel } from './SphericalHarmonicInfoPanel'
 import { OrbitalIsosurface } from './OrbitalIsosurface'
+import { OrbitalIsosurfaceInfoPanel } from './OrbitalIsosurfaceInfoPanel'
 
 interface HydrogenicPanelProps {
   result: HydrogenicResponse
@@ -72,17 +73,19 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
   const [showRadialHelp, setShowRadialHelp] = useState(false)
   const [showOrbitalHelp, setShowOrbitalHelp] = useState(false)
   const [showSphHarmHelp, setShowSphHarmHelp] = useState(false)
+  const [showIsoHelp, setShowIsoHelp] = useState(false)
   const closeRadial = useCallback(() => setShowRadialHelp(false), [])
   const closeOrbital = useCallback(() => setShowOrbitalHelp(false), [])
   const closeSphHarm = useCallback(() => setShowSphHarmHelp(false), [])
+  const closeIso = useCallback(() => setShowIsoHelp(false), [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { closeRadial(); closeOrbital(); closeSphHarm() }
+      if (e.key === 'Escape') { closeRadial(); closeOrbital(); closeSphHarm(); closeIso() }
     }
-    if (showRadialHelp || showOrbitalHelp || showSphHarmHelp) window.addEventListener('keydown', onKey)
+    if (showRadialHelp || showOrbitalHelp || showSphHarmHelp || showIsoHelp) window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [showRadialHelp, showOrbitalHelp, showSphHarmHelp, closeRadial, closeOrbital, closeSphHarm])
+  }, [showRadialHelp, showOrbitalHelp, showSphHarmHelp, showIsoHelp, closeRadial, closeOrbital, closeSphHarm, closeIso])
 
   const maxR = Math.max(...result.r)
 
@@ -294,11 +297,16 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
         </div>
       </div>
 
-      <OrbitalIsosurface
-        isoAxis={result.iso_axis}
-        isoValues={result.iso_values}
-        orbitalLabel={result.orbital_label}
-      />
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 6, right: 8, zIndex: 1 }}>
+          <HelpButton onClick={() => setShowIsoHelp(true)} />
+        </div>
+        <OrbitalIsosurface
+          isoAxis={result.iso_axis}
+          isoValues={result.iso_values}
+          orbitalLabel={result.orbital_label}
+        />
+      </div>
 
       <GrotrianDiagram Z={Z} activeN={n} activeL={l} onSelectLevel={onSelectLevel} />
 
@@ -317,6 +325,12 @@ export function HydrogenicPanel({ result, Z, n, l, m, onSelectLevel }: Hydrogeni
       {showSphHarmHelp && (
         <PlotModal title="Spherical harmonic polar diagram — reference" onClose={closeSphHarm}>
           <SphericalHarmonicInfoPanel />
+        </PlotModal>
+      )}
+
+      {showIsoHelp && (
+        <PlotModal title="3D orbital isosurface — reference" onClose={closeIso}>
+          <OrbitalIsosurfaceInfoPanel />
         </PlotModal>
       )}
     </div>
