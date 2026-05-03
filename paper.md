@@ -18,6 +18,7 @@ affiliations:
     index: 1
 date: 2 May 2026
 bibliography: paper.bib
+archive_doi: 10.5281/zenodo.19991048
 ---
 
 # Summary
@@ -25,6 +26,9 @@ bibliography: paper.bib
 Schrödinger Solver is an open-source, browser-based tool for exploring
 quantum mechanics interactively across three complementary domains: one-dimensional
 wave mechanics, hydrogen-like atomic orbitals, and spin-½ dynamics.
+
+The source code is archived at Zenodo [@schrodinger_solver] and hosted
+at https://github.com/mlubinsky/QM.
 
 The backend is a Python REST API built with FastAPI [@fastapi] that exposes
 solvers for each domain. The frontend is a React [@react] single-page
