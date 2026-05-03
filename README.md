@@ -2,7 +2,10 @@
 
 A browser-based quantum mechanics explorer. Run the backend and frontend locally, choose a mode from the dropdown, and explore.
 
-![Stationary mode showing harmonic oscillator eigenfunctions and energy levels](docs/screenshot_stationary.png)
+![Stationary mode — harmonic oscillator eigenfunctions and energy levels](docs/stationary.png)
+![Time evolution — wave packet animated under a potential](docs/time_evolution.png)
+![Hydrogenic mode — radial eigenstates of hydrogen-like ions](docs/hydrogenic.png)
+![Spin mode — spin-½ state on the Bloch sphere](docs/spin.png)
 
 ---
 
