@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-03) — Spin: φ(t) clock dial in Precession panel
+
+- **φ clock dial** (`PrecessionControls.tsx`): A small SVG clock inset sits beside the Play/Reset buttons. The orange hand sweeps the azimuthal angle φ in real time during Larmor precession, with +x/+y/−x/−y tick labels and a live `φ = X°` readout. Makes the precession rate ω₀ visible at a glance without reading the frame counter.
+
+---
+
 ### Added (2026-05-03) — Spin: θ arc on Bloch sphere
 
 - **θ arc** (`BlochSphere.tsx`): A yellow dashed great-circle arc is drawn from the north pole (|↑⟩) to the current state vector, sweeping through angle θ. Computed via spherical linear interpolation (slerp) with 48 segments. A floating HTML label `θ = X°` tracks the arc midpoint as the camera rotates, giving a live readout of the polar angle.

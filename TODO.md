@@ -40,9 +40,9 @@ Ordered by priority within each group.
 Currently there is no keyboard control; students step through frames frequently
 during analysis.
 
-**Phase of Bloch vector as a clock** (spin Precession tab)
-Add a small inset showing φ(t) as a clock dial during Larmor precession
-animation. Makes the azimuthal precession rate ω₀ readable at a glance.
+**Phase of Bloch vector as a clock** (spin Precession tab) — ✅ done 2026-05-03
+φ(t) clock dial inset sits beside the Play/Reset buttons. Hand sweeps live
+during animation; label shows φ in degrees and current ω₀.
 
 ---
 

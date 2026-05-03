@@ -14,6 +14,46 @@ const N_FRAMES = 120
 
 type BPreset = 'x' | 'y' | 'z' | 'custom'
 
+// φ clock dial — hand points in the direction of the azimuthal angle
+function PhiClock({ phi, omega0 }: { phi: number; omega0: number }) {
+  const cx = 44, cy = 44, R = 30, HR = 22
+  const hx = cx + HR * Math.cos(phi)
+  const hy = cy - HR * Math.sin(phi)   // SVG y is down, so flip
+  const ticks: [number, string][] = [
+    [0,       '+x'],
+    [PI / 2,  '+y'],
+    [PI,      '−x'],
+    [3*PI/2,  '−y'],
+  ]
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, marginTop: 6 }}>
+      <svg width={88} height={88} style={{ display: 'block', overflow: 'visible' }}>
+        <circle cx={cx} cy={cy} r={R} fill="#0b0b14" stroke="#444" strokeWidth={1} />
+        {ticks.map(([a, lbl]) => {
+          const ix = cx + (R - 5) * Math.cos(a), iy = cy - (R - 5) * Math.sin(a)
+          const ox = cx +  R      * Math.cos(a), oy = cy -  R      * Math.sin(a)
+          const lx = cx + (R + 9) * Math.cos(a), ly = cy - (R + 9) * Math.sin(a)
+          return (
+            <g key={lbl}>
+              <line x1={ix} y1={iy} x2={ox} y2={oy} stroke="#555" strokeWidth={1.5} />
+              <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central"
+                fill="#777" fontSize={7} fontFamily="sans-serif">{lbl}</text>
+            </g>
+          )
+        })}
+        <line x1={cx} y1={cy} x2={hx} y2={hy}
+          stroke="#f39c12" strokeWidth={2.5} strokeLinecap="round" />
+        <circle cx={cx} cy={cy} r={3}   fill="#f39c12" />
+        <circle cx={hx} cy={hy} r={2.5} fill="#f39c12" />
+      </svg>
+      <div style={{ fontSize: '0.72rem', color: '#f39c12', textAlign: 'center', lineHeight: 1.4 }}>
+        φ = {(((phi % (2*PI)) + 2*PI) % (2*PI) * 180 / PI).toFixed(0)}°
+        <span style={{ color: '#888', marginLeft: 6 }}>ω₀ = {omega0.toFixed(1)}</span>
+      </div>
+    </div>
+  )
+}
+
 export function PrecessionControls({ theta, phi, onTrajectory, onFrame }: Props) {
   const [bPreset, setBPreset]   = useState<BPreset>('x')
   const [bTheta, setBTheta]     = useState(0)
@@ -141,12 +181,19 @@ export function PrecessionControls({ theta, phi, onTrajectory, onFrame }: Props)
       <p style={{ margin: '6px 0 4px', fontSize: '0.8rem', color: '#aaa', fontStyle: 'italic' }}>
         Animate spin vector precessing around B̂
       </p>
-      <div className="spin-playback">
-        <button className="spin-play-btn" onClick={() => setPlaying(p => !p)}>
-          {playing ? 'Pause' : 'Play'}
-        </button>
-        <button className="spin-play-btn" onClick={reset}>Reset</button>
-        <span className="spin-frame-counter">frame {frameIdx + 1} / {N_FRAMES}</span>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div className="spin-playback">
+            <button className="spin-play-btn" onClick={() => setPlaying(p => !p)}>
+              {playing ? 'Pause' : 'Play'}
+            </button>
+            <button className="spin-play-btn" onClick={reset}>Reset</button>
+          </div>
+          <span className="spin-frame-counter" style={{ marginTop: 4, display: 'block' }}>
+            frame {frameIdx + 1} / {N_FRAMES}
+          </span>
+        </div>
+        <PhiClock phi={phi} omega0={omega0} />
       </div>
     </fieldset>
   )
