@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Improved (2026-05-03) — Grotrian diagram: four usability and learning improvements
+
+- **Level hover tooltip** (`GrotrianDiagram.tsx`): Hovering any energy level now shows a tooltip with its quantum numbers, spectroscopic label, and energy in both Eh and eV (e.g. `n=3, ℓ=1 (3p)  E = −0.0556 Eh = −1.51 eV`).
+- **Y-axis unit toggle** (`GrotrianDiagram.tsx`): Added a pill button to switch the Y-axis between Hartree (Eh) and eV. Tick values and axis label update immediately.
+- **Emission color swatch in arrow tooltip** (`GrotrianDiagram.tsx`): Hovering an allowed transition arrow now shows a colored rectangle of the actual emission color alongside a UV/IR/visible label, making the wavelength→color connection concrete.
+- **n= row labels on right-side axis** (`GrotrianDiagram.tsx`): Replaced per-level `n=X` labels (which only appeared next to the rightmost level of each row) with a clean right-side column of aligned `n=1` … `n=5` labels at a fixed x position. SVG width increased from 500 to 530 px to accommodate.
+
+---
+
 ### Improved (2026-05-03) — Grotrian diagram: series filter buttons and click-to-deselect
 
 - **Spectral series filter** (`GrotrianDiagram.tsx`): Added four pill buttons — Lyman (→n=1), Balmer (→n=2), Paschen (→n=3), Brackett (→n=4) — above the toggle checkboxes. Clicking a button dims all arrows except those belonging to that series; clicking the active button again clears the filter. Selecting a series clears any level focus, and clicking a level clears the series filter.

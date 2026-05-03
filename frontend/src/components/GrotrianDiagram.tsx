@@ -12,6 +12,7 @@ interface TooltipState {
   lines: string[]
   x: number
   y: number
+  swatch?: { color: string; label: string }
 }
 
 const N_MAX = 5
@@ -48,12 +49,19 @@ function isReachable(nv: number, lv: number, fromN: number, fromL: number): bool
 }
 
 const SERIES_NAME: Record<number, string> = { 1: 'Lyman', 2: 'Balmer', 3: 'Paschen', 4: 'Brackett', 5: 'Pfund' }
+const EH_TO_EV = 27.2114
+
+function swatchForNm(nm: number): { color: string; label: string } {
+  if (nm < 380) return { color: '#9400d3', label: 'UV — not visible' }
+  if (nm > 700) return { color: '#8b0000', label: 'IR — not visible' }
+  return { color: wavelengthToColor(nm), label: 'visible light' }
+}
 
 export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: GrotrianDiagramProps) {
-  const SVG_W = 500
+  const SVG_W = 530
   const SVG_H = 400
   const PAD_L = 52
-  const PAD_R = 20
+  const PAD_R = 38
   const PAD_T = 24
   const PAD_B = 36
 
@@ -63,6 +71,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   const [focusN, setFocusN] = useState<number | null>(null)
   const [focusL, setFocusL] = useState<number | null>(null)
   const [focusSeries, setFocusSeries] = useState<number | null>(null)
+  const [yUnit, setYUnit] = useState<'Eh' | 'eV'>('Eh')
   const [showHelp, setShowHelp] = useState(false)
   const [showForbidden, setShowForbidden] = useState(false)
   const [showWavelengths, setShowWavelengths] = useState(false)
@@ -165,8 +174,8 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
         .length
     : 0
 
-  function showTooltip(lines: string[], e: React.MouseEvent) {
-    setTooltip({ lines, x: e.clientX, y: e.clientY })
+  function showTooltip(lines: string[], e: React.MouseEvent, swatch?: { color: string; label: string }) {
+    setTooltip({ lines, x: e.clientX, y: e.clientY, swatch })
   }
   function moveTooltip(e: React.MouseEvent) {
     setTooltip(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
@@ -196,6 +205,19 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           {tooltip.lines.map((line, i) => (
             <div key={i} style={i === 0 ? { fontWeight: 600 } : {}}>{line}</div>
           ))}
+          {tooltip.swatch && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <div style={{
+                width: 44, height: 11, borderRadius: 2,
+                background: tooltip.swatch.label.startsWith('UV') || tooltip.swatch.label.startsWith('IR')
+                  ? 'repeating-linear-gradient(45deg,#444 0,#444 3px,#333 3px,#333 6px)'
+                  : tooltip.swatch.color,
+                border: '1px solid #666',
+                flexShrink: 0,
+              }} />
+              <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{tooltip.swatch.label}</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -256,7 +278,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
       </div>
 
       {/* Toggle controls — placed under caption so they clearly belong to this diagram */}
-      <div style={{ display: 'flex', gap: 14, marginBottom: 4, paddingLeft: PAD_L, fontSize: '0.8rem', color: 'var(--text-h)' }}>
+      <div style={{ display: 'flex', gap: 14, marginBottom: 4, paddingLeft: PAD_L, fontSize: '0.8rem', color: 'var(--text-h)', flexWrap: 'wrap', alignItems: 'center' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', userSelect: 'none' }}>
           <input
             type="checkbox"
@@ -273,6 +295,17 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           />
           λ labels
         </label>
+        <button
+          type="button"
+          onClick={() => setYUnit(u => u === 'Eh' ? 'eV' : 'Eh')}
+          style={{
+            fontSize: '0.75rem', padding: '2px 8px', borderRadius: 10,
+            border: '1px solid #666', background: 'none',
+            color: 'var(--text-h)', cursor: 'pointer',
+          }}
+        >
+          Y-axis: {yUnit === 'Eh' ? 'Eh → eV' : 'eV → Eh'}
+        </button>
       </div>
 
       {/* Focus status — shown only after a level is clicked */}
@@ -298,17 +331,21 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
           fontSize={11}
           fill="currentColor"
         >
-          Energy (Eh)
+          {yUnit === 'Eh' ? 'Energy (Eh)' : 'Energy (eV)'}
         </text>
 
         {/* Y-axis ticks */}
         {Array.from({ length: N_MAX }, (_, i) => i + 1).map(nv => {
           const y = yFromE(energy(nv))
+          const eHartree = energy(nv)
+          const tickVal = yUnit === 'Eh'
+            ? eHartree.toFixed(3)
+            : (eHartree * EH_TO_EV).toFixed(1)
           return (
             <g key={nv}>
               <line x1={PAD_L - 5} y1={y} x2={PAD_L} y2={y} stroke="#555" strokeWidth={0.8} />
               <text x={PAD_L - 7} y={y + 4} textAnchor="end" fontSize={9} fill="currentColor">
-                {energy(nv).toFixed(2)}
+                {tickVal}
               </text>
             </g>
           )
@@ -389,12 +426,13 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             `λ = ${Math.round(nm)} nm · ΔE = ${deltaE_eV.toFixed(2)} eV`,
             `${series} series`,
           ]
+          const swatch = swatchForNm(nm)
           return (
             <g
               key={i}
               opacity={opacity}
               style={{ transition: 'opacity 0.15s', cursor: 'default' }}
-              onMouseEnter={e => showTooltip(lines, e)}
+              onMouseEnter={e => showTooltip(lines, e, swatch)}
               onMouseMove={moveTooltip}
               onMouseLeave={hideTooltip}
             >
@@ -437,12 +475,20 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             if (isSolved) { stroke = '#4a9eff'; strokeWidth = 2.5 }
             if (reachable) { stroke = '#7ddf7d'; strokeWidth = 2.2 }
 
+            const eHartree = energy(nv)
+            const levelLines = [
+              `n=${nv}, ℓ=${lv} (${nv}${L_LABELS[lv]})`,
+              `E = ${eHartree.toFixed(4)} Eh = ${(eHartree * EH_TO_EV).toFixed(2)} eV`,
+            ]
             return (
               <g
                 key={`${nv}-${lv}`}
                 style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
                 opacity={opacity}
                 onClick={() => handleLevelClick(nv, lv)}
+                onMouseEnter={e => showTooltip(levelLines, e)}
+                onMouseMove={moveTooltip}
+                onMouseLeave={hideTooltip}
               >
                 <line
                   x1={x - colW / 2} y1={y}
@@ -450,11 +496,6 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
                   stroke={stroke}
                   strokeWidth={strokeWidth}
                 />
-                {lv === nv - 1 && (
-                  <text x={x + colW / 2 + 4} y={y + 4} fontSize={9} fill="#888">
-                    n={nv}
-                  </text>
-                )}
                 {/* Metastable marker — hover for explanation */}
                 {isMetastable && (
                   <circle
@@ -480,6 +521,21 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             )
           })
         )}
+
+        {/* n= row labels — right-side axis, one per energy row */}
+        {Array.from({ length: N_MAX }, (_, i) => i + 1).map(nv => (
+          <text
+            key={`nlabel-${nv}`}
+            x={SVG_W - 4}
+            y={yFromE(energy(nv)) + 4}
+            textAnchor="end"
+            fontSize={9}
+            fill="currentColor"
+            opacity={0.7}
+          >
+            n={nv}
+          </text>
+        ))}
       </svg>
 
       {/* Legend */}
