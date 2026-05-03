@@ -12,7 +12,7 @@
 | 3 | Eigenstate dots at ±x, ±y on Bloch sphere | BlochSphere.tsx | ✅ done 2026-05-03 |
 | 1 | Projection lines from arrow tip to each axis | BlochSphere.tsx | ✅ done 2026-05-03 |
 | 8 | "Identical preparation" reset+measure button | SternGerlachPanel.tsx | ✅ done 2026-05-03 |
-| 2 | θ arc on sphere showing polar angle | BlochSphere.tsx | ⬜ planned |
+| 2 | θ arc on sphere showing polar angle | BlochSphere.tsx | ✅ done 2026-05-03 |
 | 7 | Animated N-shot collapse sequence on sphere | BlochSphere.tsx + SternGerlachPanel.tsx | ⬜ planned |
 
 ## Planned

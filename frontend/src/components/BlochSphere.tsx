@@ -22,9 +22,12 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
   const arrowRef   = useRef<THREE.ArrowHelper | null>(null)
   const trajRef    = useRef<THREE.Line | null>(null)
   const mAxisRef   = useRef<THREE.Line | null>(null)
-  const projXRef   = useRef<THREE.Line | null>(null)
-  const projYRef   = useRef<THREE.Line | null>(null)
-  const projZRef   = useRef<THREE.Line | null>(null)
+  const projXRef    = useRef<THREE.Line | null>(null)
+  const projYRef    = useRef<THREE.Line | null>(null)
+  const projZRef    = useRef<THREE.Line | null>(null)
+  const arcLineRef  = useRef<THREE.Line | null>(null)
+  const arcMidVec   = useRef(new THREE.Vector3(0, 1.18, 0))
+  const arcThetaRef = useRef(0)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const cameraRef  = useRef<THREE.PerspectiveCamera | null>(null)
   const controlsRef = useRef<OrbitControls | null>(null)
@@ -175,6 +178,20 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     scene.add(mAxisLine)
     mAxisRef.current = mAxisLine
 
+    // θ arc — great-circle arc from north pole to state vector
+    const arcGeo = new THREE.BufferGeometry()
+    const arcLine = new THREE.Line(arcGeo,
+      new THREE.LineDashedMaterial({ color: 0xffff88, dashSize: 0.05, gapSize: 0.03, transparent: true, opacity: 0.9 }))
+    scene.add(arcLine)
+    arcLineRef.current = arcLine
+
+    // θ arc HTML label (positioned each frame in animate loop)
+    const arcLabelEl = document.createElement('div')
+    arcLabelEl.style.cssText = `position:absolute;color:#ffff88;font-size:0.72rem;
+      font-family:sans-serif;pointer-events:none;user-select:none;
+      text-shadow:0 1px 3px #000;white-space:nowrap;`
+    mount.appendChild(arcLabelEl)
+
     // Render loop
     function animate() {
       frameIdRef.current = requestAnimationFrame(animate)
@@ -188,6 +205,18 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
         labelEls[i].style.left = `${x - 10}px`
         labelEls[i].style.top  = `${y - 10}px`
       })
+
+      // θ arc label — follows arc midpoint as camera rotates
+      if (arcThetaRef.current > 0.02) {
+        const ap = arcMidVec.current.clone().project(camera)
+        const ax = (ap.x *  0.5 + 0.5) * width
+        const ay = (ap.y * -0.5 + 0.5) * height
+        arcLabelEl.style.left = `${ax + 4}px`
+        arcLabelEl.style.top  = `${ay - 8}px`
+        arcLabelEl.textContent = `θ = ${(arcThetaRef.current * 180 / Math.PI).toFixed(0)}°`
+      } else {
+        arcLabelEl.textContent = ''
+      }
 
       renderer.render(scene, camera)
     }
@@ -210,6 +239,7 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
       renderer.dispose()
       mount.removeChild(renderer.domElement)
       labelEls.forEach(el => mount.removeChild(el))
+      mount.removeChild(arcLabelEl)
     }
   }, [])
 
@@ -233,6 +263,30 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     updateProj(projXRef.current, new THREE.Vector3(rx, 0, 0))
     updateProj(projYRef.current, new THREE.Vector3(0, 0, ry))
     updateProj(projZRef.current, new THREE.Vector3(0, rz, 0))
+
+    // θ arc — great-circle slerp from north pole (0,1,0) to state vector
+    arcThetaRef.current = theta
+    const arcLine = arcLineRef.current
+    if (arcLine) {
+      if (theta < 0.02) {
+        arcLine.geometry.setFromPoints([])
+      } else {
+        const north    = new THREE.Vector3(0, 1, 0)
+        const stateVec = new THREE.Vector3(rx, rz, ry)
+        const sinTheta = Math.sin(theta)
+        const N_ARC    = 48
+        const arcPoints: THREE.Vector3[] = []
+        for (let i = 0; i <= N_ARC; i++) {
+          const t = i / N_ARC
+          const p = north.clone().multiplyScalar(Math.sin((1 - t) * theta) / sinTheta)
+            .add(stateVec.clone().multiplyScalar(Math.sin(t * theta) / sinTheta))
+          arcPoints.push(p)
+        }
+        arcLine.geometry.setFromPoints(arcPoints)
+        arcLine.computeLineDistances()
+        arcMidVec.current = arcPoints[Math.floor(N_ARC / 2)].clone().multiplyScalar(1.18)
+      }
+    }
   }, [theta, phi])
 
   // ── Update trajectory arc ─────────────────────────────────────────────────
