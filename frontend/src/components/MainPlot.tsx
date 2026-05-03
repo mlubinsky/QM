@@ -3,6 +3,13 @@ import _Plot from 'react-plotly.js'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Plot = (_Plot as any).default ?? _Plot
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
+import { classicalProbabilityDensity } from '../utils/classicalMechanics'
+
+// Plotly default color cycle (D3 category10) — used to match P_cl trace to its ψ trace.
+const PLOTLY_COLORS = [
+  '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+  '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+]
 
 interface MainPlotProps {
   mode: AppMode
@@ -10,6 +17,7 @@ interface MainPlotProps {
   evolveResult: EvolveResponse | null
   currentFrame: number
   showPhase?: boolean
+  showClassical?: boolean
 }
 
 // Count sign-changes in the interior of wf (excludes boundary zeros from Dirichlet BCs)
@@ -22,7 +30,7 @@ function countNodes(wf: number[]): number {
   return count
 }
 
-export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, showPhase = false }: MainPlotProps) {
+export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, showPhase = false, showClassical = false }: MainPlotProps) {
   const traces: Plotly.Data[] = []
 
   if (mode === 'stationary' && eigenResult) {
@@ -66,6 +74,32 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, showPh
         type: 'scatter',
       })
     })
+
+    // Classical probability density overlay P_cl(x) — one trace per eigenstate.
+    // Scaled so the 90th-percentile of P_cl matches max(|ψ|²), then offset by E.
+    // The 90th-percentile cap prevents the turning-point divergence from dominating.
+    if (showClassical) {
+      wavefunctions.forEach((wf, i) => {
+        const pCl = classicalProbabilityDensity(potential, energies[i], eigenResult.dx)
+        const nonZero = pCl.filter(v => v > 0).sort((a, b) => a - b)
+        if (nonZero.length === 0) return   // no classically allowed region
+
+        const p90 = nonZero[Math.floor(nonZero.length * 0.9)]
+        const maxWfSq = Math.max(...wf.map(v => v * v))
+        const scale = maxWfSq / p90
+
+        const color = PLOTLY_COLORS[i % PLOTLY_COLORS.length]
+        traces.push({
+          x: grid_x,
+          y: pCl.map(p => scale * p + energies[i]),
+          name: `P_cl ${i + 1}`,
+          type: 'scatter',
+          mode: 'lines',
+          line: { dash: 'dot', width: 1.5, color },
+          opacity: 0.6,
+        } as Plotly.Data)
+      })
+    }
   }
 
   if (mode === 'time-evolution' && evolveResult) {

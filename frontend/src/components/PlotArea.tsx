@@ -39,6 +39,7 @@ export function PlotArea({
 }: PlotAreaProps) {
   const [copied, setCopied] = useState(false)
   const [showPhase, setShowPhase] = useState(false)
+  const [showClassical, setShowClassical] = useState(false)
   const [showNodeInfo, setShowNodeInfo] = useState(false)
   const [showEnergyInfo, setShowEnergyInfo] = useState(false)
   const result = mode === 'stationary' ? eigenResult : evolveResult
@@ -237,6 +238,29 @@ export function PlotArea({
         </div>
       )}
 
+      {mode === 'stationary' && (
+        <div className="phase-toggle-row">
+          <label className="phase-toggle-label">
+            <input
+              type="checkbox"
+              checked={showClassical}
+              onChange={e => setShowClassical(e.target.checked)}
+            />
+            {' '}Show classical P(x)
+          </label>
+          {showClassical && (
+            <p className="phase-toggle-note">
+              The dotted curve shows where a <strong>classical</strong> particle at the
+              same energy would spend its time. It spends more time near the{' '}
+              <strong>turning points</strong> (where it slows to rest) and less time
+              near the centre (where it moves fastest). For large n, the quantum
+              probability |ψₙ|² smooths out to match this classical distribution —
+              the <strong>correspondence principle</strong>.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Zero-height row — positions ? button over the plot top-right without consuming flex space */}
       {mode === 'stationary' && (
         <div style={{ height: 0, position: 'relative', overflow: 'visible' }}>
@@ -253,6 +277,7 @@ export function PlotArea({
         evolveResult={evolveResult}
         currentFrame={currentFrame}
         showPhase={showPhase}
+        showClassical={showClassical}
       />
 
       {mode === 'time-evolution' && (
