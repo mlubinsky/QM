@@ -35,8 +35,8 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     const mount = mountRef.current
     if (!mount) return
 
-    const width  = mount.clientWidth  || 420
-    const height = mount.clientHeight || 420
+    const width  = mount.clientWidth || 420
+    const height = width
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -71,9 +71,9 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(1, 48, 48),
       new THREE.MeshStandardMaterial({
-        color: SPHERE_COLOR,
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.13,
+        opacity: 0.08,
         side: THREE.DoubleSide,
       })
     )
@@ -82,7 +82,7 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     // Wireframe equator + meridians
     const wireframe = new THREE.Mesh(
       new THREE.SphereGeometry(1, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true, transparent: true, opacity: 0.12 })
+      new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.45 })
     )
     scene.add(wireframe)
 
@@ -196,11 +196,10 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
     // Resize observer
     const ro = new ResizeObserver(() => {
       if (!mount) return
-      const w = mount.clientWidth  || 420
-      const h = mount.clientHeight || 420
-      camera.aspect = w / h
+      const w = mount.clientWidth || 420
+      camera.aspect = 1
       camera.updateProjectionMatrix()
-      renderer.setSize(w, h)
+      renderer.setSize(w, w)
     })
     ro.observe(mount)
 
@@ -267,7 +266,7 @@ export function BlochSphere({ theta, phi, trajectory, measureAxis }: BlochSphere
   return (
     <div
       ref={mountRef}
-      style={{ width: '100%', height: '100%', position: 'relative', background: '#1a1a2e', borderRadius: 8 }}
+      style={{ width: '100%', position: 'relative', background: '#000000', borderRadius: 8 }}
     />
   )
 }
