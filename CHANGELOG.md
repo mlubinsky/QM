@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-03) — Spin: identical preparation experiment
+
+- **"Lock |ψ⟩ as prep state" button** (`SternGerlachPanel.tsx`): Saves the current Bloch vector as the preparation state. A subsequent "Measure N times from |prep⟩" button runs all N trials from that *same* state (not the post-collapse state), accumulating a histogram entirely client-side. After all shots the sphere resets to the preparation state. A note explains that identical preparations still produce random outcomes — quantum randomness is irreducible, not a one-time event.
+
+---
+
 ### Improved (2026-05-03) — Spin ½ / Bloch Sphere: five usability and education improvements
 
 - **Degrees alongside radians** (`SpinStateComposer.tsx`): θ and φ slider labels now show both the radian value and the degree equivalent, e.g. `1.571 rad (90.0°)`.

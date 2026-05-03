@@ -131,6 +131,46 @@ function MeasurementHistory({ history, onClear }: {
   )
 }
 
+interface PrepResult {
+  plus: number
+  minus: number
+  total: number
+  pExact: number
+}
+
+function PrepHistogram({ result, axis }: { result: PrepResult; axis: string }) {
+  const maxCount = Math.max(result.plus, result.minus, 1)
+  return (
+    <div className="sg-histogram">
+      <div className="sg-hist-bar-wrap">
+        <div className="sg-hist-label">+½</div>
+        <div className="sg-hist-track">
+          <div className="sg-hist-fill sg-prob-plus"
+            style={{ width: `${(result.plus / maxCount) * 100}%` }} />
+        </div>
+        <div className="sg-hist-count">{result.plus}</div>
+      </div>
+      <div className="sg-hist-bar-wrap">
+        <div className="sg-hist-label">−½</div>
+        <div className="sg-hist-track">
+          <div className="sg-hist-fill sg-prob-minus"
+            style={{ width: `${(result.minus / maxCount) * 100}%` }} />
+        </div>
+        <div className="sg-hist-count">{result.minus}</div>
+      </div>
+      <div className="sg-hist-note">
+        exact P(+½) along {axis} = {(result.pExact * 100).toFixed(2)}%
+        &nbsp;·&nbsp;observed {(result.plus / result.total * 100).toFixed(1)}%
+      </div>
+      <p className="sg-history-note" style={{ marginTop: 4 }}>
+        Each of the {result.total} trials started from the <em>same</em> preparation
+        state — yet outcomes differ. Quantum randomness is irreducible: no hidden
+        variable determines the result in advance.
+      </p>
+    </div>
+  )
+}
+
 export function SternGerlachPanel({ theta, phi, onCollapse }: Props) {
   const [axisPreset, setAxisPreset] = useState<AxisPreset>('z')
   const [customTheta, setCustomTheta] = useState(PI / 4)
@@ -139,6 +179,8 @@ export function SternGerlachPanel({ theta, phi, onCollapse }: Props) {
   const [shotResult, setShotResult]   = useState<SpinMeasureResponse | null>(null)
   const [loading, setLoading]         = useState(false)
   const [history, setHistory]         = useState<MeasurementRecord[]>([])
+  const [prepState, setPrepState]     = useState<{ theta: number; phi: number } | null>(null)
+  const [prepResult, setPrepResult]   = useState<PrepResult | null>(null)
 
   const axis = axisVec(axisPreset, customTheta, customPhi)
   const label = axisLabel(axisPreset, customTheta, customPhi)
@@ -155,6 +197,23 @@ export function SternGerlachPanel({ theta, phi, onCollapse }: Props) {
     setHistory(h => [...h, { axisLabel: label, pPlus, outcome }])
     const { theta: t, phi: p } = collapseState(axis, outcome)
     onCollapse(t, p)
+  }
+
+  function handleSetPrep() {
+    setPrepState({ theta, phi })
+    setPrepResult(null)
+  }
+
+  function handleMeasureFromPrep() {
+    if (!prepState) return
+    const prx = Math.sin(prepState.theta) * Math.cos(prepState.phi)
+    const pry = Math.sin(prepState.theta) * Math.sin(prepState.phi)
+    const prz = Math.cos(prepState.theta)
+    const p = Math.max(0, Math.min(1, (1 + axis[0]*prx + axis[1]*pry + axis[2]*prz) / 2))
+    let plus = 0
+    for (let i = 0; i < nShots; i++) { if (Math.random() < p) plus++ }
+    setPrepResult({ plus, minus: nShots - plus, total: nShots, pExact: p })
+    onCollapse(prepState.theta, prepState.phi)
   }
 
   async function handleRunShots() {
@@ -214,6 +273,35 @@ export function SternGerlachPanel({ theta, phi, onCollapse }: Props) {
       </div>
 
       {shotResult && <Histogram result={shotResult} />}
+
+      <hr style={{ border: 'none', borderTop: '1px solid #444', margin: '8px 0' }} />
+
+      <div style={{ fontSize: '0.78rem', fontStyle: 'italic', color: 'var(--text)', marginBottom: 4 }}>
+        Identical preparation — measure the same state N times
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        <button className="spin-play-btn" onClick={handleSetPrep}>
+          Lock |ψ⟩ as prep state
+        </button>
+        {prepState && (
+          <span style={{ fontSize: '0.75rem', color: 'var(--text)' }}>
+            |prep⟩: θ={prepState.theta.toFixed(3)}, φ={prepState.phi.toFixed(3)}
+          </span>
+        )}
+      </div>
+
+      {prepState && (
+        <button
+          className="spin-play-btn sg-measure-btn"
+          style={{ marginTop: 4 }}
+          onClick={handleMeasureFromPrep}
+        >
+          Measure {nShots} times from |prep⟩
+        </button>
+      )}
+
+      {prepResult && <PrepHistogram result={prepResult} axis={label} />}
     </fieldset>
   )
 }
