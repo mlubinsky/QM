@@ -680,7 +680,10 @@
 
 .spin-sphere-wrap {
   flex: 1;
-  min-height: 500px;
+  aspect-ratio: 1 / 1;
+  min-width: 300px;
+  max-width: 560px;
+  align-self: flex-start;
   border-radius: 8px;
   overflow: hidden;
 }
