@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Improved (2026-05-03) — Grotrian diagram: series filter buttons and click-to-deselect
+
+- **Spectral series filter** (`GrotrianDiagram.tsx`): Added four pill buttons — Lyman (→n=1), Balmer (→n=2), Paschen (→n=3), Brackett (→n=4) — above the toggle checkboxes. Clicking a button dims all arrows except those belonging to that series; clicking the active button again clears the filter. Selecting a series clears any level focus, and clicking a level clears the series filter.
+- **Click-to-deselect** (`GrotrianDiagram.tsx`): Clicking an already-focused level now clears the focus state (restores all levels and arrows to full opacity) instead of doing nothing.
+
+---
+
+
 ### Added (2026-05-02) — 3D orbital isosurface viewer
 
 - **`orbital_isosurface(n, l, m, Z, grid_size=30)`** (`backend/solvers/hydrogenic/orbitals.py`): New function computing the analytic |ψ_nlm(x,y,z)|² on a uniform 3-D grid using the associated Laguerre and spherical harmonic formulas from SciPy. Returns a 1-D symmetric axis list and a flattened N³ probability density array.

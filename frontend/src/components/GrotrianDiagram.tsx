@@ -62,6 +62,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
 
   const [focusN, setFocusN] = useState<number | null>(null)
   const [focusL, setFocusL] = useState<number | null>(null)
+  const [focusSeries, setFocusSeries] = useState<number | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [showForbidden, setShowForbidden] = useState(false)
   const [showWavelengths, setShowWavelengths] = useState(false)
@@ -72,6 +73,7 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   useEffect(() => {
     setFocusN(activeN)
     setFocusL(activeL)
+    setFocusSeries(null)
   }, [activeN, activeL])
 
   useEffect(() => {
@@ -125,24 +127,33 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
   }, [])
 
   function handleLevelClick(nv: number, lv: number) {
+    if (nv === focusN && lv === focusL) {
+      setFocusN(null)
+      setFocusL(null)
+      return
+    }
     setFocusN(nv)
     setFocusL(lv)
+    setFocusSeries(null)
     onSelectLevel?.(nv, lv)
   }
 
   function levelOpacity(nv: number, lv: number): number {
+    if (focusSeries !== null) return 1
     if (!hasFocus) return 1
     if (nv === focusN && lv === focusL) return 1
     return isReachable(nv, lv, focusN!, focusL!) ? 1 : 0.18
   }
 
   function allowedArrowOpacity(nUp: number, lUp: number, nLo: number, lLo: number): number {
+    if (focusSeries !== null) return nLo === focusSeries ? 0.9 : 0.08
     if (!hasFocus) return 0.65
     const fromFocus = nUp === focusN && lUp === focusL && isReachable(nLo, lLo, focusN!, focusL!)
     return fromFocus ? 0.9 : 0.1
   }
 
   function forbiddenArrowOpacity(nUp: number, lUp: number): number {
+    if (focusSeries !== null) return 0.15
     if (!hasFocus) return 0.35
     return nUp === focusN && lUp === focusL ? 0.55 : 0.08
   }
@@ -212,6 +223,36 @@ export function GrotrianDiagram({ Z, activeN, activeL, onSelectLevel }: Grotrian
             flexShrink: 0,
           }}
         >?</button>
+      </div>
+
+      {/* Spectral series filter */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 6, paddingLeft: PAD_L, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-h)', opacity: 0.7 }}>Series:</span>
+        {([1, 2, 3, 4] as const).map(nLo => {
+          const active = focusSeries === nLo
+          return (
+            <button
+              key={nLo}
+              type="button"
+              onClick={() => {
+                setFocusSeries(active ? null : nLo)
+                if (!active) { setFocusN(null); setFocusL(null) }
+              }}
+              style={{
+                fontSize: '0.75rem',
+                padding: '2px 8px',
+                borderRadius: 10,
+                border: '1px solid',
+                borderColor: active ? 'var(--accent)' : '#666',
+                background: active ? 'var(--accent-bg)' : 'none',
+                color: active ? 'var(--accent)' : 'var(--text-h)',
+                cursor: 'pointer',
+              }}
+            >
+              {SERIES_NAME[nLo]} (→n={nLo})
+            </button>
+          )
+        })}
       </div>
 
       {/* Toggle controls — placed under caption so they clearly belong to this diagram */}
