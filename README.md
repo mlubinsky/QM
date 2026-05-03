@@ -5,6 +5,7 @@ A browser-based quantum mechanics explorer. Run the backend and frontend locally
 ![Stationary mode — harmonic oscillator eigenfunctions and energy levels](docs/stationary.png)
 ![Time evolution — wave packet animated under a potential](docs/time_evolution.png)
 ![Hydrogenic mode — radial eigenstates of hydrogen-like ions](docs/hydrogenic.png)
+![Grotrian diagram — allowed and forbidden transitions with selection rules](docs/grotrian.png)
 ![Spin mode — spin-½ state on the Bloch sphere](docs/spin.png)
 
 ---
