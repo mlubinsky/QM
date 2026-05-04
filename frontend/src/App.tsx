@@ -98,24 +98,46 @@ export default function App() {
     speed: 1,
   }))
 
-  // Keep a ref in sync with the current frame so the interval callback can
-  // read the latest value without being a dep (avoids recreating the interval
-  // on every frame tick).
+  const [loop, setLoop] = useState(true)
+
+  // Refs let the rAF callback read the latest values without being listed as
+  // deps — avoids restarting the loop on every frame tick.
   const currentFrameRef = useRef(state.currentFrame)
   currentFrameRef.current = state.currentFrame
+  const loopRef = useRef(loop)
+  loopRef.current = loop
 
-  // Advance animation frame when playing
+  // Advance animation via requestAnimationFrame — locks to monitor refresh
+  // rate and auto-pauses when the tab is hidden, unlike setInterval.
   useEffect(() => {
     if (!state.playing || !state.evolveResult) return
     const nFrames = state.evolveResult.prob_frames.length
-    const delay = Math.round(100 / (state.speed ?? 1))
-    const id = setInterval(() => {
-      dispatch({
-        type: 'SET_FRAME',
-        frame: (currentFrameRef.current + 1) % nFrames,
-      })
-    }, delay)
-    return () => clearInterval(id)
+    const msPerFrame = 1000 / (10 * (state.speed ?? 1))
+
+    let lastTimestamp: number | null = null
+    let rafId: number
+
+    const tick = (timestamp: number) => {
+      if (lastTimestamp === null) lastTimestamp = timestamp
+      if (timestamp - lastTimestamp >= msPerFrame) {
+        lastTimestamp = timestamp
+        const next = currentFrameRef.current + 1
+        if (next >= nFrames) {
+          if (loopRef.current) {
+            dispatch({ type: 'SET_FRAME', frame: 0 })
+          } else {
+            dispatch({ type: 'TOGGLE_PLAY' })
+            return
+          }
+        } else {
+          dispatch({ type: 'SET_FRAME', frame: next })
+        }
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
   }, [state.playing, state.evolveResult, state.speed])
 
   async function handleSolve(params: Record<string, unknown>) {
@@ -326,9 +348,11 @@ export default function App() {
                     potentialPreset={state.potentialPreset}
                     currentFrame={state.currentFrame}
                     playing={state.playing}
+                    loop={loop}
                     onFrameChange={frame => dispatch({ type: 'SET_FRAME', frame })}
                     onPlayPause={() => dispatch({ type: 'TOGGLE_PLAY' })}
                     onSpeedChange={speed => dispatch({ type: 'SET_SPEED', speed })}
+                    onLoopToggle={() => setLoop(l => !l)}
                     speed={state.speed}
                   />
                 )

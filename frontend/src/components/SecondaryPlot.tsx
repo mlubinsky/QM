@@ -12,9 +12,10 @@ interface SecondaryPlotProps {
   eigenResult: EigensolveResponse | null
   evolveResult: EvolveResponse | null
   potentialPreset?: string | null
+  currentTime?: number
 }
 
-export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset }: SecondaryPlotProps) {
+export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset, currentTime }: SecondaryPlotProps) {
   const potentialInfo = potentialPreset ? POTENTIALS[potentialPreset] : null
   const hasBoundStates = potentialInfo?.has_bound_states ?? true
 
@@ -77,16 +78,29 @@ export function SecondaryPlot({ mode, eigenResult, evolveResult, potentialPreset
     })
   }
 
+  const shapes: Partial<Plotly.Shape>[] = []
+  if (mode === 'time-evolution' && currentTime !== undefined) {
+    shapes.push({
+      type: 'line',
+      x0: currentTime, x1: currentTime,
+      y0: 0, y1: 1,
+      xref: 'x', yref: 'paper',
+      line: { color: 'rgba(100,100,100,0.5)', dash: 'dot', width: 1.5 },
+    } as Partial<Plotly.Shape>)
+  }
+
   const layout: Partial<Plotly.Layout> = {
     title: { text: mode === 'stationary' ? 'Energy Levels' : 'Norm History' },
     autosize: true,
     margin: { t: 36, b: 44, l: 56, r: 12 },
     xaxis: { title: { text: mode === 'stationary' ? 'x (a.u.)' : 't (a.u.)' } },
     yaxis: { title: { text: mode === 'stationary' ? 'Energy (a.u.)' : '‖ψ(t)‖² − 1' } },
+    shapes,
   }
 
   return (
     <Plot
+      data-testid="secondary-plot"
       data={traces}
       layout={layout}
       style={{ width: '100%', height: '100%' }}

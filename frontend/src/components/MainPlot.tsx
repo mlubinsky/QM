@@ -126,6 +126,20 @@ export function MainPlot({ mode, eigenResult, evolveResult, currentFrame, showPh
       type: 'scatter',
     })
 
+    const expectX = evolveResult.expect_x[currentFrame]
+    if (expectX !== undefined && isFinite(expectX)) {
+      const yMax = Math.max(...frame) * 1.1
+      traces.push({
+        x: [expectX, expectX],
+        y: [0, yMax],
+        name: '⟨x⟩',
+        type: 'scatter',
+        mode: 'lines',
+        line: { color: 'rgba(220,50,50,0.8)', dash: 'dash', width: 1.5 },
+        hovertemplate: '⟨x⟩ = %{x:.3f} a.u.<extra></extra>',
+      } as Plotly.Data)
+    }
+
     if (showPhase && re_frames && im_frames) {
       const re = re_frames[currentFrame] ?? re_frames[0]
       const im = im_frames[currentFrame] ?? im_frames[0]

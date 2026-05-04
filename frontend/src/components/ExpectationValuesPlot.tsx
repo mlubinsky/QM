@@ -6,9 +6,10 @@ import type { EvolveResponse } from '../types/api'
 
 interface Props {
   evolveResult: EvolveResponse | null
+  currentTime?: number
 }
 
-export function ExpectationValuesPlot({ evolveResult }: Props) {
+export function ExpectationValuesPlot({ evolveResult, currentTime }: Props) {
   if (!evolveResult) return null
 
   const { times, expect_x, expect_p, delta_x, delta_p, delta_x_delta_p } = evolveResult
@@ -71,6 +72,17 @@ export function ExpectationValuesPlot({ evolveResult }: Props) {
     } as Plotly.Data,
   ]
 
+  const cursorShapes: Partial<Plotly.Shape>[] = currentTime !== undefined
+    ? [
+        { type: 'line', x0: currentTime, x1: currentTime, y0: 0, y1: 1,
+          xref: 'x',  yref: 'y domain',
+          line: { color: 'rgba(100,100,100,0.5)', dash: 'dot', width: 1.5 } } as Partial<Plotly.Shape>,
+        { type: 'line', x0: currentTime, x1: currentTime, y0: 0, y1: 1,
+          xref: 'x2', yref: 'y2 domain',
+          line: { color: 'rgba(100,100,100,0.5)', dash: 'dot', width: 1.5 } } as Partial<Plotly.Shape>,
+      ]
+    : []
+
   const layout: Partial<Plotly.Layout> = {
     grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'top to bottom' },
     autosize: true,
@@ -81,6 +93,7 @@ export function ExpectationValuesPlot({ evolveResult }: Props) {
     xaxis2: { title: { text: 't (a.u.)' } },
     yaxis2: { title: { text: 'uncertainty (a.u.)' } },
     legend: { orientation: 'h', y: -0.12 },
+    shapes: cursorShapes,
     annotations: [
       { text: 'Expectation values', xref: 'paper', yref: 'paper', x: 0.5, y: 1.04,
         xanchor: 'center', yanchor: 'bottom', showarrow: false,

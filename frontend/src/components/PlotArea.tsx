@@ -20,9 +20,11 @@ interface PlotAreaProps {
   currentFrame: number
   playing: boolean
   speed?: number
+  loop?: boolean
   onFrameChange: (frame: number) => void
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
+  onLoopToggle?: () => void
 }
 
 export function PlotArea({
@@ -33,10 +35,13 @@ export function PlotArea({
   currentFrame,
   playing,
   speed = 1,
+  loop = true,
   onFrameChange,
   onPlayPause,
   onSpeedChange,
+  onLoopToggle,
 }: PlotAreaProps) {
+  const currentTime = evolveResult?.times[currentFrame] ?? 0
   const [copied, setCopied] = useState(false)
   const [showPhase, setShowPhase] = useState(false)
   const [showClassical, setShowClassical] = useState(false)
@@ -293,10 +298,11 @@ export function PlotArea({
         eigenResult={eigenResult}
         evolveResult={evolveResult}
         potentialPreset={potentialPreset}
+        currentTime={currentTime}
       />
 
       {mode === 'time-evolution' && (
-        <ExpectationValuesPlot evolveResult={evolveResult} />
+        <ExpectationValuesPlot evolveResult={evolveResult} currentTime={currentTime} />
       )}
 
       {mode === 'time-evolution' && evolveResult && (
@@ -304,11 +310,13 @@ export function PlotArea({
           nFrames={evolveResult.prob_frames.length}
           currentFrame={currentFrame}
           playing={playing}
-          currentTime={evolveResult.times[currentFrame] ?? 0}
+          currentTime={currentTime}
           onFrameChange={onFrameChange}
           onPlayPause={onPlayPause}
           onSpeedChange={onSpeedChange}
           speed={speed}
+          loop={loop}
+          onLoopToggle={onLoopToggle}
         />
       )}
 
