@@ -40,6 +40,37 @@ Ordered by priority within each group.
 Currently there is no keyboard control; students step through frames frequently
 during analysis.
 
+**`requestAnimationFrame` for animation loop** (time-evolution mode)
+Replace the current `setInterval`-based loop in App.tsx with
+`requestAnimationFrame`. Locks frame advances to the monitor refresh rate
+(60 fps), eliminates timer drift and stutter, and auto-pauses when the tab
+is hidden. ~10-line change with no backend impact.
+
+**Time cursor on expectation-value and norm plots** (time-evolution mode)
+While the animation plays, draw a vertical dashed line at current `t` on the
+`ExpectationValuesPlot` and the norm-history `SecondaryPlot`. Visually connects
+the animated wavepacket to the static time-series panels — students can see
+exactly when Δx starts growing or when ⟨x⟩ turns around. Purely frontend;
+`times[currentFrame]` is already available.
+
+**⟨x⟩ position marker on main |ψ|² plot** (time-evolution mode)
+Overlay a vertical dashed line at `expect_x[currentFrame]` on the main
+wavepacket plot. Shows the probability-weighted centroid separate from the
+packet envelope — makes Ehrenfest's theorem (centroid follows Newton's law)
+directly visible without any extra computation. All data already in
+`EvolveResponse`.
+
+**Loop / Stop toggle for animation** (time-evolution mode)
+Currently the animation wraps silently at the last frame. Add a toggle so
+students can choose "Loop" (current behaviour) or "Stop at end", which is more
+useful when studying a single tunneling event or a dispersion run from start to
+finish.
+
+**0.25× slow-motion speed option** (time-evolution mode)
+The speed selector currently bottoms out at 0.5×. Adding 0.25× lets students
+watch fast tunneling events or rapid phase oscillations frame-by-frame without
+using the scrubber.
+
 **Phase of Bloch vector as a clock** (spin Precession tab) — ✅ done 2026-05-03
 φ(t) clock dial inset sits beside the Play/Reset buttons. Hand sweeps live
 during animation; label shows φ in degrees and current ω₀.
@@ -68,6 +99,25 @@ Two sub-features sharing the same pedagogical theme (correspondence principle):
   and the phase velocity v_ph = ω/k. A short label or dashed tangent line on the
   ⟨x(t)⟩ expectation-value subplot makes the distinction concrete without any
   new computation — ⟨x(t)⟩ and ⟨p(t)⟩ are already returned by the backend.
+
+**Ehrenfest theorem: classical trajectory overlay** (time-evolution mode)
+Overlay the classical trajectory x_cl(t) on the `⟨x(t)⟩` expectation-value
+subplot. For the harmonic oscillator x_cl(t) = x₀cos(ωt) + (p₀/ω)sin(ωt);
+for a general potential it can be integrated from Newton's law using the
+initial ⟨x⟩ and ⟨p⟩. Demonstrates Ehrenfest's theorem directly: the quantum
+centroid tracks the classical path exactly for a coherent state and diverges
+for anharmonic or strongly dispersive potentials. `expect_x[0]` and
+`expect_p[0]` are already in `EvolveResponse`; ω comes from the potential
+slider. Purely frontend for the HO case.
+
+**Quantum revival / autocorrelation |⟨ψ(0)|ψ(t)⟩|²** (time-evolution mode)
+The autocorrelation function measures how much the state at time t overlaps
+with the initial state. For an ISW packet it drops to near zero then revives
+periodically at the revival time T_rev = 4mL²/πħ — a striking all-quantum
+effect with no classical analogue. Computable entirely from `re_frames`,
+`im_frames`, and the initial wavefunction (already available as
+`re_frames[0]`, `im_frames[0]`); one dot-product per frame. Displayed as a
+new line in the SecondaryPlot or a dedicated small panel.
 
 **Transmission coefficient for tunneling** (time-evolution mode)
 After the wavepacket has passed a barrier or step potential, compute the
