@@ -21,7 +21,8 @@
 
 | Priority | Item | Effort | JOSS value |
 |----------|------|--------|-----------|
-| 1 | Classical comparison overlays (HO + wave packet) | 1–2 days | High |
+| ✅ | Classical overlay — stationary mode P_cl(x) | done 2026-05-03 | High |
+| 1 | Wave packet group vs. phase velocity (time-evolution) | 1 day | High |
 | 2 | Preset labs — 3 experiments using existing solvers | 3–5 days | Very high |
 | 3 | Eigenstate decomposition chart | 2 days | Medium |
 | 4 | 2D solver | 3–4 weeks | Very high — defer |
@@ -40,33 +41,33 @@ Ordered by priority within each group.
 Currently there is no keyboard control; students step through frames frequently
 during analysis.
 
-**`requestAnimationFrame` for animation loop** (time-evolution mode)
+**`requestAnimationFrame` for animation loop** (time-evolution mode) — ✅ done 2026-05-03
 Replace the current `setInterval`-based loop in App.tsx with
 `requestAnimationFrame`. Locks frame advances to the monitor refresh rate
 (60 fps), eliminates timer drift and stutter, and auto-pauses when the tab
 is hidden. ~10-line change with no backend impact.
 
-**Time cursor on expectation-value and norm plots** (time-evolution mode)
+**Time cursor on expectation-value and norm plots** (time-evolution mode) — ✅ done 2026-05-03
 While the animation plays, draw a vertical dashed line at current `t` on the
 `ExpectationValuesPlot` and the norm-history `SecondaryPlot`. Visually connects
 the animated wavepacket to the static time-series panels — students can see
 exactly when Δx starts growing or when ⟨x⟩ turns around. Purely frontend;
 `times[currentFrame]` is already available.
 
-**⟨x⟩ position marker on main |ψ|² plot** (time-evolution mode)
+**⟨x⟩ position marker on main |ψ|² plot** (time-evolution mode) — ✅ done 2026-05-03
 Overlay a vertical dashed line at `expect_x[currentFrame]` on the main
 wavepacket plot. Shows the probability-weighted centroid separate from the
 packet envelope — makes Ehrenfest's theorem (centroid follows Newton's law)
 directly visible without any extra computation. All data already in
 `EvolveResponse`.
 
-**Loop / Stop toggle for animation** (time-evolution mode)
+**Loop / Stop toggle for animation** (time-evolution mode) — ✅ done 2026-05-03
 Currently the animation wraps silently at the last frame. Add a toggle so
 students can choose "Loop" (current behaviour) or "Stop at end", which is more
 useful when studying a single tunneling event or a dispersion run from start to
 finish.
 
-**0.25× slow-motion speed option** (time-evolution mode)
+**0.25× slow-motion speed option** (time-evolution mode) — ✅ done 2026-05-03
 The speed selector currently bottoms out at 0.5×. Adding 0.25× lets students
 watch fast tunneling events or rapid phase oscillations frame-by-frame without
 using the scrubber.
@@ -90,10 +91,9 @@ builder — high UI cost for marginal gain; the bar chart alone delivers the val
 **Classical vs. quantum comparison** (stationary mode + time-evolution mode) — *Priority 1*
 Two sub-features sharing the same pedagogical theme (correspondence principle):
 
-- *Harmonic oscillator classical overlay* — overlay P_cl(x) = 1/(π√(A²−x²)) on
-  the stationary-mode |ψₙ|² plot. Classical turning point A follows directly from
-  the eigenenergy: A = √(2E/ω²). Toggle checkbox; purely frontend, ~10 lines of
-  backend.
+- *Harmonic oscillator classical overlay* — ✅ done 2026-05-03. P_cl(x) dotted overlay
+  on the stationary-mode wavefunction plot. Toggle checkbox with explanatory note.
+  Works for any potential, not just HO.
 - *Wave packet group vs. phase velocity* (time-evolution mode) — annotate the
   animated wave packet with the group velocity v_g = ∂ω/∂k ≈ k₀ (slope of ⟨x(t)⟩)
   and the phase velocity v_ph = ω/k. A short label or dashed tangent line on the

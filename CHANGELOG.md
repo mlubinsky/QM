@@ -4,6 +4,55 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Improved (2026-05-03) — Time-evolution animation: five quick-win UX improvements
+
+- **`requestAnimationFrame` loop** (`App.tsx`): Replaced the `setInterval`-based animation
+  loop with a timestamp-driven `requestAnimationFrame` loop. Frame advances are locked to the
+  monitor refresh rate (60 fps), eliminating timer drift and stutter. The loop auto-pauses
+  when the browser tab is hidden. A `loopRef` lets the callback read the latest loop flag
+  without being listed as a React dependency.
+- **⟨x⟩ position marker** (`MainPlot.tsx`): A red dashed vertical line is drawn at
+  `expect_x[currentFrame]` on the `|ψ(x,t)|²` plot at every frame, showing the probability
+  centroid moving through the wavepacket envelope.
+- **Time cursor on secondary plots** (`SecondaryPlot.tsx`, `ExpectationValuesPlot.tsx`):
+  A dotted vertical line tracks the current animation time `t` on both the norm-history plot
+  and the two-panel expectation-value plot. The expectation-value panel uses Plotly's
+  `yref: 'y domain'` / `yref: 'y2 domain'` to span each subplot independently.
+- **Loop / Stop toggle** (`AnimationControls.tsx`, `App.tsx`): A "Loop" checkbox in the
+  animation controls; when unchecked the animation stops at the last frame rather than
+  wrapping to frame 0. Defaults to checked (original behaviour preserved).
+- **0.25× slow-motion speed** (`AnimationControls.tsx`): Added `0.25x` option to the speed
+  selector for close study of fast tunneling or phase oscillation events.
+
+---
+
+### Added (2026-05-03) — Classical probability overlay in stationary mode
+
+- **`classicalProbabilityDensity` utility** (`frontend/src/utils/classicalMechanics.ts`):
+  Pure function computing P_cl(x) ∝ 1/√(2(E−V(x))) in the classically allowed region,
+  normalised so ∫P_cl dx = 1. Returns all zeros when no classically allowed region exists.
+- **"Show classical P(x)" checkbox** (`PlotArea.tsx`): Toggle visible only in stationary mode.
+  When checked, one dotted P_cl trace per eigenstate is added to the main wavefunction plot,
+  scaled so its 90th-percentile matches max(|ψₙ|²). Includes a brief explanatory note about
+  the correspondence principle.
+- **`MainPlot.tsx`**: `showClassical` prop; classical traces share the Plotly colour cycle
+  with their companion ψₙ trace (dotted, 60% opacity).
+- **Spec** (`specs/21-classical-overlay.md`) and 15 new tests (TDD) covering normalisation,
+  classically-forbidden zeros, HO analytic comparison, ISW uniformity, and UI checkbox state.
+
+---
+
+### Added (2026-05-03) — One-command startup scripts
+
+- **`run.sh`** (Mac / Linux): Creates/reuses `backend/.venv`, installs Python deps, starts
+  uvicorn in the background, then starts `npm run dev`. `Ctrl+C` cleanly kills both processes.
+- **`run.bat`** (Windows): Equivalent using `start "name" cmd /k ...` to open two labelled
+  console windows.
+- **README.md**: Quick Start collapsed to four lines (`git clone` + `./run.sh` / `run.bat`);
+  original manual steps preserved in a `<details>` block.
+
+---
+
 ### Added (2026-05-03) — Spin: φ(t) clock dial in Precession panel
 
 - **φ clock dial** (`PrecessionControls.tsx`): A small SVG clock inset sits beside the Play/Reset buttons. The orange hand sweeps the azimuthal angle φ in real time during Larmor precession, with +x/+y/−x/−y tick labels and a live `φ = X°` readout. Makes the precession rate ω₀ visible at a glance without reading the frame counter.
