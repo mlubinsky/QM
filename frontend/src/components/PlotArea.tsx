@@ -268,10 +268,6 @@ export function PlotArea({
       )}
 
       {/* Zero-height row — positions ? button over the plot top-right without consuming flex space */}
-      {mode === 'time-evolution' && (
-        <EnergyDecompositionPlot evolveResult={evolveResult} />
-      )}
-
       {mode === 'stationary' && (
         <div style={{ height: 0, position: 'relative', overflow: 'visible' }}>
           <button
@@ -296,6 +292,10 @@ export function PlotArea({
 
       {mode === 'time-evolution' && (
         <CurrentPlot evolveResult={evolveResult} currentFrame={currentFrame} />
+      )}
+
+      {mode === 'time-evolution' && (
+        <EnergyDecompositionPlot evolveResult={evolveResult} />
       )}
 
       <SecondaryPlot

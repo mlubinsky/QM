@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed (2026-05-03) — Energy decomposition bar chart layout and text colour
+
+- Moved bar chart below the main |ψ(x,t)|² plot (was above it, sandwiched between
+  the Norm display and the Re/Im toggle).
+- Removed hardcoded light-grey colour (`#bbb`) from the "Energy decomposition |cₙ|²"
+  label; text now inherits the page colour and is readable on white backgrounds.
+
 ### Added (2026-05-03) — Energy decomposition bar chart (time-evolution mode)
 
 - **Backend** (`router.py`): `/schrodinger1d/solve/evolve` now returns two new fields:

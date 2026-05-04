@@ -59,14 +59,14 @@ export function EnergyDecompositionPlot({ evolveResult }: Props) {
   return (
     <div style={{ position: 'relative', marginBottom: '0.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-        <span style={{ fontSize: '0.85rem', color: '#bbb' }}>Energy decomposition |cₙ|²</span>
+        <span style={{ fontSize: '0.85rem' }}>Energy decomposition |cₙ|²</span>
         <button
           aria-label="Energy decomposition info"
           title="What is energy decomposition?"
           onClick={() => setShowInfo(true)}
           style={{
-            background: 'none', border: '1px solid #555', borderRadius: '50%',
-            color: '#aaa', cursor: 'pointer', fontSize: '0.75rem',
+            background: 'none', border: '1px solid #888', borderRadius: '50%',
+            color: 'inherit', cursor: 'pointer', fontSize: '0.75rem',
             width: 20, height: 20, lineHeight: '18px', padding: 0, textAlign: 'center',
           }}
         >?</button>
