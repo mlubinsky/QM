@@ -9,6 +9,7 @@ import { ExactSolutionPanel } from './ExactSolutionPanel'
 import { ExpectationValuesPlot } from './ExpectationValuesPlot'
 import { MomentumPlot } from './MomentumPlot'
 import { CurrentPlot } from './CurrentPlot'
+import { EnergyDecompositionPlot } from './EnergyDecompositionPlot'
 import { downloadFile, buildCsv } from '../utils/export'
 import type { EigensolveResponse, EvolveResponse, AppMode } from '../types/api'
 
@@ -267,6 +268,10 @@ export function PlotArea({
       )}
 
       {/* Zero-height row — positions ? button over the plot top-right without consuming flex space */}
+      {mode === 'time-evolution' && (
+        <EnergyDecompositionPlot evolveResult={evolveResult} />
+      )}
+
       {mode === 'stationary' && (
         <div style={{ height: 0, position: 'relative', overflow: 'visible' }}>
           <button

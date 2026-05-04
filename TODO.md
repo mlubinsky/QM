@@ -24,7 +24,7 @@
 | ✅ | Classical overlay — stationary mode P_cl(x) | done 2026-05-03 | High |
 | 1 | Wave packet group vs. phase velocity (time-evolution) | 1 day | High |
 | 2 | Preset labs — 3 experiments using existing solvers | 3–5 days | Very high |
-| 3 | Eigenstate decomposition chart | 2 days | Medium |
+| ✅ | Eigenstate decomposition chart | done 2026-05-03 | Medium |
 | 4 | 2D solver | 3–4 weeks | Very high — defer |
 
 ---
@@ -80,13 +80,10 @@ during animation; label shows φ in degrees and current ω₀.
 
 #### High educational value, moderate cost
 
-**Eigenstate decomposition display** (time-evolution mode) — *Priority 3*
-When a Gaussian packet or custom superposition is initialized, compute and
-display the energy decomposition |⟨ψₙ|ψ(0)⟩|² as a bar chart before running
-time evolution. Answers "which energy eigenstates am I exciting?" and makes
-the connection between the wavepacket and the energy eigenbasis explicit.
-Small backend addition; frontend bar chart. (Skip drag-and-drop superposition
-builder — high UI cost for marginal gain; the bar chart alone delivers the value.)
+**Eigenstate decomposition display** (time-evolution mode) — ✅ done 2026-05-03
+Bar chart of |cₙ|² = |⟨ψₙ|ψ(0)⟩|², with hover showing Eₙ and beating period.
+KaTeX info panel explains eigenbasis expansion, Bohr frequencies, and interference.
+Backend adds `decomp_energies` and `decomp_weights` to `EvolveResponse`.
 
 **Classical vs. quantum comparison** (stationary mode + time-evolution mode) — *Priority 1*
 Two sub-features sharing the same pedagogical theme (correspondence principle):

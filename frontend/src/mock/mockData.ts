@@ -67,4 +67,6 @@ export const mockEvolveResult: EvolveResponse = {
   delta_x_delta_p: Array.from({ length: nFrames }, () => 0.5),
   re_frames: Array.from({ length: nFrames }, () => gaussian(x, 0, 1).map(v => v / Math.sqrt(2))),
   im_frames: Array.from({ length: nFrames }, () => gaussian(x, 0, 1).map(v => v / Math.sqrt(2))),
+  decomp_energies: [0.5, 1.5, 2.5, 3.5, 4.5],
+  decomp_weights:  [0.60, 0.25, 0.10, 0.04, 0.01],
 }

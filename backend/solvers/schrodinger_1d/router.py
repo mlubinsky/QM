@@ -133,6 +133,8 @@ class EvolveResponse(BaseModel):
     delta_x: list[float]
     delta_p: list[float]
     delta_x_delta_p: list[float]
+    decomp_energies: list[float]    # Eₙ for each decomposition eigenstate
+    decomp_weights: list[float]     # |cₙ|² = |⟨ψₙ|ψ(0)⟩|², time-independent
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -211,9 +213,21 @@ def evolve_endpoint(req: EvolveRequest):
                 np.array(req.coefficients),
                 g.dx,
             )
+            decomp_eigen = eigen   # reuse — no extra solver call
         else:
             psi0 = gaussian_packet(g.x, g.dx, x0=req.gaussian_x0,
                                    sigma=req.gaussian_sigma, k0=req.gaussian_k0)
+            n_decomp = min(10, g.n // 10)
+            decomp_eigen = solve_eigenstates(H, g.x, g.dx, k=n_decomp)
+
+        # Energy decomposition: cₙ = ⟨ψₙ|ψ₀⟩  (time-independent weights)
+        cn = np.array([
+            np.sum(np.conj(wf) * psi0) * g.dx
+            for wf in decomp_eigen.wavefunctions
+        ])
+        decomp_energies = decomp_eigen.energies.tolist()
+        decomp_weights = (np.abs(cn) ** 2).tolist()
+
         result = evolve(H, psi0, g.x, g.dx,
                         dt=req.dt, n_steps=req.n_steps,
                         potential=V, save_every=req.save_every)
@@ -246,4 +260,6 @@ def evolve_endpoint(req: EvolveRequest):
         delta_x=result.delta_x.tolist(),
         delta_p=result.delta_p.tolist(),
         delta_x_delta_p=result.delta_x_delta_p.tolist(),
+        decomp_energies=decomp_energies,
+        decomp_weights=decomp_weights,
     )

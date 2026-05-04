@@ -58,6 +58,8 @@ export interface EvolveResponse {
   delta_x: number[]           // Δx(t) at each frame
   delta_p: number[]           // Δp(t) at each frame
   delta_x_delta_p: number[]   // Δx·Δp at each frame
+  decomp_energies: number[]   // Eₙ for each eigenstate in decomposition
+  decomp_weights: number[]    // |cₙ|² = |⟨ψₙ|ψ(0)⟩|², time-independent
 }
 
 export type AppMode = 'stationary' | 'time-evolution' | 'hydrogenic' | 'spin'

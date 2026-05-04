@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added (2026-05-03) — Energy decomposition bar chart (time-evolution mode)
+
+- **Backend** (`router.py`): `/schrodinger1d/solve/evolve` now returns two new fields:
+  `decomp_energies` (Eₙ values) and `decomp_weights` (|cₙ|² = |⟨ψₙ|ψ(0)⟩|²) for the
+  lowest 10 eigenstates. For `superposition` initial states the already-computed eigenstates
+  are reused; for `gaussian` a separate ARPACK solve runs for `min(10, n//10)` states.
+  Weights are time-independent (energy conservation).
+- **`EnergyDecompositionPlot.tsx`**: Plotly bar chart showing |cₙ|² per eigenstate.
+  Hover text shows Eₙ and the beating period T = 2π/|Eₙ − E₁| for n > 1. An annotation
+  displays the total captured weight Σ|cₙ|².
+- **`EnergyDecompositionInfoPanel.tsx`**: KaTeX physics explainer covering eigenbasis
+  expansion, time-independent weights, Bohr frequencies, and interference cross terms.
+  Accessible via the `?` button in the bar chart header.
+- **`PlotArea.tsx`**: Bar chart rendered in time-evolution mode, above the main |ψ|² plot.
+
 ### Improved (2026-05-03) — Time-evolution animation: five quick-win UX improvements
 
 - **`requestAnimationFrame` loop** (`App.tsx`): Replaced the `setInterval`-based animation
