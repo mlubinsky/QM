@@ -328,3 +328,37 @@ relations — no external math library needed for those.
 High feasibility. The features most worth animating analytically (coherent states,
 wavepacket spreading, quantum revivals, Rabi oscillations, tunneling coefficients)
 all fit comfortably in a browser with no backend.
+
+## When and how to create the GitHub repository
+
+### Not yet — wait for a first commit
+
+Creating the repo before any code exists means it sits empty while scope is decided.
+An empty repo with just a README adds no value. The right moment is when you have a
+meaningful first commit ready.
+
+**Suggested sequence:**
+1. Decide MVP scope — pick 2-3 features from the prioritised shortlist (suggested:
+   ISW superposition + HO coherent state + spin-½ Bloch sphere: covers 1D/3D/spin,
+   all low-effort, immediate visual payoff)
+2. Scaffold locally: `npm create vite`, add `mathjs`, set up Three.js
+3. Implement the first feature end-to-end
+4. Create the GitHub repo with that first commit
+
+### On the name
+
+GitHub convention is dashes, not underscores, so `qm_in_browser` → `qm-in-browser`.
+But the name is also generic — it doesn't convey the analytical / exact-solutions angle
+which is the project's real differentiator.
+
+| Name | Notes |
+|---|---|
+| `qm-in-browser` | Accurate, descriptive, generic |
+| `quantum-explorer` | Matches "primary user is an explorer" framing from CLAUDE.md |
+| `exact-qm` | Highlights the analytical angle clearly |
+| `analytical-qm` | Same |
+| `qm-exact` | Short and clear |
+
+**Recommended: `quantum-explorer`** — matches the explorer primary-user framing,
+is memorable, and doesn't over-constrain scope as the project grows beyond 1D
+wavefunctions into Bloch sphere, orbitals, and band structure.
