@@ -247,20 +247,70 @@ Neither feels like "heavy numerics" in the Crank-Nicolson sense.
 Note: the three excluded potentials are exactly the ones with no analytical solutions
 (see `docs/potentials.md`). This is not a coincidence.
 
-## What this buys over the current project
+## Advantages of pure in-browser over the current Python-backend project
 
-| Property | Current project | JS-only variant |
+### For users
+
+**Zero setup barrier** — a URL is the entire installation process. No Python, no virtual
+env, no `pip install`, no running a local server. Works on any device including tablets
+and phones. The current project requires a working Python environment just to try it.
+
+**Works offline** — once loaded, the page needs no network connection. Can be packaged
+as a PWA. The current project requires a live FastAPI server.
+
+**Real-time parameter response** — slider moves → result updates instantly, no HTTP
+round-trip. The current project has latency: browser → network → Python → network →
+browser, even on localhost.
+
+### For results
+
+**Exact, not approximate** — for analytically solvable cases the JS implementation gives
+exact eigenvalues, exact expectation values, exact transition probabilities. The current
+project gives Crank-Nicolson approximations with discretisation error. This is a genuine
+scientific advantage for the covered potentials.
+
+### For deployment and cost
+
+**Free, zero-maintenance hosting** — GitHub Pages or Netlify serves a static site
+indefinitely at no cost. The current project needs a server running Python, which costs
+money and requires maintenance, patching, and uptime monitoring.
+
+**Infinite scaling** — each user's browser does its own computation. No server load
+regardless of concurrent users. The current project scales linearly with users.
+
+### For the JOSS publication goal
+
+**Reviewers can run it in 5 seconds** — paste URL, open browser. No reviewer will
+abandon a review because of a broken Python environment. This is a real friction point
+for scientific software.
+
+**Long-term availability** — static sites on GitHub Pages persist as long as the repo
+exists. Servers get decommissioned, domains expire, Docker images bitrot.
+
+### For contributors
+
+**Simpler stack** — contributors only need TypeScript knowledge, not Python + FastAPI +
+async + CORS. No backend API to version or document. CI/CD is just "build and deploy
+static files."
+
+### Summary table
+
+| Property | Current project | Pure-JS variant |
 |---|---|---|
-| Backend | FastAPI + Python | None |
-| Deployment | Server required | Static site (GitHub Pages, Netlify) |
-| Potentials | 7 (including non-analytical) | ~6 analytical only |
-| Observables | Numerical approximation | Exact closed-form |
-| Time evolution | Crank-Nicolson (general) | Analytical formulas only |
-| Pedagogy | General solver | Exact-physics explorer |
+| Setup for user | Install Python + run server | Open a URL |
+| Results | Numerical approximation | Exact (for covered cases) |
+| Potentials covered | Any (7 built-in) | ~15 analytical only |
+| Deployment cost | Server required | Free static hosting |
+| Parameter interactivity | HTTP round-trip | Instant |
+| Offline use | No | Yes |
+| Contributor barrier | JS/TS + Python | JS/TS only |
+| JOSS reviewer friction | High | Minimal |
 
-The two projects are complementary: this project is better for the analytically solvable
-cases (exact expectation values, exact revival times, exact tunneling coefficients);
-the current project handles the cases where numerics are unavoidable.
+### These projects are not in competition
+
+The current project handles cases with no analytical solution (double well, Gaussian
+barrier, arbitrary initial states on any potential). The pure-JS variant is strictly
+better for the subset of physics it can cover. They serve different needs.
 
 ## Recommended stack
 
